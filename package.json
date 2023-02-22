@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "displayName": "Lithium UI",
   "description": "Reactive UI library designed for editor tools creation.",
-  "unity": "2021.1",
+  "unity": "2022.1",
   "keywords": [
     "ui", "lithium", "reactive", "ui-toolkit"
   ],
