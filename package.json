@@ -1,0 +1,17 @@
+{
+  "name": "niikelion.ui.lithium",
+  "version": "0.0.1",
+  "displayName": "Lithium UI",
+  "description": "Reactive UI library designed for editor tools creation.",
+  "unity": "2021.1",
+  "keywords": [
+    "ui", "lithium", "reactive", "ui-toolkit"
+  ],
+  "author": {
+    "name": "Michał Osiński",
+    "email": "nicraft@tlen.pl"
+  },
+  "publishConfig": {
+    "registry": "https://package.openupm.com"
+  }
+}
