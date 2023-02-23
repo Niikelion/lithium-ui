@@ -1,4 +1,5 @@
-﻿using UI.Li.Common.Units;
+﻿using Codice.Client.Common.TreeGrouper;
+using UI.Li.Common.Units;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace UI.Li.Editor.Debugging
 {
     public class DebuggerWindow: ComposableWindow
     {
-        [MenuItem("Composables/Debugger")]
+        [MenuItem("Lithium/Debugger")]
         public static void ShowJsonWindow()
         {
             EditorWindow wnd = GetWindow<DebuggerWindow>();
@@ -28,6 +29,7 @@ namespace UI.Li.Editor.Debugging
             var selectedContext = ctx.Remember<CompositionContext>(null);
 
             var instances = ctx.RememberF(GetInstances);
+            var selectedNode = ctx.Remember(-1);
 
             ctx.OnInit(() =>
             {
@@ -59,10 +61,22 @@ namespace UI.Li.Editor.Debugging
                     }
                 );
 
+            var content = new IComposition[hierarchy.Length];
+
+            int nodeId = 1;
+
+            void OnNodeSelected(int id)
+            {
+                selectedNode.Value = id;
+            }
+            
+            for (int i = 0; i < content.Length; ++i)
+                content[i] = CU.WithId(nodeId,  CU.Box(RenderNode(hierarchy[i], ref nodeId, OnNodeSelected)));
+            
             IComposition DisplayHierarchy() =>
                 CU.Flex(
                     direction: FlexDirection.Column,
-                    content: hierarchy.Select(RenderNode)
+                    content: content
                 );
 
             IComposition Content() =>
@@ -77,15 +91,39 @@ namespace UI.Li.Editor.Debugging
         
         private static IComposition RenderNoPanel() => CU.Text("No panel selected.", new(flexGrow: 1));
 
-        private static IComposition RenderNode(CompositionContext.CompositionNode node) =>
-            CU.Foldout(
+        private static IComposition RenderNode(CompositionContext.CompositionNode node, ref int id, Action<int> onSelect)
+        {
+            int currentId = id++;
+
+            string name = $"{node.Name}{(node.Id > 0 ? $" #{node.Id}" : "")}";
+            
+            var children = node.Children;
+            if (children.Count == 0)
+            {
+                return CU.WithId(1, CU.Text(
+                    name,
+                    data: new(flexGrow: 1)
+                ));
+            }
+
+            var content = new IComposition[ children.Count ];
+
+            int i = 0;
+            foreach (var child in children)
+            {
+                content[i] = RenderNode(child, ref id, onSelect);
+                ++i;
+            }
+                
+            return CU.WithId(2, CU.Foldout(
                 data: new(flexGrow: 1),
-                header: CU.Text(node.Name),
+                header: CU.Text(name, data: new( onClick: () => onSelect(currentId) )),
                 content: CU.Flex(
                     direction: FlexDirection.Column,
-                    data: new(padding: new(left: 20.Px()), flexGrow: 1),
-                    content: node.Children.Select(RenderNode)
+                    data: new(padding: new(left: 2.Px()), flexGrow: 1),
+                    content: content
                 )
-            );
+            ));
+        }
     }
 }

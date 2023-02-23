@@ -11,6 +11,7 @@ namespace UI.Li.Utils
     public class LeafComposition: IComposition
     {
         public event Action<VisualElement> OnRender;
+        public event Action<CompositionContext> OnBeforeRecompose;
         
         [NotNull] private readonly Func<VisualElement, VisualElement> renderer;
         private readonly bool usesCache;
@@ -41,6 +42,8 @@ namespace UI.Li.Utils
 
         public void Recompose(CompositionContext context)
         {
+            OnBeforeRecompose?.Invoke(context);
+            
             if (!usesCache)
             {
                 context.SetNextEntryId();

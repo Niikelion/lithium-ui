@@ -46,7 +46,7 @@ namespace UI.Li
             Reorder
         }
         
-        private struct Frame: IDisposable
+        private readonly struct Frame: IDisposable
         {
             public class FrameEntry: IDisposable
             {
@@ -78,7 +78,7 @@ namespace UI.Li
             public class FrameCallback: IDisposable
             {
                 public readonly Func<Action> OnUpdate;
-                public Action OnDispose;
+                public readonly Action OnDispose;
                 
                 public void Dispose() => OnDispose?.Invoke();
 
@@ -137,13 +137,17 @@ namespace UI.Li
 #if UNITY_EDITOR // for reference listing
         public class CompositionNode
         {
-            public readonly string Name;
-            public readonly ReadOnlyCollection<IMutableValue> Values;
-            public readonly ReadOnlyCollection<CompositionNode> Children;
+            [PublicAPI] public readonly string Name;
+            [PublicAPI] public readonly IComposition Composition;
+            [PublicAPI] public readonly int Id;
+            [PublicAPI] public readonly ReadOnlyCollection<IMutableValue> Values;
+            [PublicAPI] public readonly ReadOnlyCollection<CompositionNode> Children;
 
-            public CompositionNode(string name, List<IMutableValue> values, List<CompositionNode> children)
+            public CompositionNode(string name, IComposition composition, int id, List<IMutableValue> values, List<CompositionNode> children)
             {
                 Name = name;
+                Composition = composition;
+                Id = id;
                 Values = values.AsReadOnly();
                 Children = children.AsReadOnly();
             }
@@ -152,18 +156,22 @@ namespace UI.Li
         private class TmpNode
         {
             private readonly string name;
+            private readonly IComposition composition;
+            private readonly int id;
             private readonly List<IMutableValue> values = new();
             private readonly List<TmpNode> children = new ();
 
-            public TmpNode(string name)
+            public TmpNode(string name, IComposition composition, int id)
             {
                 this.name = name;
+                this.composition = composition;
+                this.id = id;
             }
 
             public void AddValue(IMutableValue value) => values.Add(value);
             public void AddChild(TmpNode child) => children.Add(child);
 
-            public CompositionNode GetNode() => new CompositionNode(name, values, children.Select(n => n.GetNode()).ToList());
+            public CompositionNode GetNode() => new CompositionNode(name, composition, id, values, children.Select(n => n.GetNode()).ToList());
         }
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
@@ -266,8 +274,10 @@ namespace UI.Li
         public VisualElement StartFrame([NotNull] IComposition composition, RecompositionStrategy strategy = RecompositionStrategy.Override)
         {
             int currentNestingLevel = entryStack.TryPeek(out var lastEntry) ? lastEntry.NestingLevel + 1 : 0;
+
+            int currentEntryId = nextEntryId;
             
-            isFirstRender = SetupFrame(nextEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering);
+            isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering);
             nextEntryPreventOverride = false;
             nextEntryId = 0;
 
@@ -278,7 +288,7 @@ namespace UI.Li
             if (isFirstRender)
             {
                 InsertAtPointer(new Frame(
-                    entryId: nextEntryId,
+                    entryId: currentEntryId,
                     nestingLevel: currentNestingLevel,
                     composition: composition
                 ));
@@ -503,12 +513,12 @@ namespace UI.Li
 
                 framePointer = i;
                 nextEntryPreventOverride = true;
+                var oldRender = entry.PreviouslyRendered;
+                
                 SetNextEntryId(entry.Id);
                 entry.Composition.Recompose(this);
                 nextEntryPreventOverride = false;
                 i = framePointer;
-
-                var oldRender = entry.PreviouslyRendered;
                 
                 var newRender = entry.Composition.Render();
                 
@@ -563,7 +573,7 @@ namespace UI.Li
                             }
 
                             localEntryStack.Push(entry);
-                            nodeStack.Push(new TmpNode(entry.Composition.GetType().Name));
+                            nodeStack.Push(new TmpNode(entry.Composition.GetType().Name, entry.Composition, entry.Id));
                             
                             break;
                         }

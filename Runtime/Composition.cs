@@ -10,6 +10,7 @@ namespace UI.Li
     [PublicAPI] public class Composition: IComposition
     {
         public event Action<VisualElement> OnRender;
+        public event Action<CompositionContext> OnBeforeRecompose;
         
         [NotNull] private readonly Func<CompositionContext, IComposition> composer;
         private readonly bool isStatic;
@@ -38,6 +39,7 @@ namespace UI.Li
 
         public void Recompose(CompositionContext context)
         {
+            OnBeforeRecompose?.Invoke(context);
             context.StartFrame(this);
             innerComposition = composer(context);
             if (isStatic)

@@ -37,7 +37,7 @@ namespace UI.Li.Common
 
         protected override VisualElement GetElement(VisualElement source)
         {
-            var element = Use<UnityEngine.UIElements.Button>(source);
+            var element = Use<UnityEngine.UIElements.Button>(source, true);
 
             element.clicked -= onClick;
             element.clicked += onClick;

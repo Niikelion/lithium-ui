@@ -57,6 +57,7 @@ namespace UI.Li.Common
                 public EventCallback<KeyUpEvent> OnKeyUp;
                 public EventCallback<BlurEvent> OnBlur;
                 public EventCallback<FocusEvent> OnFocus;
+                public Action<MeshGenerationContext> OnRepaint;
 
                 /// <summary>
                 /// Registers every non-null event handler for given element.
@@ -71,6 +72,8 @@ namespace UI.Li.Common
                     OnKeyUp?.Run(Attach);
                     OnBlur?.Run(Attach);
                     OnFocus?.Run(Attach);
+
+                    element.generateVisualContent += OnRepaint;
                 }
                 
                 /// <summary>
@@ -86,6 +89,8 @@ namespace UI.Li.Common
                     OnKeyUp?.Run(Detach);
                     OnBlur?.Run(Detach);
                     OnFocus?.Run(Detach);
+
+                    element.generateVisualContent -= OnRepaint;
                 }
             }
             
@@ -143,6 +148,7 @@ namespace UI.Li.Common
             private readonly Action<SyntheticKeyEvent> onKeyUp;
             private readonly Action onBlur;
             private readonly Action onFocus;
+            private readonly Action<MeshGenerationContext> onRepaint;
             #endregion
 
             [PublicAPI] public Data(
@@ -165,13 +171,14 @@ namespace UI.Li.Common
                 StyleColor? color = null,
                 StyleColor? backgroundColor = null,
                 StyleBackground? backgroundImage = null,
+                Frame padding = new(),
+                Frame margin = new(),
                 Action onClick = null,
                 Action<SyntheticKeyEvent> onKeyDown = null,
                 Action<SyntheticKeyEvent> onKeyUp = null,
                 Action onBlur = null,
                 Action onFocus = null,
-                Frame padding = new(),
-                Frame margin = new()
+                Action<MeshGenerationContext> onRepaint = null
             )
             {
                 this.name = name;
@@ -193,13 +200,14 @@ namespace UI.Li.Common
                 this.color = color;
                 this.backgroundColor = backgroundColor;
                 this.backgroundImage = backgroundImage;
+                this.padding = padding;
+                this.margin = margin;
                 this.onClick = onClick;
                 this.onKeyDown = onKeyDown;
                 this.onKeyUp = onKeyUp;
                 this.onBlur = onBlur;
                 this.onFocus = onFocus;
-                this.padding = padding;
-                this.margin = margin;
+                this.onRepaint = onRepaint;
             }
 
             public readonly Events Apply(VisualElement element)
@@ -253,6 +261,7 @@ namespace UI.Li.Common
                 var onKeyUpCallback = onKeyUp;
                 var onBlurCallback = onBlur;
                 var onFocusCallback = onFocus;
+                var onRepaintCallback = onRepaint;
 
                 var ret = new Events
                 {
@@ -278,7 +287,8 @@ namespace UI.Li.Common
                         ))
                         : null,
                     OnBlur = onBlurCallback != null ? _ => onBlurCallback() : null,
-                    OnFocus = onFocusCallback != null ? _ => onFocusCallback() : null
+                    OnFocus = onFocusCallback != null ? _ => onFocusCallback() : null,
+                    OnRepaint = onRepaintCallback
                 };
 
                 ret.Register(element);
@@ -288,6 +298,7 @@ namespace UI.Li.Common
         }
         
         public event Action<VisualElement> OnRender;
+        public event Action<CompositionContext> OnBeforeRecompose;
         
         /// <summary>
         /// Reference to previously rendered element.
@@ -328,6 +339,8 @@ namespace UI.Li.Common
 
         public void Recompose(CompositionContext context)
         {
+            OnBeforeRecompose?.Invoke(context);
+            
             PreviouslyRendered = context.StartFrame(this, RecompositionStrategy);
             
             OnState(context);
@@ -349,7 +362,9 @@ namespace UI.Li.Common
         /// <remarks>During render, <see cref="PreviouslyRendered"/> is passed to this function and return value is passed to <see cref="PrepareElement"/> to obtain render result. When overriding you don't need to call base implementation.</remarks>
         /// <param name="source">cached element</param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] protected virtual VisualElement GetElement([CanBeNull] VisualElement source) => source ?? new VisualElement();
+        [PublicAPI]
+        [NotNull]
+        protected virtual VisualElement GetElement([CanBeNull] VisualElement source) => Use<VisualElement>(source, true);
 
         /// <summary>
         /// Called every composition. Override it if you need to store anything in the state.
@@ -377,14 +392,18 @@ namespace UI.Li.Common
         /// Returns given element if it instance of given type, or new instance otherwise.
         /// </summary>
         /// <param name="source">some element, can be null</param>
+        /// <param name="clear">if true, clears all children if element is reused</param>
         /// <typeparam name="T">expected type</typeparam>
         /// <returns></returns>
-        [PublicAPI] [NotNull] protected T Use<T>([CanBeNull] VisualElement source) where T: VisualElement, new()
+        [PublicAPI] [NotNull] protected T Use<T>([CanBeNull] VisualElement source, bool clear = false) where T: VisualElement, new()
         {
-            if (source is T element)
-                return element;
+            if (source is not T element || element.GetType() != typeof(T)) return new T();
+            
+            if (clear)
+                element.Clear();
+            
+            return element;
 
-            return new T();
         }
     }
 }

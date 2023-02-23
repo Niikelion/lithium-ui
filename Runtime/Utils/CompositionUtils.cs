@@ -17,38 +17,6 @@ namespace UI.Li.Utils
     /// <remarks>Yeah, I know it's not pretty by we don't have functions outside classes soo...</remarks>
     public static class CompositionUtils
     {
-        // TODO: fix, Recompose from this class is not called updating context
-        private class IdWrapperComposition: IComposition
-        {
-            public event Action<VisualElement> OnRender;
-            
-            private readonly int id;
-            [NotNull] private readonly IComposition innerComposition;
-
-            public IdWrapperComposition(int id, [NotNull] IComposition composition)
-            {
-                this.id = id;
-                innerComposition = composition;
-                innerComposition.OnRender += FireOnRender;
-            }
-            
-            public void Dispose()
-            {
-                innerComposition.Dispose();
-                OnRender = null;
-            }
-
-            public VisualElement Render() => innerComposition.Render();
-
-            public void Recompose(CompositionContext context)
-            {
-                context.SetNextEntryId(id);
-                innerComposition.Recompose(context);
-            }
-
-            private void FireOnRender(VisualElement element) => OnRender?.Invoke(element);
-        }
-
         /// <summary>
         /// Returns given compositions with set id.
         /// </summary>
@@ -57,8 +25,12 @@ namespace UI.Li.Utils
         /// <param name="composition">composition to add id to</param>
         /// <returns></returns>
         [PublicAPI]
-        public static IComposition WithId(int id, IComposition composition) =>
-            new IdWrapperComposition(id, composition);
+        public static IComposition WithId(int id, IComposition composition)
+        {
+            composition.OnBeforeRecompose += ctx => ctx.SetNextEntryId(id);
+            
+            return composition;
+        }
 
         /// <summary>
         /// Utility for switching between static compositions.
@@ -176,18 +148,20 @@ namespace UI.Li.Utils
         public static IComposition Foldout(
             [NotNull] IComposition header,
             [NotNull] IComposition content,
-            bool initiallyOpen = true,
+            bool initiallyOpen = false,
+            bool nobToggleOnly = false,
             Element.Data data = new()
-        ) => Common.Foldout.V(header, content, initiallyOpen, data);
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
         
         [PublicAPI]
         [NotNull]
         public static IComposition Foldout(
             [NotNull] string header,
             [NotNull] IComposition content,
-            bool initiallyOpen = true,
+            bool initiallyOpen = false,
+            bool nobToggleOnly = false,
             Element.Data data = new()
-        ) => Common.Foldout.V(header, content, initiallyOpen, data);
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
     }
 
     /// <summary>

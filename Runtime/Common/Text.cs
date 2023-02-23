@@ -38,7 +38,7 @@ namespace UI.Li.Common
 
         protected override VisualElement GetElement(VisualElement source)
         {
-            var element = Use<Label>(source);
+            var element = Use<Label>(source, true);
             element.text = text;
 
             return element;

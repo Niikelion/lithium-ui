@@ -11,6 +11,7 @@ namespace UI.Li
     [PublicAPI] public interface IComposition: IDisposable
     {
         [PublicAPI] event Action<VisualElement> OnRender;
+        [PublicAPI] event Action<CompositionContext> OnBeforeRecompose;
 
         /// <summary>
         /// Renders given composition. Consecutive returned values should be treated as new versions of the same composition.
