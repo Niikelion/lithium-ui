@@ -39,10 +39,10 @@ namespace UI.Li.Common
         {
             var element = Use<UnityEngine.UIElements.Button>(source, true);
 
-            element.clicked -= onClick;
             element.clicked += onClick;
             
-            element.Clear();
+            AddCleanup(element, () => element.clicked -= onClick);
+            
             element.Add(content.Render());
             
             return element;
@@ -59,13 +59,5 @@ namespace UI.Li.Common
         }
 
         protected override void OnState(CompositionContext context) => content.Recompose(context);
-
-        public override void Dispose()
-        {
-            if (PreviouslyRendered is UnityEngine.UIElements.Button oldElement)
-                oldElement.clicked -= onClick;
-
-            base.Dispose();
-        }
     }
 }

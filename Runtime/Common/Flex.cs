@@ -54,7 +54,6 @@ namespace UI.Li.Common
 
             ret.style.flexDirection = new StyleEnum<FlexDirection>(direction);
 
-            ret.Clear();
             foreach (var child in content)
                 ret.Add(child.Render());
             

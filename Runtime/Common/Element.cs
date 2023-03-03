@@ -114,6 +114,8 @@ namespace UI.Li.Common
                     top: vertical,
                     bottom: vertical
                 ) { }
+
+                public Frame(StyleLength? size) : this(horizontal: size, vertical: size) { }
             }
             
             private readonly string name;
@@ -315,7 +317,6 @@ namespace UI.Li.Common
             CompositionContext.RecompositionStrategy.Override;
         
         private readonly Data data;
-        private Data.Events lingeringEvents;
 
         /// <summary>
         /// Constructs <see cref="Element"/> instance.
@@ -351,7 +352,7 @@ namespace UI.Li.Common
         public virtual void Dispose()
         {
             if (PreviouslyRendered != null)
-                lingeringEvents.Unregister(PreviouslyRendered);
+                CompositionContext.ElementUserData.CleanUp(PreviouslyRendered);
             PreviouslyRendered = null;
         }
 
@@ -381,11 +382,9 @@ namespace UI.Li.Common
         /// <returns>Returns element passed as <paramref name="target"/>.</returns>
         [PublicAPI] [NotNull] protected virtual VisualElement PrepareElement(VisualElement target)
         {
-            if (PreviouslyRendered != null)
-                lingeringEvents.Unregister(PreviouslyRendered);
-            
-            lingeringEvents = data.Apply(target);
-            return target;
+            var lingeringEvents = data.Apply(target);
+
+            return CompositionContext.ElementUserData.AppendCleanupAction(target, () => lingeringEvents.Unregister(target));
         }
 
         /// <summary>
@@ -405,5 +404,8 @@ namespace UI.Li.Common
             return element;
 
         }
+
+        [PublicAPI]
+        protected void AddCleanup(VisualElement element, Action onCleanup) => CompositionContext.ElementUserData.AppendCleanupAction(element, onCleanup);
     }
 }
