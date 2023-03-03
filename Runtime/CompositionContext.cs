@@ -46,6 +46,8 @@ namespace UI.Li
             Reorder
         }
         
+        [NotNull] public delegate T FactoryDelegate<out T>();
+        
         private readonly struct Frame: IDisposable
         {
             public class FrameEntry: IDisposable
@@ -250,7 +252,7 @@ namespace UI.Li
         /// </code>
         /// </example>
         /// <returns>Batch scope guard</returns>
-        [PublicAPI] public BatchScope BatchOperations() => new(this);
+        [PublicAPI] public BatchScope BatchOperations() => new (this);
         
         /// <summary>
         /// Sets composition entry id for next recomposition. 
@@ -404,7 +406,8 @@ namespace UI.Li
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public T Use<T>([NotNull] Func<T> factory) where T : class, IMutableValue
+        [NotNull]
+        public T Use<T>([NotNull] FactoryDelegate<T> factory) where T : class, IMutableValue
         {
             Debug.Assert(factory != null);
 
@@ -433,7 +436,7 @@ namespace UI.Li
             if (frame.Type != Frame.FrameType.Field)
                 throw new InvalidOperationException("Invalid layout");
 
-            return frame.Field as T;
+            return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
         }
 
         /// <summary>
@@ -445,6 +448,7 @@ namespace UI.Li
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
+        [NotNull]
         public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new MutableValue<T>(value) : null);
 
         /// <summary>
@@ -456,13 +460,38 @@ namespace UI.Li
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public MutableValue<T> RememberF<T>([NotNull] Func<T> factory) => Use(() => new MutableValue<T>(factory()));
+        [NotNull]
+        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new MutableValue<T>(factory()));
 
         [PublicAPI]
+        [NotNull]
         public ValueReference<T> RememberRef<T>(T value) => Use(isFirstRender ? new ValueReference<T>(value) : null);
 
         [PublicAPI]
-        public ValueReference<T> RememberRefF<T>([NotNull] Func<T> factory) => Use(() => new ValueReference<T>(factory()));
+        [NotNull]
+        public ValueReference<T> RememberRefF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ValueReference<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>(IEnumerable<T> collection = null) =>
+            Use(() => new MutableList<T>(collection ?? Array.Empty<T>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>([NotNull] FactoryDelegate<IEnumerable<T>> factory) =>
+            Use(() => new MutableList<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            IDictionary<TKey, TValue> dictionary = null) => Use(() =>
+            new MutableDictionary<TKey, TValue>(dictionary ?? new Dictionary<TKey, TValue>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            [NotNull] FactoryDelegate<IDictionary<TKey, TValue>> factory) =>
+            Use(() => new MutableDictionary<TKey, TValue>(factory()));
 
         [PublicAPI]
         public void OnInit(Func<Action> onInit)

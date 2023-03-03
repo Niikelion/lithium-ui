@@ -5,14 +5,16 @@ using UnityEngine.UIElements;
 namespace UI.Li
 {
     /// <summary>
-    /// Class designed for creating compositions using other compositions.
+    /// Class designed for providing state for your components.
     /// </summary>
     [PublicAPI] public class Composition: IComposition
     {
+        public delegate IComposition StatefulComponent(CompositionState state);
+        
         public event Action<VisualElement> OnRender;
         public event Action<CompositionContext> OnBeforeRecompose;
         
-        [NotNull] private readonly Func<CompositionContext, IComposition> composer;
+        [NotNull] private readonly StatefulComponent composer;
         private readonly bool isStatic;
         private IComposition innerComposition;
 
@@ -21,8 +23,8 @@ namespace UI.Li
         /// </summary>
         /// <param name="composer">composer function used to create composition.</param>
         /// <param name="isStatic">indicates whether or not structure of given composition will change over time(some data or parameters can change, just not composition structure).</param>
-        /// <remarks><see cref="isStatic"/> only constraints returned element and not its children. For example, if you declare your composition static and on first render you return <see cref="Common.Text"/>, you must return some <see cref="Common.Text"/> every time.</remarks>
-        [PublicAPI] public Composition([NotNull] Func<CompositionContext, IComposition> composer, bool isStatic = false)
+        /// <remarks><see cref="isStatic"/>only constraints returned element and not its children. For example, if you declare your composition static and on first render you returned <see cref="Common.Text"/>, you must return <see cref="Common.Text"/> every time.</remarks>
+        [PublicAPI] public Composition([NotNull] StatefulComponent composer, bool isStatic = false)
         {
             this.composer = composer;
             this.isStatic = isStatic;
@@ -41,7 +43,7 @@ namespace UI.Li
         {
             OnBeforeRecompose?.Invoke(context);
             context.StartFrame(this);
-            innerComposition = composer(context);
+            innerComposition = composer(new CompositionState(context));
             if (isStatic)
                 context.PreventNextEntryOverride();
             innerComposition.Recompose(context);
