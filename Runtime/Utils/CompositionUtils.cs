@@ -162,6 +162,25 @@ namespace UI.Li.Utils
             bool nobToggleOnly = false,
             Element.Data data = new()
         ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
+
+        /// <summary>
+        /// Creates split area composition, see <see cref="Common.SplitArea.V(IComposition, IComposition, TwoPaneSplitViewOrientation, Element.Data)"/>
+        /// </summary>
+        /// <param name="mainContent">main area</param>
+        /// <param name="secondaryContent">secondary area</param>
+        /// <param name="orientation">orientation</param>
+        /// <param name="initialSize">initial size of main area</param>
+        /// <param name="data">additional element data</param>
+        /// <returns></returns>
+        [PublicAPI]
+        [NotNull]
+        public static SplitArea SplitArea(
+            [NotNull] IComposition mainContent,
+            [NotNull] IComposition secondaryContent,
+            TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
+            float initialSize = 0,
+            Element.Data data = new()
+        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, data);
     }
 
     /// <summary>
