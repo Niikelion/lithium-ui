@@ -50,3 +50,10 @@ Lithium is built on top of UI Elements, which allows for almost seemles interope
 Using `VisualElements`s inside Lithium on the other hands require a bit more work. You need to implement custom `Composition`.
 To see how is can be done take a look at [text implementation](Runtime/Common/Text.cs).
 
+## Contributing
+
+If you feel like some feature is missing our you find any bug feel free to open a new issue following community guidelines.
+
+## License
+
+You can find license [here](LICENSE).

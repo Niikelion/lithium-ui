@@ -1,8 +1,12 @@
+# Getting started
+
+You can find quick startup guide [here](bootstrap.md).
+
 # Core concepts
 
 In lithium, ui hierarchy is built using `components`.
 
-A `component` is any function with return type of `IComposition`. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary syntax.
+A `component` is any function with return type of `IComposition` or its implementation. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary syntax.
 
 # Store
 
