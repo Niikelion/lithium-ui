@@ -15,8 +15,8 @@ namespace UI.Li.Common
         private readonly bool focused;
         private MutableValue<string> currentValue;
         private readonly Action<string> onValueChanged;
-        // TODO: maybe use weak reference?
-        private CompositionContext ctx;
+        
+        private WeakReference<CompositionContext> ctxRef;
 
         /// <summary>
         /// Constructs <see cref="TextField"/> instance.
@@ -49,17 +49,14 @@ namespace UI.Li.Common
 
         public override void Dispose()
         {
-            if (PreviouslyRendered is UnityEngine.UIElements.TextField field)
-                field.UnregisterValueChangedCallback(OnValueChanged);
-            
             currentValue = null;
-            ctx = null;
+            ctxRef = null;
             base.Dispose();
         }
 
         protected override void OnState(CompositionContext context)
         {
-            ctx = context;
+            ctxRef = new WeakReference<CompositionContext>(context);
             currentValue = context.Remember(initialValue);
         }
 
@@ -70,8 +67,9 @@ namespace UI.Li.Common
             field.tooltip = tooltip;
             field.value = currentValue;
 
-            field.UnregisterValueChangedCallback(OnValueChanged);
             field.RegisterValueChangedCallback(OnValueChanged);
+            
+            AddCleanup(field, () => field.UnregisterValueChangedCallback(OnValueChanged));
 
             return field;
         }
@@ -91,10 +89,10 @@ namespace UI.Li.Common
         {
             if (evt.newValue == evt.previousValue)
                 return;
-            
-            if (ctx == null)
+
+            if (!ctxRef.TryGetTarget(out var ctx))
                 return;
-            
+
             string v = evt.newValue;
 
             using var _ = ctx.BatchOperations();

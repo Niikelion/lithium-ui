@@ -45,7 +45,41 @@ namespace UI.Li
             /// </summary>
             Reorder
         }
-        
+
+        public class ElementUserData
+        {
+            public static VisualElement AppendCleanupAction(VisualElement element, Action onCleanup)
+            {
+                if (element.userData is not ElementUserData data)
+                {
+                    if (element.userData != null)
+                        throw new Exception("Corrupted user data");
+
+                    data = new ElementUserData();
+                    element.userData = data;
+                }
+
+                data.onCleanup += onCleanup;
+
+                return element;
+            }
+
+            public static VisualElement CleanUp(VisualElement element)
+            {
+                if (element.userData is not ElementUserData data)
+                    return element;
+
+                data.onCleanup?.Invoke();
+                data.onCleanup = null;
+
+                return element;
+            }
+
+            private Action onCleanup;
+        }
+
+        [NotNull] public delegate T FactoryDelegate<out T>();
+
         private readonly struct Frame: IDisposable
         {
             public class FrameEntry: IDisposable
@@ -56,6 +90,8 @@ namespace UI.Li
                 public bool Dirty;
                 public RemapHelper<int> Reordering;
                 public VisualElement PreviouslyRendered;
+                private Dictionary<Type, object> overriddenContexts;
+                private Dictionary<Type, object> addedContexts;
 
                 public FrameEntry(int id, int nestingLevel, [NotNull] IComposition composition)
                 {
@@ -64,6 +100,59 @@ namespace UI.Li
                     Composition = composition;
                     Dirty = true;
                     PreviouslyRendered = null;
+                }
+
+                public void PushContext(Dictionary<Type, object> contexts, object context)
+                {
+                    if (context == null)
+                        return;
+
+                    var type = context.GetType();
+
+                    overriddenContexts ??= new();
+                    addedContexts ??= new();
+
+                    if (overriddenContexts.ContainsKey(type))
+                    {
+                        addedContexts[type] = context;
+                        contexts[type] = context;
+                        return;
+                    }
+
+                    if (contexts.TryGetValue(type, out object oldContext))
+                        contexts[type] = context;
+                    else
+                        contexts.Add(type, context);
+
+                    overriddenContexts.Add(type, oldContext);
+                }
+
+                public void ApplyContexts(Dictionary<Type, object> contexts)
+                {
+                    if (addedContexts == null)
+                        return;
+
+                    foreach (var contextEntry in addedContexts)
+                    {
+                        if (contexts.ContainsKey(contextEntry.Key))
+                            contexts[contextEntry.Key] = contextEntry.Value;
+                        else
+                            contexts.Add(contextEntry.Key, contextEntry.Value);
+                    }
+                }
+
+                public void RevertContexts(Dictionary<Type, object> contexts)
+                {
+                    if (overriddenContexts == null)
+                        return;
+
+                    foreach (var contextEntry in overriddenContexts)
+                    {
+                        if (contextEntry.Value == null)
+                            contexts.Remove(contextEntry.Key);
+                        else
+                            contexts[contextEntry.Key] = contextEntry.Value;
+                    }
                 }
 
                 public void CleanupReordering() => Reordering = null;
@@ -75,20 +164,6 @@ namespace UI.Li
                 }
             }
 
-            public class FrameCallback: IDisposable
-            {
-                public readonly Func<Action> OnUpdate;
-                public readonly Action OnDispose;
-                
-                public void Dispose() => OnDispose?.Invoke();
-
-                public FrameCallback([NotNull] Func<Action> onUpdate)
-                {
-                    OnUpdate = onUpdate;
-                    OnDispose = OnUpdate();
-                }
-            }
-            
             public enum FrameType
             {
                 [UsedImplicitly] Empty,
@@ -100,14 +175,14 @@ namespace UI.Li
             public readonly FrameType Type;
             public readonly IMutableValue Field;
             public readonly FrameEntry Entry;
-            public readonly FrameCallback Callback;
+            private readonly Action disposeCallback;
             
             public Frame([NotNull] IComposition composition, int nestingLevel, int entryId)
             {
                 Type = FrameType.Entry;
                 Field = null;
                 Entry = new FrameEntry(entryId, nestingLevel, composition);
-                Callback = null;
+                disposeCallback = null;
             }
 
             public Frame(IMutableValue field)
@@ -115,22 +190,22 @@ namespace UI.Li
                 Type = FrameType.Field;
                 Field = field;
                 Entry = null;
-                Callback = null;
+                disposeCallback = null;
             }
 
-            public Frame(Func<Action> onUpdate)
+            public Frame(Func<Action> onInit)
             {
                 Type = FrameType.Callback;
                 Field = null;
                 Entry = null;
-                Callback = new FrameCallback(onUpdate);
+                disposeCallback = onInit();
             }
 
             public void Dispose()
             {
                 Entry?.Composition.Dispose();
                 Field?.Dispose();
-                Callback?.Dispose();
+                disposeCallback?.Invoke();
             }
         }
 
@@ -176,14 +251,11 @@ namespace UI.Li
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
         public static event Action OnInstanceListChanged;
+        private static readonly ConcurrentQueue<Action> syncQueue = new();
 #endif
         
         [NotNull] [PublicAPI] public readonly string Name;
 
-#if UNITY_EDITOR // for reference listing
-        private static readonly ConcurrentQueue<Action> syncQueue = new();
-#endif
-        
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
 
         private readonly GapBuffer<Frame> frames = new ();
@@ -191,6 +263,7 @@ namespace UI.Li
         private bool isFirstRender;
 
         private readonly Stack<Frame.FrameEntry> entryStack = new();
+        private readonly Dictionary<Type, object> contexts = new();
 
         private bool dirty;
         
@@ -250,7 +323,7 @@ namespace UI.Li
         /// </code>
         /// </example>
         /// <returns>Batch scope guard</returns>
-        [PublicAPI] public BatchScope BatchOperations() => new(this);
+        [PublicAPI] public BatchScope BatchOperations() => new (this);
         
         /// <summary>
         /// Sets composition entry id for next recomposition. 
@@ -312,7 +385,7 @@ namespace UI.Li
                 previouslyRendered = frame.Entry.PreviouslyRendered;
             }
             
-            entryStack.Push(currentEntry);
+            PushFrameEntry(currentEntry);
             currentEntry.Dirty = false;
 
             if (strategy == RecompositionStrategy.Reorder)
@@ -381,7 +454,8 @@ namespace UI.Li
             int currentNestingLevel = entryStack.TryPeek(out var currentEntry) ? currentEntry.NestingLevel : 0;
             
             ClearAllNested(currentNestingLevel, false);
-            entryStack.Pop().CleanupReordering();
+
+            PopFrameEntry().CleanupReordering();
         }
 
         /// <summary>
@@ -404,7 +478,8 @@ namespace UI.Li
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public T Use<T>([NotNull] Func<T> factory) where T : class, IMutableValue
+        [NotNull]
+        public T Use<T>([NotNull] FactoryDelegate<T> factory) where T : class, IMutableValue
         {
             Debug.Assert(factory != null);
 
@@ -433,7 +508,7 @@ namespace UI.Li
             if (frame.Type != Frame.FrameType.Field)
                 throw new InvalidOperationException("Invalid layout");
 
-            return frame.Field as T;
+            return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
         }
 
         /// <summary>
@@ -445,6 +520,7 @@ namespace UI.Li
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
+        [NotNull]
         public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new MutableValue<T>(value) : null);
 
         /// <summary>
@@ -456,13 +532,65 @@ namespace UI.Li
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public MutableValue<T> RememberF<T>([NotNull] Func<T> factory) => Use(() => new MutableValue<T>(factory()));
+        [NotNull]
+        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new MutableValue<T>(factory()));
 
         [PublicAPI]
+        [NotNull]
         public ValueReference<T> RememberRef<T>(T value) => Use(isFirstRender ? new ValueReference<T>(value) : null);
 
         [PublicAPI]
+        [NotNull]
+        public ValueReference<T> RememberRefF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ValueReference<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>(IEnumerable<T> collection = null) =>
+            Use(() => new MutableList<T>(collection ?? Array.Empty<T>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>([NotNull] FactoryDelegate<IEnumerable<T>> factory) =>
+            Use(() => new MutableList<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            IDictionary<TKey, TValue> dictionary = null) => Use(() =>
+            new MutableDictionary<TKey, TValue>(dictionary ?? new Dictionary<TKey, TValue>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            [NotNull] FactoryDelegate<IDictionary<TKey, TValue>> factory) =>
+            Use(() => new MutableDictionary<TKey, TValue>(factory()));
         public ValueReference<T> RememberRefF<T>([NotNull] Func<T> factory) => Use(() => new ValueReference<T>(factory()));
+
+        [PublicAPI]
+        public void ProvideContext<T>(T context)
+        {
+            if (!entryStack.TryPeek(out var currentEntry))
+                throw new InvalidOperationException("Using context outside composable function");
+
+            currentEntry.PushContext(contexts, context);
+        }
+
+        [PublicAPI]
+        public T UseContext<T>()
+        {
+            var type = typeof(T);
+
+            if (!contexts.TryGetValue(type, out object context))
+            {
+                Debug.LogError($"Missing context {type.FullName}");
+                return default;
+            }
+
+            if (context is not T ctx)
+                throw new Exception("Internal error: context type mismatch");
+
+            return ctx;
+        }
 
         [PublicAPI]
         public void OnInit(Func<Action> onInit)
@@ -503,17 +631,17 @@ namespace UI.Li
                 var entry = frame.Entry;
 
                 while (entryStack.TryPeek(out var lastEntry) && lastEntry.NestingLevel >= entry.NestingLevel)
-                    entryStack.Pop();
+                    PopFrameEntry();
 
                 if (!entry.Dirty)
                 {
-                    entryStack.Push(entry);
+                    PushFrameEntry(entry);
                     continue;
                 }
 
                 framePointer = i;
                 nextEntryPreventOverride = true;
-                var oldRender = entry.PreviouslyRendered;
+                var oldRender = ElementUserData.CleanUp(entry.PreviouslyRendered);
                 
                 SetNextEntryId(entry.Id);
                 entry.Composition.Recompose(this);
@@ -526,9 +654,9 @@ namespace UI.Li
                 
                 entry.PreviouslyRendered = newRender;
                 
-                entryStack.Push(entry);
+                PushFrameEntry(entry);
             }
-            entryStack.Clear();
+            ClearFrameStack();
         }
         
         public void Dispose()
@@ -649,6 +777,25 @@ namespace UI.Li
             int index = parent.IndexOf(oldElement);
             parent.RemoveAt(index);
             parent.Insert(index, newElement);
+        }
+
+        private void PushFrameEntry(Frame.FrameEntry entry)
+        {
+            entryStack.Push(entry);
+            entry.ApplyContexts(contexts);
+        }
+
+        private Frame.FrameEntry PopFrameEntry()
+        {
+            var entry = entryStack.Pop();
+            entry.RevertContexts(contexts);
+            return entry;
+        }
+
+        private void ClearFrameStack()
+        {
+            entryStack.Clear();
+            contexts.Clear();
         }
 
         private void MakeDirty()

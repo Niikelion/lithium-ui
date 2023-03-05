@@ -6,7 +6,7 @@ namespace UI.Li.Common
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.Label"/>.
     /// </summary>
-    [PublicAPI] public sealed class Text: Element
+    public sealed class Text: Element
     {
         private readonly string text;
 

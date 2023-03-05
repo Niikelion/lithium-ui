@@ -13,8 +13,7 @@ namespace UI.Li.Common
         private readonly Action<int> onSelectionChanged;
         private MutableValue<int> currentValue;
         
-        // TODO: maybe use weak reference?
-        private CompositionContext ctx;
+        private WeakReference<CompositionContext> ctxRef;
 
         [PublicAPI]
         [NotNull]
@@ -46,17 +45,14 @@ namespace UI.Li.Common
         
         public override void Dispose()
         {
-            if (PreviouslyRendered is DropdownField field)
-                field.UnregisterValueChangedCallback(OnSelectionChanged);
-
             currentValue = null;
-            ctx = null;
+            ctxRef = null;
             base.Dispose();
         }
 
         protected override void OnState(CompositionContext context)
         {
-            ctx = context;
+            ctxRef = new WeakReference<CompositionContext>(context);
             currentValue = context.Remember(initialValue);
         }
 
@@ -70,17 +66,18 @@ namespace UI.Li.Common
 
             field.index = index >= 0 && index < options.Count ? index : 0;
 
-            field.UnregisterValueChangedCallback(OnSelectionChanged);
             field.RegisterValueChangedCallback(OnSelectionChanged);
+            
+            AddCleanup(field, () => field.UnregisterValueChangedCallback(OnSelectionChanged));
             
             return field;
         }
 
         private void OnSelectionChanged(ChangeEvent<string> evt)
         {
-            if (ctx == null)
+            if (ctxRef == null || !ctxRef.TryGetTarget(out var ctx))
                 return;
-            
+
             if (evt.target is not DropdownField dropdown)
                 return;
 
