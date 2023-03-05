@@ -18,7 +18,7 @@ There are a couple of reasons why you should give Lithium a try in your next pro
 
 * is more readable than ImGui,
 * provides easy way to define your editor ui from code alongside its functionality,
-* eliminates the need of querying elements in hierarchy which helps detecting structure errors on compile-time,
+* eliminates the need of querying elements in hierarchy which helps to detect structure errors on compile-time,
 * allows you to reduce data explicitly passed to elements and remove singletons thanks to context system,
 * considerably reduces amount of code needed to implement given ui compared to UI Elements
 * simplifies ui logic by defining ui structure based on current state rather than defining initial state and update logic.
