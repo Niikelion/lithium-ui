@@ -90,7 +90,7 @@ namespace UI.Li
                 public bool Dirty;
                 public RemapHelper<int> Reordering;
                 public VisualElement PreviouslyRendered;
-                private Dictionary<Type, object> overridenContexts;
+                private Dictionary<Type, object> overriddenContexts;
                 private Dictionary<Type, object> addedContexts;
 
                 public FrameEntry(int id, int nestingLevel, [NotNull] IComposition composition)
@@ -109,10 +109,10 @@ namespace UI.Li
 
                     var type = context.GetType();
 
-                    overridenContexts ??= new();
+                    overriddenContexts ??= new();
                     addedContexts ??= new();
 
-                    if (overridenContexts.ContainsKey(type))
+                    if (overriddenContexts.ContainsKey(type))
                     {
                         addedContexts[type] = context;
                         contexts[type] = context;
@@ -124,7 +124,7 @@ namespace UI.Li
                     else
                         contexts.Add(type, context);
 
-                    overridenContexts.Add(type, oldContext);
+                    overriddenContexts.Add(type, oldContext);
                 }
 
                 public void ApplyContexts(Dictionary<Type, object> contexts)
@@ -143,10 +143,10 @@ namespace UI.Li
 
                 public void RevertContexts(Dictionary<Type, object> contexts)
                 {
-                    if (overridenContexts == null)
+                    if (overriddenContexts == null)
                         return;
 
-                    foreach (var contextEntry in overridenContexts)
+                    foreach (var contextEntry in overriddenContexts)
                     {
                         if (contextEntry.Value == null)
                             contexts.Remove(contextEntry.Key);
@@ -251,14 +251,11 @@ namespace UI.Li
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
         public static event Action OnInstanceListChanged;
+        private static readonly ConcurrentQueue<Action> syncQueue = new();
 #endif
         
         [NotNull] [PublicAPI] public readonly string Name;
 
-#if UNITY_EDITOR // for reference listing
-        private static readonly ConcurrentQueue<Action> syncQueue = new();
-#endif
-        
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
 
         private readonly GapBuffer<Frame> frames = new ();

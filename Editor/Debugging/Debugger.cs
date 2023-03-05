@@ -98,7 +98,7 @@ namespace UI.Li.Editor.Debugging
             );
         }, isStatic: true);
         
-        private static IComposition RenderNode(CompositionContext.CompositionNode node, CompositionContext ctx)
+        private static IComposition RenderNode(CompositionContext.CompositionNode node, CompositionState ctx)
         {
             var idCtx = ctx.UseContext<NodeIdCtx>();
             var selCtx = ctx.UseContext<SelectedNodeCtx>();

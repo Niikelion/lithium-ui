@@ -74,6 +74,12 @@ namespace UI.Li
             Ctx.OnDestroy(onDestroy);
 
         [PublicAPI]
+        public void ProvideContext<T>(T context) => Ctx.ProvideContext(context);
+
+        [PublicAPI]
+        public T UseContext<T>() => Ctx.UseContext<T>();
+        
+        [PublicAPI]
         public CompositionContext.BatchScope BatchOperations() => Ctx.BatchOperations();
 
         [PublicAPI]
