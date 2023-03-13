@@ -57,4 +57,3 @@ If you feel like some feature is missing our you find any bug feel free to open 
 ## License
 
 You can find license [here](LICENSE).
->>>>>>> 18b17015170cbd283f76c0f1b77e1fae3a7b097b
