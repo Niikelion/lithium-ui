@@ -15,7 +15,7 @@ namespace UI.Li.Utils
     /// Utility class aimed to simplify basic use of composables.
     /// </summary>
     /// <remarks>Yeah, I know it's not pretty by we don't have functions outside classes soo...</remarks>
-    public static class CompositionUtils
+    [PublicAPI] public static class CompositionUtils
     {
         /// <summary>
         /// Returns given compositions with set id.
@@ -25,6 +25,7 @@ namespace UI.Li.Utils
         /// <param name="composition">composition to add id to</param>
         /// <returns></returns>
         [PublicAPI]
+        [NotNull]
         public static IComposition WithId(int id, IComposition composition)
         {
             composition.OnBeforeRecompose += ctx => ctx.SetNextEntryId(id);
