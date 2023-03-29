@@ -27,7 +27,7 @@ namespace UI.Li.Common
         
         protected override VisualElement GetElement(VisualElement source)
         {
-            var element = Use<TwoPaneSplitView>(source);
+            var element = Use(source, () => new TwoPaneSplitView(0, initialMainPanelSize, orientation), p => p.orientation == orientation);
 
             element.contentContainer.Clear();
 
@@ -36,16 +36,15 @@ namespace UI.Li.Common
 
         protected override VisualElement PrepareElement(VisualElement target)
         {
-            var element = target as TwoPaneSplitView;
+            var element = base.PrepareElement(target) as TwoPaneSplitView;
 
             Debug.Assert(element != null);
             
             element.Add(mainContent.Render());
             element.Add(secondaryContent.Render());
-            element.fixedPaneIndex = 0;
-            element.orientation = orientation;
+
             element.fixedPaneInitialDimension = initialMainPanelSize;
-            
+
             return element;
         }
     }
