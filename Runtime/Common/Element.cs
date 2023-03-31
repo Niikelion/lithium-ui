@@ -7,10 +7,10 @@ using System.Collections.Generic;
 namespace UI.Li.Common
 {
     /// <summary>
-    /// Composition representing <see cref="VisualElement"/> without children.
+    /// Component representing <see cref="VisualElement"/> without children.
     /// </summary>
     /// <remarks>Good base class for compositions that supports styling and callbacks of <see cref="VisualElement"/></remarks>
-    [PublicAPI] public class Element: IComposition
+    [PublicAPI] public class Element: IComponent
     {
         /// <summary>
         /// Simplified <see cref="KeyboardEventBase{T}"/>, <see cref="KeyDownEvent"/> and <see cref="KeyUpEvent"/>.
@@ -306,7 +306,7 @@ namespace UI.Li.Common
         /// Reference to previously rendered element.
         /// </summary>
         /// <remarks>It is not guaranteed that this <see cref="VisualElement"/> will have expected type(for example <see cref="UnityEngine.UIElements.Label"/>) so it should be runtime checked in every function using this field.</remarks>
-        /// <seealso cref="Use{T}"/>
+        /// <seealso cref="Use{T}(VisualElement, bool)"/>
         protected VisualElement PreviouslyRendered { get; private set; }
 
         /// <summary>
@@ -359,7 +359,7 @@ namespace UI.Li.Common
         /// <summary>
         /// Used to obtain <see cref="VisualElement"/> instance. Override this method if you need instance of <see cref="VisualElement"/> subclass.
         /// </summary>
-        /// <seealso cref="Use{T}"/>
+        /// <seealso cref="Use{T}(VisualElement, bool)"/>
         /// <remarks>During render, <see cref="PreviouslyRendered"/> is passed to this function and return value is passed to <see cref="PrepareElement"/> to obtain render result. When overriding you don't need to call base implementation.</remarks>
         /// <param name="source">cached element</param>
         /// <returns></returns>
@@ -368,10 +368,10 @@ namespace UI.Li.Common
         protected virtual VisualElement GetElement([CanBeNull] VisualElement source) => Use<VisualElement>(source, true);
 
         /// <summary>
-        /// Called every composition. Override it if you need to store anything in the state.
+        /// Called every component. Override it if you need to store anything in the state.
         /// </summary>
-        /// <remarks>Works similar to <see cref="IComposition.Recompose"/>, but you don't need to call <see cref="CompositionContext.StartFrame"/> and <see cref="CompositionContext.EndFrame"/>. When overriding you don't need to call base implementation.</remarks>
-        /// <param name="context">composition context</param>
+        /// <remarks>Works similar to <see cref="IComponent.Recompose"/>, but you don't need to call <see cref="CompositionContext.StartFrame"/> and <see cref="CompositionContext.EndFrame"/>. When overriding you don't need to call base implementation.</remarks>
+        /// <param name="context">component context</param>
         [PublicAPI] protected virtual void OnState(CompositionContext context) { }
 
         /// <summary>
@@ -394,15 +394,32 @@ namespace UI.Li.Common
         /// <param name="clear">if true, clears all children if element is reused</param>
         /// <typeparam name="T">expected type</typeparam>
         /// <returns></returns>
-        [PublicAPI] [NotNull] protected T Use<T>([CanBeNull] VisualElement source, bool clear = false) where T: VisualElement, new()
+        [PublicAPI]
+        [NotNull]
+        protected T Use<T>([CanBeNull] VisualElement source, bool clear = false) where T : VisualElement, new()
         {
             if (source is not T element || element.GetType() != typeof(T)) return new T();
+
+            if (clear)
+                element.Clear();
+
+            return element;
+        }
+
+        [PublicAPI]
+        [NotNull]
+        protected T Use<T>([CanBeNull] VisualElement source, [NotNull] Func<T> factory, [NotNull] Func<T, bool> filter,
+            bool clear = false) where T : VisualElement
+        {
+            if (source is not T element || element.GetType() != typeof(T)) return factory();
+
+            if (!filter(element))
+                return factory();
             
             if (clear)
                 element.Clear();
-            
-            return element;
 
+            return element;
         }
 
         [PublicAPI]

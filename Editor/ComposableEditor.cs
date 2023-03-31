@@ -6,12 +6,12 @@ namespace UI.Li.Editor
 {
     [PublicAPI] public abstract class ComposableEditor: UnityEditor.Editor
     {
-        private CompositionRenderer renderer;
+        private ComponentRenderer renderer;
         
         public sealed override VisualElement CreateInspectorGUI()
         {
             renderer?.Dispose();
-            renderer = new CompositionRenderer(Layout(), EditorName);
+            renderer = new ComponentRenderer(Layout(), EditorName);
 
             return renderer.UpdateAndRender();
         }
@@ -20,6 +20,6 @@ namespace UI.Li.Editor
 
         protected virtual string EditorName => GetType().Name;
         
-        protected abstract IComposition Layout();
+        protected abstract IComponent Layout();
     }
 }

@@ -5,10 +5,10 @@ using UnityEngine.UIElements;
 namespace UI.Li.Utils
 {
     /// <summary>
-    /// Lightweight static composition class that uses provided function to render composition.
+    /// Lightweight static component class that uses provided function to render component.
     /// </summary>
     /// <remarks>Can be used to easily wrap VisualElements</remarks>
-    public class LeafComposition: IComposition
+    public class LeafComponent: IComponent
     {
         public event Action<VisualElement> OnRender;
         public event Action<CompositionContext> OnBeforeRecompose;
@@ -18,18 +18,18 @@ namespace UI.Li.Utils
         private VisualElement previouslyRendered;
 
         /// <summary>
-        /// Creates composition using renderer function.
+        /// Creates component using renderer function.
         /// </summary>
-        [PublicAPI] public LeafComposition([NotNull] Func<VisualElement, VisualElement> renderer)
+        [PublicAPI] public LeafComponent([NotNull] Func<VisualElement, VisualElement> renderer)
         {
             this.renderer = renderer;
             usesCache = true;
         }
 
         /// <summary>
-        /// Creates composition using renderer function.
+        /// Creates component using renderer function.
         /// </summary>
-        [PublicAPI] public LeafComposition([NotNull] Func<VisualElement> renderer) : this(_ => renderer()) { }
+        [PublicAPI] public LeafComponent([NotNull] Func<VisualElement> renderer) : this(_ => renderer()) { }
 
         public VisualElement Render()
         {

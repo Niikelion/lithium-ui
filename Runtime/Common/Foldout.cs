@@ -7,18 +7,31 @@ using CU = UI.Li.Utils.CompositionUtils;
 
 namespace UI.Li.Common
 {
+    /// <summary>
+    /// Component simulating <see cref="UnityEngine.UIElements.Foldout"/>.
+    /// </summary>
     public static class Foldout
     {
+        /// <summary>
+        /// Creates <see cref="Foldout"/> instance.
+        /// </summary>
+        /// <param name="header">content of the header</param>
+        /// <param name="content">content of the body</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">reduce toggle area to nob</param>
+        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
+        /// <param name="nob">nob component</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition V(
-            [NotNull] IComposition header,
-            [NotNull] IComposition content,
+        public static IComponent V(
+            [NotNull] IComponent header,
+            [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
             Element.Data data = new(),
-            Func<bool, Action, IComposition> nob = null
-        ) => new Composition(ctx =>
+            Func<bool, Action, IComponent> nob = null
+        ) => new Component(ctx =>
         {
             var state = ctx.Remember(initiallyOpen);
 
@@ -28,7 +41,7 @@ namespace UI.Li.Common
 
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: new IComposition[]
+                content: new IComponent[]
                 {
                     CU.Flex(
                         direction: FlexDirection.Row,
@@ -46,19 +59,30 @@ namespace UI.Li.Common
             );
         }, isStatic: true);
 
+        /// <summary>
+        /// Creates <see cref="Foldout"/> instance.
+        /// </summary>
+        /// <param name="headerText">text for the header</param>
+        /// <param name="content">content of the dropdown</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">reduce toggle area to nob</param>
+        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
+        /// <param name="nob">nob component</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition V(
+        public static IComponent V(
             [NotNull] string headerText,
-            [NotNull] IComposition content,
+            [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
-            Element.Data data = new()
-        ) => V(CU.Text(headerText), content, initiallyOpen, nobToggleOnly, data);
+            Element.Data data = new(),
+            Func<bool, Action, IComponent> nob = null
+        ) => V(CU.Text(headerText), content, initiallyOpen, nobToggleOnly, data, nob);
 
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
-        private static IComposition FoldoutNob(bool open, Action onClick) =>
+        private static IComponent FoldoutNob(bool open, Action onClick) =>
             CU.Box(
                 content: CU.Box(data: new(
                     flexGrow: 1,

@@ -60,7 +60,7 @@ namespace UI.Li
                 }
 
                 data.onCleanup += onCleanup;
-                
+
                 return element;
             }
 
@@ -68,34 +68,36 @@ namespace UI.Li
             {
                 if (element.userData is not ElementUserData data)
                     return element;
-                
+
                 data.onCleanup?.Invoke();
                 data.onCleanup = null;
-                
+
                 return element;
             }
-            
+
             private Action onCleanup;
         }
-        
+
+        [NotNull] public delegate T FactoryDelegate<out T>();
+
         private readonly struct Frame: IDisposable
         {
             public class FrameEntry: IDisposable
             {
                 public readonly int Id;
                 public readonly int NestingLevel;
-                [NotNull] public IComposition Composition;
+                [NotNull] public IComponent Component;
                 public bool Dirty;
                 public RemapHelper<int> Reordering;
                 public VisualElement PreviouslyRendered;
-                private Dictionary<Type, object> overridenContexts;
+                private Dictionary<Type, object> overriddenContexts;
                 private Dictionary<Type, object> addedContexts;
 
-                public FrameEntry(int id, int nestingLevel, [NotNull] IComposition composition)
+                public FrameEntry(int id, int nestingLevel, [NotNull] IComponent component)
                 {
                     Id = id;
                     NestingLevel = nestingLevel;
-                    Composition = composition;
+                    Component = component;
                     Dirty = true;
                     PreviouslyRendered = null;
                 }
@@ -107,10 +109,10 @@ namespace UI.Li
 
                     var type = context.GetType();
 
-                    overridenContexts ??= new();
+                    overriddenContexts ??= new();
                     addedContexts ??= new();
-                    
-                    if (overridenContexts.ContainsKey(type))
+
+                    if (overriddenContexts.ContainsKey(type))
                     {
                         addedContexts[type] = context;
                         contexts[type] = context;
@@ -122,14 +124,14 @@ namespace UI.Li
                     else
                         contexts.Add(type, context);
 
-                    overridenContexts.Add(type, oldContext);
+                    overriddenContexts.Add(type, oldContext);
                 }
-                
+
                 public void ApplyContexts(Dictionary<Type, object> contexts)
                 {
                     if (addedContexts == null)
                         return;
-                    
+
                     foreach (var contextEntry in addedContexts)
                     {
                         if (contexts.ContainsKey(contextEntry.Key))
@@ -141,10 +143,10 @@ namespace UI.Li
 
                 public void RevertContexts(Dictionary<Type, object> contexts)
                 {
-                    if (overridenContexts == null)
+                    if (overriddenContexts == null)
                         return;
-                    
-                    foreach (var contextEntry in overridenContexts)
+
+                    foreach (var contextEntry in overriddenContexts)
                     {
                         if (contextEntry.Value == null)
                             contexts.Remove(contextEntry.Key);
@@ -152,12 +154,12 @@ namespace UI.Li
                             contexts[contextEntry.Key] = contextEntry.Value;
                     }
                 }
-                
+
                 public void CleanupReordering() => Reordering = null;
 
                 public void Dispose()
                 {
-                    Composition.Dispose();
+                    Component.Dispose();
                     CleanupReordering();
                 }
             }
@@ -175,11 +177,11 @@ namespace UI.Li
             public readonly FrameEntry Entry;
             private readonly Action disposeCallback;
             
-            public Frame([NotNull] IComposition composition, int nestingLevel, int entryId)
+            public Frame([NotNull] IComponent component, int nestingLevel, int entryId)
             {
                 Type = FrameType.Entry;
                 Field = null;
-                Entry = new FrameEntry(entryId, nestingLevel, composition);
+                Entry = new FrameEntry(entryId, nestingLevel, component);
                 disposeCallback = null;
             }
 
@@ -201,7 +203,7 @@ namespace UI.Li
 
             public void Dispose()
             {
-                Entry?.Composition.Dispose();
+                Entry?.Component.Dispose();
                 Field?.Dispose();
                 disposeCallback?.Invoke();
             }
@@ -211,15 +213,15 @@ namespace UI.Li
         public class CompositionNode
         {
             [PublicAPI] public readonly string Name;
-            [PublicAPI] public readonly IComposition Composition;
+            [PublicAPI] public readonly IComponent Component;
             [PublicAPI] public readonly int Id;
             [PublicAPI] public readonly ReadOnlyCollection<IMutableValue> Values;
             [PublicAPI] public readonly ReadOnlyCollection<CompositionNode> Children;
 
-            public CompositionNode(string name, IComposition composition, int id, List<IMutableValue> values, List<CompositionNode> children)
+            public CompositionNode(string name, IComponent component, int id, List<IMutableValue> values, List<CompositionNode> children)
             {
                 Name = name;
-                Composition = composition;
+                Component = component;
                 Id = id;
                 Values = values.AsReadOnly();
                 Children = children.AsReadOnly();
@@ -229,34 +231,31 @@ namespace UI.Li
         private class TmpNode
         {
             private readonly string name;
-            private readonly IComposition composition;
+            private readonly IComponent component;
             private readonly int id;
             private readonly List<IMutableValue> values = new();
             private readonly List<TmpNode> children = new ();
 
-            public TmpNode(string name, IComposition composition, int id)
+            public TmpNode(string name, IComponent component, int id)
             {
                 this.name = name;
-                this.composition = composition;
+                this.component = component;
                 this.id = id;
             }
 
             public void AddValue(IMutableValue value) => values.Add(value);
             public void AddChild(TmpNode child) => children.Add(child);
 
-            public CompositionNode GetNode() => new CompositionNode(name, composition, id, values, children.Select(n => n.GetNode()).ToList());
+            public CompositionNode GetNode() => new CompositionNode(name, component, id, values, children.Select(n => n.GetNode()).ToList());
         }
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
         public static event Action OnInstanceListChanged;
+        private static readonly ConcurrentQueue<Action> syncQueue = new();
 #endif
         
         [NotNull] [PublicAPI] public readonly string Name;
 
-#if UNITY_EDITOR // for reference listing
-        private static readonly ConcurrentQueue<Action> syncQueue = new();
-#endif
-        
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
 
         private readonly GapBuffer<Frame> frames = new ();
@@ -324,28 +323,28 @@ namespace UI.Li
         /// </code>
         /// </example>
         /// <returns>Batch scope guard</returns>
-        [PublicAPI] public BatchScope BatchOperations() => new(this);
+        [PublicAPI] public BatchScope BatchOperations() => new (this);
         
         /// <summary>
-        /// Sets composition entry id for next recomposition. 
+        /// Sets component entry id for next recomposition. 
         /// </summary>
-        /// <remarks>Difficult to use outside custom composition implementation. To give id to composition use <see cref="CompositionUtils.WithId"/></remarks>
-        /// <param name="entryId">Id for next composition</param>
+        /// <remarks>Difficult to use outside custom component implementation. To give id to component use <see cref="CompositionUtils.WithId"/></remarks>
+        /// <param name="entryId">Id for next component</param>
         [PublicAPI] public void SetNextEntryId(int entryId = 0) => nextEntryId = entryId;
 
         /// <summary>
         /// Forces preferring updates over overrides in the next recomposition. 
         /// </summary>
-        /// <remarks>Difficult to use outside custom composition implementation.</remarks>
+        /// <remarks>Difficult to use outside custom component implementation.</remarks>
         [PublicAPI] public void PreventNextEntryOverride() => nextEntryPreventOverride = true;
         
         /// <summary>
-        /// Starts composing given composition.
+        /// Starts composing given component.
         /// </summary>
-        /// <remarks>Should be called at the beginning of <see cref="IComposition.Recompose"/> in custom composition implementation.</remarks>
-        /// <returns>Previously rendered element for given composition.</returns>
+        /// <remarks>Should be called at the beginning of <see cref="IComponent.Recompose"/> in custom component implementation.</remarks>
+        /// <returns>Previously rendered element for given component.</returns>
         [PublicAPI]
-        public VisualElement StartFrame([NotNull] IComposition composition, RecompositionStrategy strategy = RecompositionStrategy.Override)
+        public VisualElement StartFrame([NotNull] IComponent component, RecompositionStrategy strategy = RecompositionStrategy.Override)
         {
             int currentNestingLevel = entryStack.TryPeek(out var lastEntry) ? lastEntry.NestingLevel + 1 : 0;
 
@@ -364,12 +363,12 @@ namespace UI.Li
                 InsertAtPointer(new Frame(
                     entryId: currentEntryId,
                     nestingLevel: currentNestingLevel,
-                    composition: composition
+                    component: component
                 ));
                 
                 currentEntry = frames[framePointer - 1].Entry;
                 
-                composition.OnRender += v => currentEntry.PreviouslyRendered = v;
+                component.OnRender += v => currentEntry.PreviouslyRendered = v;
             }
             else
             {
@@ -377,11 +376,11 @@ namespace UI.Li
 
                 currentEntry = frame.Entry;
 
-                if (currentEntry.Composition != composition)
+                if (currentEntry.Component != component)
                 {
-                    currentEntry.Composition.Dispose();
-                    currentEntry.Composition = composition;
-                    composition.OnRender += v => currentEntry.PreviouslyRendered = v;
+                    currentEntry.Component.Dispose();
+                    currentEntry.Component = component;
+                    component.OnRender += v => currentEntry.PreviouslyRendered = v;
                 }
                 previouslyRendered = frame.Entry.PreviouslyRendered;
             }
@@ -443,9 +442,9 @@ namespace UI.Li
         }
 
         /// <summary>
-        /// Ends composing current composition.
+        /// Ends composing current component.
         /// </summary>
-        /// <remarks>Should be called at the end of <see cref="IComposition.Recompose"/> in custom composition implementation.</remarks>
+        /// <remarks>Should be called at the end of <see cref="IComponent.Recompose"/> in custom component implementation.</remarks>
         [PublicAPI]
         public void EndFrame()
         {
@@ -455,12 +454,12 @@ namespace UI.Li
             int currentNestingLevel = entryStack.TryPeek(out var currentEntry) ? currentEntry.NestingLevel : 0;
             
             ClearAllNested(currentNestingLevel, false);
-            
+
             PopFrameEntry().CleanupReordering();
         }
 
         /// <summary>
-        /// Adds given state value to composition state.
+        /// Adds given state value to component state.
         /// </summary>
         /// <seealso cref="Remember{T}"/>
         /// <param name="value">state value to add</param>
@@ -471,7 +470,7 @@ namespace UI.Li
         public T Use<T>(T value) where T: class, IMutableValue => Use(() => value);
 
         /// <summary>
-        /// Adds given state value to current composition state.
+        /// Adds given state value to current component state.
         /// </summary>
         /// <seealso cref="RememberF{T}"/>
         /// <param name="factory">factory of state value to add</param>
@@ -479,7 +478,8 @@ namespace UI.Li
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public T Use<T>([NotNull] Func<T> factory) where T : class, IMutableValue
+        [NotNull]
+        public T Use<T>([NotNull] FactoryDelegate<T> factory) where T : class, IMutableValue
         {
             Debug.Assert(factory != null);
 
@@ -508,37 +508,64 @@ namespace UI.Li
             if (frame.Type != Frame.FrameType.Field)
                 throw new InvalidOperationException("Invalid layout");
 
-            return frame.Field as T;
+            return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
         }
 
         /// <summary>
-        /// Remembers given value in current composition state.
+        /// Remembers given value in current component state.
         /// </summary>
-        /// <remarks>Argument is ignored when value can be found in composition state.</remarks>
+        /// <remarks>Argument is ignored when value can be found in component state.</remarks>
         /// <param name="value">initial value</param>
         /// <typeparam name="T">type of remembered value</typeparam>
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
+        [NotNull]
         public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new MutableValue<T>(value) : null);
 
         /// <summary>
-        /// Remembers given value in current composition state.
+        /// Remembers given value in current component state.
         /// </summary>
-        /// <remarks>Factory is only used when value cannot be found in composition state.</remarks>
+        /// <remarks>Factory is only used when value cannot be found in component state.</remarks>
         /// <param name="factory">factory used to create initial value</param>
         /// <typeparam name="T">type of remembered value</typeparam>
         /// <returns>Current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
-        public MutableValue<T> RememberF<T>([NotNull] Func<T> factory) => Use(() => new MutableValue<T>(factory()));
+        [NotNull]
+        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new MutableValue<T>(factory()));
 
         [PublicAPI]
+        [NotNull]
         public ValueReference<T> RememberRef<T>(T value) => Use(isFirstRender ? new ValueReference<T>(value) : null);
 
         [PublicAPI]
+        [NotNull]
+        public ValueReference<T> RememberRefF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ValueReference<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>(IEnumerable<T> collection = null) =>
+            Use(() => new MutableList<T>(collection ?? Array.Empty<T>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableList<T> RememberList<T>([NotNull] FactoryDelegate<IEnumerable<T>> factory) =>
+            Use(() => new MutableList<T>(factory()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            IDictionary<TKey, TValue> dictionary = null) => Use(() =>
+            new MutableDictionary<TKey, TValue>(dictionary ?? new Dictionary<TKey, TValue>()));
+
+        [PublicAPI]
+        [NotNull]
+        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
+            [NotNull] FactoryDelegate<IDictionary<TKey, TValue>> factory) =>
+            Use(() => new MutableDictionary<TKey, TValue>(factory()));
         public ValueReference<T> RememberRefF<T>([NotNull] Func<T> factory) => Use(() => new ValueReference<T>(factory()));
-        
+
         [PublicAPI]
         public void ProvideContext<T>(T context)
         {
@@ -552,7 +579,7 @@ namespace UI.Li
         public T UseContext<T>()
         {
             var type = typeof(T);
-            
+
             if (!contexts.TryGetValue(type, out object context))
             {
                 Debug.LogError($"Missing context {type.FullName}");
@@ -564,7 +591,7 @@ namespace UI.Li
 
             return ctx;
         }
-        
+
         [PublicAPI]
         public void OnInit(Func<Action> onInit)
         {
@@ -617,11 +644,11 @@ namespace UI.Li
                 var oldRender = ElementUserData.CleanUp(entry.PreviouslyRendered);
                 
                 SetNextEntryId(entry.Id);
-                entry.Composition.Recompose(this);
+                entry.Component.Recompose(this);
                 nextEntryPreventOverride = false;
                 i = framePointer;
                 
-                var newRender = entry.Composition.Render();
+                var newRender = entry.Component.Render();
                 
                 SwapVisualElements(oldRender, newRender);
                 
@@ -674,7 +701,7 @@ namespace UI.Li
                             }
 
                             localEntryStack.Push(entry);
-                            nodeStack.Push(new TmpNode(entry.Composition.GetType().Name, entry.Composition, entry.Id));
+                            nodeStack.Push(new TmpNode(entry.Component.GetType().Name, entry.Component, entry.Id));
                             
                             break;
                         }
@@ -757,7 +784,7 @@ namespace UI.Li
             entryStack.Push(entry);
             entry.ApplyContexts(contexts);
         }
-        
+
         private Frame.FrameEntry PopFrameEntry()
         {
             var entry = entryStack.Pop();
@@ -770,7 +797,7 @@ namespace UI.Li
             entryStack.Clear();
             contexts.Clear();
         }
-        
+
         private void MakeDirty()
         {
             if (entryStack.Count > 0)
@@ -797,7 +824,7 @@ namespace UI.Li
 
             // non entry frame found at the start of current frame
             if (frame.Type != Frame.FrameType.Entry)
-                throw new InvalidOperationException("Composition layout unexpected change");
+                throw new InvalidOperationException("Component layout unexpected change");
 
             var entry = frame.Entry;
             
@@ -817,7 +844,7 @@ namespace UI.Li
                 // we found some more deeply nested data than expected
                 if (entry.NestingLevel != currentNestingLevel)
                     throw new InvalidOperationException(
-                        "Id of composition and/or layout unexpected change");
+                        "Id of component and/or layout unexpected change");
                 
                 // we found matching element
                 if (entry.Id == entryId)
@@ -875,7 +902,7 @@ namespace UI.Li
             // we found some more deeply nested data than expected
             if (entry.NestingLevel > currentNestingLevel)
                 throw new InvalidOperationException(
-                    "Id of composition and/or layout unexpected change");
+                    "Id of component and/or layout unexpected change");
             
             return entry.NestingLevel < currentNestingLevel;
         }

@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 namespace UI.Li.Common
 {
     /// <summary>
-    /// Composition representing <see cref="UnityEngine.UIElements.Button"/>.
+    /// Component representing <see cref="UnityEngine.UIElements.Button"/>.
     /// </summary>
     [PublicAPI] public class Button: Element
     {
         [NotNull] private readonly Action onClick;
-        [NotNull] private readonly IComposition content;
+        [NotNull] private readonly IComponent content;
 
         /// <summary>
         /// Creates <see cref="Button"/> instance with given content.
@@ -19,7 +19,7 @@ namespace UI.Li.Common
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] public static Button V([NotNull] Action onClick, [NotNull] IComposition content, Data data = new()) => new(onClick, content, data);
+        [PublicAPI] [NotNull] public static Button V([NotNull] Action onClick, [NotNull] IComponent content, Data data = new()) => new(onClick, content, data);
         /// <summary>
         /// Creates <see cref="Button"/> instance with given text.
         /// </summary>
@@ -29,7 +29,7 @@ namespace UI.Li.Common
         /// <returns></returns>
         [PublicAPI] [NotNull] public static Button V([NotNull] Action onClick, [NotNull] string content, Data data = new()) => new(onClick, Text.V(content), data);
         
-        private Button([NotNull] Action onClick, [NotNull] IComposition content, Data data): base(data)
+        private Button([NotNull] Action onClick, [NotNull] IComponent content, Data data): base(data)
         {
             this.onClick = onClick;
             this.content = content;

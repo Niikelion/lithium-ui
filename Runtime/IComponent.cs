@@ -7,26 +7,26 @@ namespace UI.Li
     /// <summary>
     /// Interface for composed UI elements.
     /// </summary>
-    /// <remarks>Composition should only store constant creation parameters and temporary state used between recompositions and renders.</remarks>
-    [PublicAPI] public interface IComposition: IDisposable
+    /// <remarks>Component should only store constant creation parameters and temporary state used between recompositions and renders.</remarks>
+    [PublicAPI] public interface IComponent: IDisposable
     {
         [PublicAPI] event Action<VisualElement> OnRender;
         [PublicAPI] event Action<CompositionContext> OnBeforeRecompose;
 
         /// <summary>
-        /// Renders given composition. Consecutive returned values should be treated as new versions of the same composition.
+        /// Renders given component. Consecutive returned values should be treated as new versions of the same component.
         /// </summary>
-        /// <returns>VisualElement representing given composition</returns>
+        /// <returns>VisualElement representing given component</returns>
         [PublicAPI] [NotNull] public VisualElement Render();
 
         /// <summary>
-        /// <para>Recomposes given composition.</para>
+        /// <para>Recomposes given component.</para>
         /// <para>
         /// To correctly store any data, including child compositions data call <see cref="CompositionContext.StartFrame"/> at the start of the method and <see cref="CompositionContext.EndFrame"/> at the end.
         /// Then you can use <see cref="CompositionContext.Use{T}(T)"/>, <see cref="CompositionContext.Remember{T}"/>, <see cref="CompositionContext.RememberF{T}"/> or recompose children, but remember that you can't declare more state variables after first child starts recomposing.
         /// </para>
         /// </summary>
-        /// <remarks>It is used for every recomposition, including initial composition.</remarks>
+        /// <remarks>It is used for every recomposition, including initial component.</remarks>
         /// <param name="context">context containing state data.</param>
         [PublicAPI] public void Recompose([NotNull] CompositionContext context);
     }

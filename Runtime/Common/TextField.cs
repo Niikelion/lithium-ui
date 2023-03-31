@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace UI.Li.Common
 {
     /// <summary>
-    /// Composition representing <see cref="UnityEngine.UIElements.TextField"/>.
+    /// Component representing <see cref="UnityEngine.UIElements.TextField"/>.
     /// </summary>
     [PublicAPI] public class TextField: Element
     {

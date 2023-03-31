@@ -10,11 +10,11 @@ namespace UI.Li.Editor
 {
     [PublicAPI] public abstract class ComposablePropertyDrawer: PropertyDrawer
     {
-        private List<CompositionRenderer> renderers = new ();
+        private List<ComponentRenderer> renderers = new ();
         
         public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var renderer = new CompositionRenderer(Layout(property), DrawerName);
+            var renderer = new ComponentRenderer(Layout(property), DrawerName);
 
             renderers.Add(renderer);
             
@@ -25,7 +25,7 @@ namespace UI.Li.Editor
             return container;
         }
 
-        protected abstract IComposition Layout(SerializedProperty property);
+        protected abstract IComponent Layout(SerializedProperty property);
 
         protected virtual string DrawerName => GetType().Name;
         
