@@ -26,12 +26,12 @@ namespace UI.Li.Editor.Debugging
         public static void ShowJsonWindow()
         {
             EditorWindow wnd = GetWindow<DebuggerWindow>();
-            wnd.titleContent = new GUIContent("Composition Debugger");
+            wnd.titleContent = new GUIContent("Component Debugger");
         }
 
-        protected override string WindowName => "Composition Debugger";
+        protected override string WindowName => "Component Debugger";
 
-        protected override IComposition Layout() => new Composition(ctx =>
+        protected override IComponent Layout() => new Component(ctx =>
         {
             List<CompositionContext> GetInstances() =>
                 CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
@@ -57,13 +57,13 @@ namespace UI.Li.Editor.Debugging
             
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
 
-            IComposition Toolbar() =>
+            IComponent Toolbar() =>
                 CU.Flex(
                     direction: FlexDirection.Row,
                     data: new(
                         alignItems: Align.Center
                     ),
-                    content: new IComposition[]
+                    content: new IComponent[]
                     {
                         CU.Dropdown(
                             data: new(
@@ -76,9 +76,9 @@ namespace UI.Li.Editor.Debugging
                     }
                 );
 
-            IComposition DisplayHierarchy() => Hierarchy(hierarchy);
+            IComponent DisplayHierarchy() => Hierarchy(hierarchy);
 
-            IComposition Content() =>
+            IComponent Content() =>
                 CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy);
                 
 
@@ -88,9 +88,9 @@ namespace UI.Li.Editor.Debugging
             );
         }, isStatic: true);
         
-        private static IComposition RenderNoPanel() => CU.Text("No panel selected.", new(flexGrow: 1));
+        private static IComponent RenderNoPanel() => CU.Text("No panel selected.", new(flexGrow: 1));
 
-        private static IComposition Hierarchy(CompositionContext.CompositionNode[] roots) => new Composition(ctx =>
+        private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
         {
             return CU.Flex(
                 direction: FlexDirection.Column,
@@ -98,7 +98,7 @@ namespace UI.Li.Editor.Debugging
             );
         }, isStatic: true);
         
-        private static IComposition RenderNode(CompositionContext.CompositionNode node, CompositionState ctx)
+        private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx)
         {
             var idCtx = ctx.UseContext<NodeIdCtx>();
             var selCtx = ctx.UseContext<SelectedNodeCtx>();
@@ -108,7 +108,7 @@ namespace UI.Li.Editor.Debugging
 
             void OnSelected() => selCtx.OnSelect?.Invoke(currentId);
 
-            IComposition RenderNodeContent()
+            IComponent RenderNodeContent()
             {
                 string name = $"{node.Name}{(node.Id > 0 ? $" #{node.Id}" : "")}";
 
@@ -123,7 +123,7 @@ namespace UI.Li.Editor.Debugging
                     ));
                 }
 
-                var content = new IComposition[children.Count];
+                var content = new IComponent[children.Count];
 
                 int i = 0;
                 foreach (var child in children)

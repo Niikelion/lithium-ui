@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 namespace UI.Li
 {
-    public class CompositionState
+    public class ComponentState
     {
         private readonly WeakReference<CompositionContext> ctx;
         [NotNull] private CompositionContext Ctx => ctx.TryGetTarget(out var context) ? context : throw new InvalidOperationException("context missing");
         
-        public CompositionState(CompositionContext context) => ctx = new (context);
+        public ComponentState(CompositionContext context) => ctx = new (context);
 
         [PublicAPI]
         [NotNull]

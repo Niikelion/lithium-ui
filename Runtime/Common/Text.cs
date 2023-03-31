@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 namespace UI.Li.Common
 {
     /// <summary>
-    /// Composition representing <see cref="UnityEngine.UIElements.Label"/>.
+    /// Component representing <see cref="UnityEngine.UIElements.Label"/>.
     /// </summary>
     public sealed class Text: Element
     {

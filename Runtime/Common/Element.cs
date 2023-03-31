@@ -7,10 +7,10 @@ using System.Collections.Generic;
 namespace UI.Li.Common
 {
     /// <summary>
-    /// Composition representing <see cref="VisualElement"/> without children.
+    /// Component representing <see cref="VisualElement"/> without children.
     /// </summary>
     /// <remarks>Good base class for compositions that supports styling and callbacks of <see cref="VisualElement"/></remarks>
-    [PublicAPI] public class Element: IComposition
+    [PublicAPI] public class Element: IComponent
     {
         /// <summary>
         /// Simplified <see cref="KeyboardEventBase{T}"/>, <see cref="KeyDownEvent"/> and <see cref="KeyUpEvent"/>.
@@ -368,10 +368,10 @@ namespace UI.Li.Common
         protected virtual VisualElement GetElement([CanBeNull] VisualElement source) => Use<VisualElement>(source, true);
 
         /// <summary>
-        /// Called every composition. Override it if you need to store anything in the state.
+        /// Called every component. Override it if you need to store anything in the state.
         /// </summary>
-        /// <remarks>Works similar to <see cref="IComposition.Recompose"/>, but you don't need to call <see cref="CompositionContext.StartFrame"/> and <see cref="CompositionContext.EndFrame"/>. When overriding you don't need to call base implementation.</remarks>
-        /// <param name="context">composition context</param>
+        /// <remarks>Works similar to <see cref="IComponent.Recompose"/>, but you don't need to call <see cref="CompositionContext.StartFrame"/> and <see cref="CompositionContext.EndFrame"/>. When overriding you don't need to call base implementation.</remarks>
+        /// <param name="context">component context</param>
         [PublicAPI] protected virtual void OnState(CompositionContext context) { }
 
         /// <summary>

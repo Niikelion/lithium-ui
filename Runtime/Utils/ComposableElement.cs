@@ -5,31 +5,31 @@ using UnityEngine.UIElements;
 namespace UI.Li.Utils
 {
     /// <summary>
-    /// <see cref="VisualElement"/> designed for easier use of compositions inside VisualElements systems.
+    /// <see cref="VisualElement"/> designed for easier use of components inside UI Elements.
     /// </summary>
-    /// <seealso cref="CompositionRenderer"/>
+    /// <seealso cref="ComponentRenderer"/>
     /// <remarks>Element may need manual disposing. See <see cref="SetContent"/> for more details.</remarks>
     [PublicAPI] public class ComposableElement: VisualElement, IDisposable
     {
         public bool NeedsDisposing { get; private set; }
         
-        private CompositionRenderer renderer;
+        private ComponentRenderer renderer;
 
         /// <summary>
-        /// Sets composition content for given element.
+        /// Sets component content for given element.
         /// </summary>
-        /// <remarks>Disposed element will become empty and cannot be restored later. If you want to persist it during parent changes either dispose element manually or use <see cref="CompositionRenderer"/> directly.</remarks>
-        /// <param name="composition">Composition to be used by element</param>
-        /// <param name="disposeOnDetach">Indicates whether composition should be disposed off during <see cref="DetachFromPanelEvent"/> or not.</param>
+        /// <remarks>Disposed element will become empty and cannot be restored later. If you want to persist it during parent changes either dispose element manually or use <see cref="ComponentRenderer"/> directly.</remarks>
+        /// <param name="component">Component to be used by element</param>
+        /// <param name="disposeOnDetach">Indicates whether component should be disposed off during <see cref="DetachFromPanelEvent"/> or not.</param>
         /// <exception cref="InvalidOperationException">Thrown when <c>SetContent</c> is called second time on the same element.</exception>
-        [PublicAPI] public void SetContent([NotNull] IComposition composition, bool disposeOnDetach = false)
+        [PublicAPI] public void SetContent([NotNull] IComponent component, bool disposeOnDetach = false)
         {
             if (renderer != null)
                 throw new InvalidOperationException("Cannot set content multiple times");
 
             NeedsDisposing = !disposeOnDetach;
             
-            renderer = new CompositionRenderer(composition);
+            renderer = new ComponentRenderer(component);
             
             if (!disposeOnDetach)
             {

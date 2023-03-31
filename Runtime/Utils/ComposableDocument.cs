@@ -8,14 +8,12 @@ namespace UI.Li.Utils
     public abstract class ComposableDocument: MonoBehaviour
     {
         private UIDocument document;
-        private new CompositionRenderer renderer;
+        private new ComponentRenderer renderer;
 
         [PublicAPI]
-        protected abstract IComposition Layout();
+        protected abstract IComponent Layout();
         
         protected virtual void Awake() => PopulateDocument();
-
-        protected virtual void Update() => PopulateDocument();
 
         protected virtual void OnDestroy() => renderer?.Dispose();
 
@@ -28,7 +26,7 @@ namespace UI.Li.Utils
 
             renderer?.Dispose();
 
-            renderer = new CompositionRenderer(Layout());
+            renderer = new ComponentRenderer(Layout());
             
             document.rootVisualElement.Clear();
             document.rootVisualElement.Add(renderer.UpdateAndRender());

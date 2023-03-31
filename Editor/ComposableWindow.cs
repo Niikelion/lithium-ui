@@ -9,7 +9,7 @@ namespace UI.Li.Editor
     /// </summary>
     public abstract class ComposableWindow: EditorWindow
     {
-        private CompositionRenderer renderer;
+        private ComponentRenderer renderer;
         
         public void CreateGUI()
         {
@@ -21,13 +21,13 @@ namespace UI.Li.Editor
         /// <summary>
         /// Method used to render window.
         /// </summary>
-        /// <returns>Composition to be used as windows content</returns>
-        [PublicAPI] [NotNull] protected abstract IComposition Layout();
+        /// <returns>Component to be used as windows content</returns>
+        [PublicAPI] [NotNull] protected abstract IComponent Layout();
 
         protected virtual void OnDestroy() => renderer?.Dispose();
 
         protected virtual string WindowName => GetType().Name;
         
-        private CompositionRenderer GetRenderer() => renderer ??= new CompositionRenderer(Layout(), WindowName);
+        private ComponentRenderer GetRenderer() => renderer ??= new ComponentRenderer(Layout(), WindowName);
     }
 }

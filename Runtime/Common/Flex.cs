@@ -8,13 +8,13 @@ namespace UI.Li.Common
     using RecompositionStrategy = CompositionContext.RecompositionStrategy;
     
     /// <summary>
-    /// Composition representing standard flexbox container.
+    /// Component representing standard flexbox container.
     /// </summary>
     /// <remarks>Content structure change between recompositions may result in state loss. If you cannot ensure constant number and ordering of child compositions consider using <see cref="List"/></remarks>
     /// <seealso cref="List"/>
     [PublicAPI] public class Flex: Element
     {
-        [NotNull] private readonly IComposition[] content;
+        [NotNull] private readonly IComponent[] content;
         private readonly FlexDirection direction;
 
         /// <summary>
@@ -24,9 +24,17 @@ namespace UI.Li.Common
         /// <param name="direction">direction of children</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] public static Flex V([NotNull] IEnumerable<IComposition> content, FlexDirection direction = FlexDirection.Column, Data data = new()) => new(direction, content, data);
+        [PublicAPI] [NotNull] public static Flex V([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, Data data = new()) => new(direction, content, data);
 
-        private Flex(FlexDirection direction, [NotNull] IEnumerable<IComposition> content, Data data): base(data)
+        public override void Dispose()
+        {
+            foreach (var child in content)
+                child.Dispose();
+            
+            base.Dispose();
+        }
+
+        private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, Data data): base(data)
         {
             this.direction = direction;
             this.content = content.ToArray();
@@ -38,14 +46,6 @@ namespace UI.Li.Common
         {
             foreach (var child in content)
                 child.Recompose(context);
-        }
-
-        public override void Dispose()
-        {
-            foreach (var child in content)
-                child.Dispose();
-            
-            base.Dispose();
         }
 
         protected override VisualElement PrepareElement(VisualElement target)

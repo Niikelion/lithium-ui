@@ -12,7 +12,7 @@ using TextField = UI.Li.Common.TextField;
 namespace UI.Li.Utils
 {
     /// <summary>
-    /// Utility class aimed to simplify basic use of composables.
+    /// Utility class aimed to simplify basic use of components.
     /// </summary>
     /// <remarks>Yeah, I know it's not pretty by we don't have functions outside classes soo...</remarks>
     [PublicAPI] public static class CompositionUtils
@@ -22,44 +22,44 @@ namespace UI.Li.Utils
         /// </summary>
         /// <remarks>Id cannot be overriden later.</remarks>
         /// <param name="id">id</param>
-        /// <param name="composition">composition to add id to</param>
+        /// <param name="component">component to add id to</param>
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition WithId(int id, IComposition composition)
+        public static IComponent WithId(int id, IComponent component)
         {
-            composition.OnBeforeRecompose += ctx => ctx.SetNextEntryId(id);
+            component.OnBeforeRecompose += ctx => ctx.SetNextEntryId(id);
             
-            return composition;
+            return component;
         }
 
         /// <summary>
         /// Utility for switching between static compositions.
         /// </summary>
-        /// <remarks>Gives each composition unique id based on its number in the list.</remarks>
-        /// <param name="choice">number of currently selected composition</param>
+        /// <remarks>Gives each component unique id based on its number in the list.</remarks>
+        /// <param name="choice">number of currently selected component</param>
         /// <param name="compositions">available compositions to choose from</param>
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition Switch(int choice, [NotNull] params Func<IComposition>[] compositions) =>
+        public static IComponent Switch(int choice, [NotNull] params Func<IComponent>[] compositions) =>
             WithId(choice, compositions[choice]());
 
         /// <summary>
         /// Utility for switching between two static compositions.
         /// </summary>
-        /// <remarks>Gives each composition unique id based.</remarks>
+        /// <remarks>Gives each component unique id based.</remarks>
         /// <param name="choice">chooses from two compositions</param>
-        /// <param name="onTrue">composition chosen when choice is <c>true</c></param>
-        /// <param name="onFalse">composition chosen when choice is <c>false</c></param>
+        /// <param name="onTrue">component chosen when choice is <c>true</c></param>
+        /// <param name="onFalse">component chosen when choice is <c>false</c></param>
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition Switch(bool choice, [NotNull] Func<IComposition> onTrue, [NotNull] Func<IComposition> onFalse) =>
+        public static IComponent Switch(bool choice, [NotNull] Func<IComponent> onTrue, [NotNull] Func<IComponent> onFalse) =>
             choice ? WithId(1, onTrue()) : WithId(2, onFalse());
 
         /// <summary>
-        /// Creates text composition, see <see cref="Common.Text.V(string, Element.Data)"/>.
+        /// Creates text component, see <see cref="Common.Text.V(string, Element.Data)"/>.
         /// </summary>
         /// <param name="text">text</param>
         /// <param name="data">additional element data</param>
@@ -70,7 +70,7 @@ namespace UI.Li.Utils
             Common.Text.V(text, data);
         
         /// <summary>
-        /// Creates button composition, see <see cref="Common.Button.V(Action, IComposition, Element.Data)"/>.
+        /// Creates button component, see <see cref="Common.Button.V(Action, IComponent, Element.Data)"/>.
         /// </summary>
         /// <param name="onClick">called when element is clicked</param>
         /// <param name="content">content of the button</param>
@@ -78,10 +78,10 @@ namespace UI.Li.Utils
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static Button Button([NotNull] Action onClick, [NotNull] IComposition content, Element.Data data = new()) =>
+        public static Button Button([NotNull] Action onClick, [NotNull] IComponent content, Element.Data data = new()) =>
             Common.Button.V(onClick, content, data);
         /// <summary>
-        /// Creates button composition, see <see cref="Common.Button.V(Action, string, Element.Data)"/>.
+        /// Creates button component, see <see cref="Common.Button.V(Action, string, Element.Data)"/>.
         /// </summary>
         /// <param name="onClick">called when element is clicked</param>
         /// <param name="content">content of the button</param>
@@ -93,7 +93,7 @@ namespace UI.Li.Utils
             Common.Button.V(onClick, content, data);
 
         /// <summary>
-        /// Creates flex composition, see <see cref="Common.Flex.V(IEnumerable{IComposition}, FlexDirection, Element.Data)"/>.
+        /// Creates flex component, see <see cref="Common.Flex.V(IEnumerable{IComponent}, FlexDirection, Element.Data)"/>.
         /// </summary>
         /// <param name="content">content of flex element</param>
         /// <param name="direction">direction of content flow</param>
@@ -101,11 +101,11 @@ namespace UI.Li.Utils
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static Flex Flex([NotNull] IEnumerable<IComposition> content, FlexDirection direction = FlexDirection.Column, Element.Data data = new()) =>
+        public static Flex Flex([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, Element.Data data = new()) =>
             Common.Flex.V(content, direction, data);
 
         /// <summary>
-        /// Creates text field composition, see <see cref="Common.TextField.V(Action{string}, string, string, bool, Element.Data)"/>.
+        /// Creates text field component, see <see cref="Common.TextField.V(Action{string}, string, string, bool, Element.Data)"/>.
         /// </summary>
         /// <param name="onValueChanged">called when field content changes</param>
         /// <param name="initialValue">initial text</param>
@@ -123,6 +123,14 @@ namespace UI.Li.Utils
             Element.Data data = new()
         ) => Common.TextField.V(onValueChanged, initialValue, tooltip, focused, data);
 
+        /// <summary>
+        /// Creates dropdown field component, see <see cref="Common.Dropdown.V(int, Action{int}, List{string}, Element.Data)"/>.
+        /// </summary>
+        /// <param name="initialValue">number of initially selected option starting from 0</param>
+        /// <param name="onSelectionChanged">selection changed callback</param>
+        /// <param name="options">displayed options</param>
+        /// <param name="data">additional element data</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
         public static Dropdown Dropdown(
@@ -132,91 +140,125 @@ namespace UI.Li.Utils
             Element.Data data = new()
         ) => Common.Dropdown.V(initialValue, onSelectionChanged, options, data);
         
+        /// <summary>
+        /// Creates dropdown field component, see <see cref="Common.Dropdown.V{T}(T, Action{T}, Element.Data)"/>.
+        /// </summary>
+        /// <param name="initialValue">enum option selected by default</param>
+        /// <param name="onSelectionChanged">on selection changed callback</param>
+        /// <param name="data">additional element data</param>
+        /// <typeparam name="T">enum to be used as in a dropdown</typeparam>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
         public static Dropdown Dropdown<T>(
-            int initialValue,
+            T initialValue,
             [NotNull] Action<T> onSelectionChanged,
             Element.Data data = new()
         ) where T : Enum => Common.Dropdown.V(initialValue, onSelectionChanged, data);
         
+        /// <summary>
+        /// Creates box component, see <see cref="Common.Box.V(IComponent, Element.Data)"/>.
+        /// </summary>
+        /// <param name="content">content of the box</param>
+        /// <param name="data">additional element data</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static Box Box(IComposition content = null, Element.Data data = new()) => Common.Box.V(content, data);
+        public static Box Box(IComponent content = null, Element.Data data = new()) => Common.Box.V(content, data);
 
+        /// <summary>
+        /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// </summary>
+        /// <param name="header">header of the foldout</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, use whole header otherwise</param>
+        /// <param name="data">additional element data</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition Foldout(
-            [NotNull] IComposition header,
-            [NotNull] IComposition content,
+        public static IComponent Foldout(
+            [NotNull] IComponent header,
+            [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
             Element.Data data = new()
         ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
         
+        /// <summary>
+        /// Creates foldout component, see <see cref="Common.Foldout.V(string, IComponent, bool, bool, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// </summary>
+        /// <param name="header">header text</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, us whole header otherwise</param>
+        /// <param name="data">additional element data</param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static IComposition Foldout(
+        public static IComponent Foldout(
             [NotNull] string header,
-            [NotNull] IComposition content,
+            [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
             Element.Data data = new()
         ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
 
         /// <summary>
-        /// Creates split area composition, see <see cref="Common.SplitArea.V(IComposition, IComposition, TwoPaneSplitViewOrientation, Element.Data)"/>
+        /// Creates split area component, see <see cref="Common.SplitArea.V(IComponent, IComponent, TwoPaneSplitViewOrientation, float, bool, Element.Data)"/>.
         /// </summary>
         /// <param name="mainContent">main area</param>
         /// <param name="secondaryContent">secondary area</param>
         /// <param name="orientation">orientation</param>
         /// <param name="initialSize">initial size of main area</param>
+        /// <param name="reverse">places main area at the end of container</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
         public static SplitArea SplitArea(
-            [NotNull] IComposition mainContent,
-            [NotNull] IComposition secondaryContent,
+            [NotNull] IComponent mainContent,
+            [NotNull] IComponent secondaryContent,
             TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
             float initialSize = 0,
+            bool reverse = false,
             Element.Data data = new()
-        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, data);
+        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, data);
     }
 
     /// <summary>
-    /// Utility class used to render compositions.
+    /// Utility class used to render components.
     /// </summary>
-    /// <remarks>Designed to be used from outside composables system to render compositions.</remarks>
-    [PublicAPI] public class CompositionRenderer: IDisposable
+    /// <remarks>Designed to be used from outside Lithium system to render components.</remarks>
+    [PublicAPI] public class ComponentRenderer: IDisposable
     {
         private readonly CompositionContext context;
-        private readonly IComposition composition;
+        private readonly IComponent component;
 
         /// <summary>
-        /// Constructs renderer using given composition.
+        /// Constructs renderer using given component.
         /// </summary>
-        /// <param name="composition">composition to render</param>
+        /// <param name="component">component to render</param>
         /// <param name="name">name of context to be displayed in debugger</param>
-        [PublicAPI] public CompositionRenderer([NotNull] IComposition composition, string name = "Unnamed")
+        [PublicAPI] public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed")
         {
-            this.composition = composition;
+            this.component = component;
             context = new CompositionContext(name);
         }
 
         /// <summary>
-        /// Recomposes composition, <see cref="IComposition.Recompose"/>.
+        /// Recomposes component, <see cref="IComponent.Recompose"/>.
         /// </summary>
-        [PublicAPI] public void Update() => composition.Recompose(context);
+        [PublicAPI] public void Update() => component.Recompose(context);
 
         /// <summary>
-        /// Renders composition, <see cref="IComposition.Render"/>.
+        /// Renders component, <see cref="IComponent.Render"/>.
         /// </summary>
         /// <returns></returns>
-        [PublicAPI] public VisualElement Render() => composition.Render();
+        [PublicAPI] public VisualElement Render() => component.Render();
 
         /// <summary>
-        /// Updates and renders composition at the same time.
+        /// Updates and renders component at the same time.
         /// </summary>
         /// <returns></returns>
         [PublicAPI]
@@ -227,13 +269,13 @@ namespace UI.Li.Utils
         }
         
         /// <summary>
-        /// Disposes of the managed composition and its state.
+        /// Disposes of the managed component and its state.
         /// </summary>
         /// <remarks>Disposed renderer shouldn't be used.</remarks>
         public void Dispose()
         {
             context.Dispose();
-            composition.Dispose();
+            component.Dispose();
         }
     }
 }

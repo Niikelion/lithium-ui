@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace UI.Li.Common
 {
+    /// <summary>
+    /// Component representing <see cref="DropdownField"/>.
+    /// </summary>
     public class Dropdown: Element
     {
         private readonly int initialValue;
@@ -15,6 +18,14 @@ namespace UI.Li.Common
         
         private WeakReference<CompositionContext> ctxRef;
 
+        /// <summary>
+        /// Creates <see cref="Dropdown"/> instance using list of options.
+        /// </summary>
+        /// <param name="initialValue">default selected option</param>
+        /// <param name="onSelectionChanged">callback invoked every time selected option changes</param>
+        /// <param name="options">available options for dropdown</param>
+        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
         public static Dropdown V(
@@ -24,23 +35,24 @@ namespace UI.Li.Common
             Data data = new()
         ) => new(initialValue, onSelectionChanged, options, data);
 
+        /// <summary>
+        /// Creates <see cref="Dropdown"/> instance using enum.
+        /// </summary>
+        /// <param name="initialValue">default selected option</param>
+        /// <param name="onSelectionChanged">callback invoked every time selected opton changes</param>
+        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
+        /// <typeparam name="T">enum to be displayed in dropdown</typeparam>
+        /// <returns></returns>
         [PublicAPI]
         [NotNull]
         public static Dropdown V<T>(
-            int initialValue,
+            T initialValue,
             [NotNull] Action<T> onSelectionChanged,
             Data data = new()
         ) where T : Enum
         {
-            var options = Enum.GetValues(typeof(T)).Cast<T>().ToArray();
-            return new(initialValue, v => onSelectionChanged(options[v]), options.Select(o => o.ToString()).ToList(), data);
-        }
-        
-        private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, Data data) : base(data)
-        {
-            this.initialValue = initialValue;
-            this.onSelectionChanged = onSelectionChanged;
-            this.options = options;
+            var options = Enum.GetValues(typeof(T)).Cast<T>().ToList();
+            return new(options.IndexOf(initialValue), v => onSelectionChanged(options[v]), options.Select(o => o.ToString()).ToList(), data);
         }
         
         public override void Dispose()
@@ -48,6 +60,13 @@ namespace UI.Li.Common
             currentValue = null;
             ctxRef = null;
             base.Dispose();
+        }
+        
+        private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, Data data) : base(data)
+        {
+            this.initialValue = initialValue;
+            this.onSelectionChanged = onSelectionChanged;
+            this.options = options;
         }
 
         protected override void OnState(CompositionContext context)

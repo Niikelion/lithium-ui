@@ -8,15 +8,15 @@ namespace UI.Li.Editor
     [PublicAPI]
     public class CustomField : Element
     {
-        private readonly IComposition editor;
+        private readonly IComponent editor;
         private readonly string name;
 
         [PublicAPI]
         [NotNull]
-        public static CustomField V(SerializedProperty property, IComposition editor, Data data = new())
+        public static CustomField V(SerializedProperty property, IComponent editor, Data data = new())
             => new(property, editor, data);
 
-        private CustomField(SerializedProperty property, IComposition editor, Data data): base(data)
+        private CustomField(SerializedProperty property, IComponent editor, Data data): base(data)
         {
             this.editor = editor;
             name = property.displayName;
