@@ -1,24 +1,23 @@
 ﻿using JetBrains.Annotations;
-using UI.Li.Common;
 using UnityEngine.UIElements;
 
-namespace UI.Li.Composables.lithium_ui.Runtime.Common
+namespace UI.Li.Common
 {
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.ScrollView"/>
     /// </summary>
     public class Scroll: Element
     {
-        private readonly IComposition content;
+        private readonly IComponent content;
         private readonly ScrollViewMode mode;
 
         [PublicAPI]
         [NotNull]
-        public static Scroll V([NotNull] IComposition content, ScrollViewMode mode = ScrollViewMode.Vertical,
+        public static Scroll V([NotNull] IComponent content, ScrollViewMode mode = ScrollViewMode.Vertical,
             Data data = new()) =>
             new(content, mode, data);
 
-        private Scroll([NotNull] IComposition content, ScrollViewMode mode, Data data): base(data)
+        private Scroll([NotNull] IComponent content, ScrollViewMode mode, Data data): base(data)
         {
             this.content = content;
             this.mode = mode;
