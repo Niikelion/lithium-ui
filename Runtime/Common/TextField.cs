@@ -36,16 +36,6 @@ namespace UI.Li.Common
             bool focused = false,
             Data data = new()
         ) => new(onValueChanged, value, tooltip, focused, data);
-        
-        private TextField(Action<string> onValueChanged, string value, string tooltip, bool focused, Data data): base(data)
-        {
-            this.onValueChanged = onValueChanged;
-            
-            initialValue = value;
-
-            this.tooltip = tooltip;
-            this.focused = focused;
-        }
 
         public override void Dispose()
         {
@@ -99,6 +89,16 @@ namespace UI.Li.Common
             
             currentValue.Value = v;
             onValueChanged?.Invoke(v);
+        }
+        
+        private TextField(Action<string> onValueChanged, string value, string tooltip, bool focused, Data data): base(data)
+        {
+            this.onValueChanged = onValueChanged;
+            
+            initialValue = value;
+
+            this.tooltip = tooltip;
+            this.focused = focused;
         }
     }
 }

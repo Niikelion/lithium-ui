@@ -142,6 +142,7 @@ namespace UI.Li.Common
             private readonly StyleBackground? backgroundImage;
             private readonly Frame padding;
             private readonly Frame margin;
+            private readonly string tooltip;
             #endregion
 
             #region callbacks
@@ -180,7 +181,8 @@ namespace UI.Li.Common
                 Action<SyntheticKeyEvent> onKeyUp = null,
                 Action onBlur = null,
                 Action onFocus = null,
-                Action<MeshGenerationContext> onRepaint = null
+                Action<MeshGenerationContext> onRepaint = null,
+                string tooltip = null
             )
             {
                 this.name = name;
@@ -210,6 +212,7 @@ namespace UI.Li.Common
                 this.onBlur = onBlur;
                 this.onFocus = onFocus;
                 this.onRepaint = onRepaint;
+                this.tooltip = tooltip;
             }
 
             public readonly Events Apply(VisualElement element)
@@ -258,6 +261,8 @@ namespace UI.Li.Common
                 element.style.marginTop = margin.Top ?? StyleKeyword.Null;
                 element.style.marginBottom = margin.Bottom ?? StyleKeyword.Null;
 
+                element.tooltip = tooltip;
+                
                 var onClickCallback = onClick;
                 var onKeyDownCallback = onKeyDown;
                 var onKeyUpCallback = onKeyUp;
@@ -401,7 +406,7 @@ namespace UI.Li.Common
             if (source is not T element || element.GetType() != typeof(T)) return new T();
 
             if (clear)
-                element.Clear();
+                element.contentContainer.Clear();
 
             return element;
         }

@@ -8,7 +8,8 @@ namespace UI.Li.Common
     /// </summary>
     public sealed class Text: Element
     {
-        private readonly string text;
+        [NotNull] private readonly string text;
+        private readonly string tooltip;
 
         /// <summary>
         /// Creates <see cref="Text"/> instance with given text.

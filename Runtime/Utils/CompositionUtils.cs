@@ -8,6 +8,7 @@ using Box = UI.Li.Common.Box;
 using Flex = UI.Li.Common.Flex;
 using Button = UI.Li.Common.Button;
 using TextField = UI.Li.Common.TextField;
+using Toggle =UI.Li.Common.Toggle;
 
 namespace UI.Li.Utils
 {
@@ -224,6 +225,22 @@ namespace UI.Li.Utils
             bool reverse = false,
             Element.Data data = new()
         ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, data);
+
+        [PublicAPI]
+        [NotNull]
+        public static Toggle Toggle(
+            [NotNull] Action<bool> onValueChanged,
+            bool initialValue = false,
+            Element.Data data = new()
+        ) => Common.Toggle.V(onValueChanged, initialValue, data);
+
+        [PublicAPI]
+        [NotNull]
+        public static Scroll Scroll(
+            IComponent content,
+            ScrollViewMode mode = ScrollViewMode.Vertical,
+            Element.Data data = new()
+        ) => Common.Scroll.V(content, mode, data);
     }
 
     /// <summary>

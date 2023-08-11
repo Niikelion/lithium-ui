@@ -37,7 +37,7 @@ namespace UI.Li.Common
 
             var nobFunc = nob ?? FoldoutNob;
 
-            void ToggleFoldout() => state.Value = !state.Value;
+            void ToggleFoldout() => state.Value = !state;
 
             return CU.Flex(
                 direction: FlexDirection.Column,
@@ -45,13 +45,13 @@ namespace UI.Li.Common
                 {
                     CU.Flex(
                         direction: FlexDirection.Row,
-                        content: new[] { nobFunc(state.Value, nobToggleOnly ? ToggleFoldout : null), header },
+                        content: new[] { nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header },
                         data: new ( onClick: nobToggleOnly ? null : ToggleFoldout )
                     ),
                     CU.Box(
                         data: new(
                             padding: new(left: 13),
-                            display: state.Value ? DisplayStyle.Flex : DisplayStyle.None
+                            display: state ? DisplayStyle.Flex : DisplayStyle.None
                         ),
                         content: content
                     )
@@ -82,7 +82,9 @@ namespace UI.Li.Common
 
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
-        private static IComponent FoldoutNob(bool open, Action onClick) =>
+        [PublicAPI]
+        [NotNull]
+        public static IComponent FoldoutNob(bool open, [NotNull] Action onClick) =>
             CU.Box(
                 content: CU.Box(data: new(
                     flexGrow: 1,

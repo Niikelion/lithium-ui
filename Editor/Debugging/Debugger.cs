@@ -88,7 +88,7 @@ namespace UI.Li.Editor.Debugging
             );
         }, isStatic: true);
         
-        private static IComponent RenderNoPanel() => CU.Text("No panel selected.", new(flexGrow: 1));
+        private static IComponent RenderNoPanel() => CU.Text("No panel selected.", data: new(flexGrow: 1));
 
         private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
         {
