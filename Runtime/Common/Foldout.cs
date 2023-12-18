@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
@@ -12,6 +13,10 @@ namespace UI.Li.Common
     /// </summary>
     public static class Foldout
     {
+        public delegate IComponent HeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick);
+
+        public delegate IComponent ContentContainer([NotNull] IComponent content, bool visible);
+        
         /// <summary>
         /// Creates <see cref="Foldout"/> instance.
         /// </summary>
@@ -19,6 +24,8 @@ namespace UI.Li.Common
         /// <param name="content">content of the body</param>
         /// <param name="initiallyOpen">should be open by default</param>
         /// <param name="nobToggleOnly">reduce toggle area to nob</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <param name="nob">nob component</param>
         /// <returns></returns>
@@ -29,6 +36,8 @@ namespace UI.Li.Common
             [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
+            HeaderContainer headerContainer = null,
+            ContentContainer contentContainer = null,
             Element.Data data = new(),
             Func<bool, Action, IComponent> nob = null
         ) => new Component(ctx =>
@@ -41,20 +50,13 @@ namespace UI.Li.Common
 
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: new IComponent[]
+                content: new []
                 {
-                    CU.Flex(
-                        direction: FlexDirection.Row,
-                        content: new[] { nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header },
-                        data: new ( onClick: nobToggleOnly ? null : ToggleFoldout )
+                    (headerContainer ?? DefaultHeaderContainer).Invoke(
+                        new[] { nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header },
+                        nobToggleOnly ? null : ToggleFoldout
                     ),
-                    CU.Box(
-                        data: new(
-                            padding: new(left: 13),
-                            display: state ? DisplayStyle.Flex : DisplayStyle.None
-                        ),
-                        content: content
-                    )
+                    (contentContainer ?? DefaultContentContainer).Invoke(content, state)
                 }
             );
         }, isStatic: true);
@@ -66,6 +68,8 @@ namespace UI.Li.Common
         /// <param name="content">content of the dropdown</param>
         /// <param name="initiallyOpen">should be open by default</param>
         /// <param name="nobToggleOnly">reduce toggle area to nob</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <param name="nob">nob component</param>
         /// <returns></returns>
@@ -76,9 +80,11 @@ namespace UI.Li.Common
             [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
+            HeaderContainer headerContainer = null,
+            ContentContainer contentContainer = null,
             Element.Data data = new(),
             Func<bool, Action, IComponent> nob = null
-        ) => V(CU.Text(headerText), content, initiallyOpen, nobToggleOnly, data, nob);
+        ) => V(CU.Text(headerText), content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data, nob);
 
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
@@ -128,5 +134,21 @@ namespace UI.Li.Common
                     width: 13,
                     onClick: onClick
                 ));
+
+        private static IComponent DefaultHeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick) =>
+            CU.Flex(
+                direction: FlexDirection.Row,
+                content: content,
+                data: new(onClick: onClick)
+            );
+
+        private static IComponent DefaultContentContainer([NotNull] IComponent content, bool visible) =>
+            CU.Box(
+                data: new(
+                    padding: new(left: 13),
+                    display: visible ? DisplayStyle.Flex : DisplayStyle.None
+                ),
+                content: content
+            );
     }
 }

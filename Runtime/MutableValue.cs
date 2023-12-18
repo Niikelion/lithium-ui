@@ -52,6 +52,8 @@ namespace UI.Li
         public static implicit operator T(MutableValue<T> v) => v.Value;
         
         public void Dispose() => OnValueChanged = null;
+
+        public override string ToString() => value.ToString();
     }
 
     public class ValueReference<T> : IMutableValue
@@ -68,5 +70,7 @@ namespace UI.Li
         public void NotifyChanged() => OnValueChanged?.Invoke();
         
         public void Dispose() => OnValueChanged = null;
+
+        public override string ToString() => Value.ToString();
     }
 }

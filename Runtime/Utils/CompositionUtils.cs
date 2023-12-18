@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Box = UI.Li.Common.Box;
 using Flex = UI.Li.Common.Flex;
 using Button = UI.Li.Common.Button;
+using Foldout = UI.Li.Common.Foldout;
 using TextField = UI.Li.Common.TextField;
 using Toggle =UI.Li.Common.Toggle;
 
@@ -168,12 +169,14 @@ namespace UI.Li.Utils
         public static Box Box(IComponent content = null, Element.Data data = new()) => Common.Box.V(content, data);
 
         /// <summary>
-        /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Element.Data, Func{bool, Action, IComponent})"/>.
         /// </summary>
         /// <param name="header">header of the foldout</param>
         /// <param name="content">content of the foldout</param>
         /// <param name="initiallyOpen">should be open by default</param>
         /// <param name="nobToggleOnly">if true only toggle when clicking the nob, use whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
         [PublicAPI]
@@ -183,16 +186,20 @@ namespace UI.Li.Utils
             [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
+            Foldout.HeaderContainer headerContainer = null,
+            Foldout.ContentContainer contentContainer = null,
             Element.Data data = new()
-        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data);
         
         /// <summary>
-        /// Creates foldout component, see <see cref="Common.Foldout.V(string, IComponent, bool, bool, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// Creates foldout component, see <see cref="Common.Foldout.V(string, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Element.Data, Func{bool, Action, IComponent})"/>.
         /// </summary>
         /// <param name="header">header text</param>
         /// <param name="content">content of the foldout</param>
         /// <param name="initiallyOpen">should be open by default</param>
         /// <param name="nobToggleOnly">if true only toggle when clicking the nob, us whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
         [PublicAPI]
@@ -202,8 +209,10 @@ namespace UI.Li.Utils
             [NotNull] IComponent content,
             bool initiallyOpen = false,
             bool nobToggleOnly = false,
+            Foldout.HeaderContainer headerContainer = null,
+            Foldout.ContentContainer contentContainer = null,
             Element.Data data = new()
-        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, data);
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data);
 
         /// <summary>
         /// Creates split area component, see <see cref="Common.SplitArea.V(IComponent, IComponent, TwoPaneSplitViewOrientation, float, bool, Element.Data)"/>.

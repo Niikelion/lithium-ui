@@ -1,5 +1,4 @@
-﻿using UI.Li.Common.Units;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -14,7 +13,7 @@ namespace UI.Li.Editor.Debugging
         private struct SelectedNodeCtx
         {
             public int Id;
-            public Action<int> OnSelect;
+            public Action<CompositionContext.CompositionNode, int> OnSelect;
         }
 
         private class NodeIdCtx
@@ -23,39 +22,41 @@ namespace UI.Li.Editor.Debugging
         }
         
         [MenuItem("Lithium/Debugger")]
-        public static void ShowJsonWindow()
-        {
-            EditorWindow wnd = GetWindow<DebuggerWindow>();
-            wnd.titleContent = new GUIContent("Component Debugger");
-        }
+        public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
 
         protected override string WindowName => "Component Debugger";
 
         protected override IComponent Layout() => new Component(ctx =>
         {
-            List<CompositionContext> GetInstances() =>
-                CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
-        
             var selectedContext = ctx.Remember<CompositionContext>(null);
 
             var instances = ctx.RememberF(GetInstances);
-            var selectedNode = ctx.Remember(-1);
+            var selectedNode = ctx.Remember<(CompositionContext.CompositionNode Node, int Id)>((null, -1));
             ctx.ProvideContext(new SelectedNodeCtx {
-                Id = selectedNode.Value,
-                OnSelect = id => { selectedNode.Value = id; }
+                Id = selectedNode.Value.Id,
+                OnSelect = (node, id) => { selectedNode.Value = (node, id); }
             });
             ctx.ProvideContext(new NodeIdCtx { Id = 1 });
 
             ctx.OnInit(() =>
             {
-                void AttachCallback() => instances.Value = GetInstances();
-
                 CompositionContext.OnInstanceListChanged += AttachCallback;
 
                 return () => CompositionContext.OnInstanceListChanged -= AttachCallback;
+
+                void AttachCallback() => instances.Value = GetInstances();
             });
             
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
+            
+            return CU.Flex(
+                direction: FlexDirection.Column,
+                content: new[] { CU.WithId(1, Toolbar()), CU.WithId(2, Content()) },
+                data: new(flexGrow: 1)
+            );
+
+            List<CompositionContext> GetInstances() =>
+                CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
 
             IComponent Toolbar() =>
                 CU.Flex(
@@ -79,47 +80,65 @@ namespace UI.Li.Editor.Debugging
             IComponent DisplayHierarchy() => Hierarchy(hierarchy);
 
             IComponent Content() =>
-                CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy);
-                
+                CU.SplitArea(
+                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
+                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
+                    orientation: TwoPaneSplitViewOrientation.Horizontal,
+                    initialSize: 200,
+                    reverse: true,
+                    data: new (flexGrow: 1)
+                );
 
-            return CU.Flex(
-                direction: FlexDirection.Column,
-                content: new[] { CU.WithId(1, Toolbar()), CU.WithId(2, Content()) }
+            IComponent DetailPanel() => CU.Switch(selectedNode.Value.Node != null,
+                () => CU.Flex(selectedNode.Value.Node.Values.Select((val, i) =>
+                    CU.Text($"{i}: {val}")
+                )),
+                () => CU.Box()
             );
+                
         }, isStatic: true);
         
-        private static IComponent RenderNoPanel() => CU.Text("No panel selected.", data: new(flexGrow: 1));
+        private static IComponent RenderNoPanel() => CU.Text("No panel selected.");
 
+        private static IComponent RenderNoDetails() => CU.Box();
+        
         private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
         {
-            return CU.Flex(
+            return CU.Scroll(CU.Flex(
                 direction: FlexDirection.Column,
-                content: roots.Select(root => RenderNode(root, ctx)).ToArray()
-            );
+                content: roots.Select((root, i) => CU.WithId(i+1, RenderNode(root, ctx))).ToArray()
+            ));
         }, isStatic: true);
         
-        private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx)
+        private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx, int level = 0)
         {
             var idCtx = ctx.UseContext<NodeIdCtx>();
             var selCtx = ctx.UseContext<SelectedNodeCtx>();
             bool selected = selCtx.Id == idCtx.Id;
             
             int currentId = idCtx.Id++;
+            
+            int offset = 13 * level;
 
-            void OnSelected() => selCtx.OnSelect?.Invoke(currentId);
+            StyleColor? bkColor = selected ? Color.Lerp(Color.black, Color.Lerp(Color.cyan, Color.blue, 0.5f), 0.5f) : null;
 
+            return CU.WithId(currentId, CU.Box(RenderNodeContent()));
+            
             IComponent RenderNodeContent()
             {
                 string name = $"{node.Name}{(node.Id > 0 ? $" #{node.Id}" : "")}";
-
-                StyleColor? bkColor = selected ? Color.Lerp(Color.black, Color.Lerp(Color.cyan, Color.blue, 0.5f), 0.5f) : null;
 
                 var children = node.Children;
                 if (children.Count == 0)
                 {
                     return CU.WithId(1, CU.Text(
                         name,
-                        data: new(flexGrow: 1, onClick: OnSelected, backgroundColor: bkColor)
+                        data: new(
+                            flexGrow: 1,
+                            padding: new (left: offset),
+                            onClick: OnSelected,
+                            backgroundColor: bkColor
+                        )
                     ));
                 }
 
@@ -128,23 +147,43 @@ namespace UI.Li.Editor.Debugging
                 int i = 0;
                 foreach (var child in children)
                 {
-                    content[i] = RenderNode(child, ctx);
+                    content[i] = RenderNode(child, ctx, level + 1);
                     ++i;
                 }
 
                 return CU.WithId(2, CU.Foldout(
                     nobToggleOnly: true,
+                    headerContainer: HeaderContainer,
+                    contentContainer: ContentContainer,
                     data: new(flexGrow: 1),
                     header: CU.Text(name, data: new(onClick: OnSelected, backgroundColor: bkColor)),
                     content: CU.WithId(1, CU.Flex(
                         direction: FlexDirection.Column,
-                        data: new(padding: new(left: 2.Px()), flexGrow: 1),
+                        data: new(flexGrow: 1),
                         content: content
                     ))
                 ));
             }
 
-            return CU.WithId(currentId, CU.Box(RenderNodeContent()));
+            void OnSelected() => selCtx.OnSelect?.Invoke(node, currentId);
+            
+            IComponent HeaderContainer(IEnumerable<IComponent> content, Action onClick) => CU.Flex(
+                direction: FlexDirection.Row,
+                content: content,
+                data: new(
+                    onClick: onClick,
+                    padding: new(left: offset),
+                    flexGrow: 1,
+                    backgroundColor: bkColor
+                )
+            );
+            
+            static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(
+                data: new(
+                    display: visible ? DisplayStyle.Flex : DisplayStyle.None
+                ),
+                content: content
+            );
         }
     }
 }

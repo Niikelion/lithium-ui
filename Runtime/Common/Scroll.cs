@@ -18,7 +18,11 @@ namespace UI.Li.Common
             Data data = new()) =>
             new(content, mode, data);
 
-        protected override void OnState(CompositionContext context) => content?.Recompose(context);
+        protected override void OnState(CompositionContext context)
+        {
+            context.PreventNextEntryOverride();
+            content?.Recompose(context);
+        }
 
         public override void Dispose()
         {

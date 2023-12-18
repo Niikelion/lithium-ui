@@ -1,6 +1,7 @@
 ﻿using UI.Li.Utils;
 using UnityEditor;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace UI.Li.Editor
 {
@@ -13,6 +14,8 @@ namespace UI.Li.Editor
         
         public void CreateGUI()
         {
+            titleContent = new GUIContent(WindowName);
+            
             var content = GetRenderer().UpdateAndRender();
             
             rootVisualElement.Add(content);
