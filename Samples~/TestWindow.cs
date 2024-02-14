@@ -8,18 +8,16 @@ using CU = UI.Li.Utils.CompositionUtils;
 public class TestWindow: ComposableWindow
 {
     [MenuItem("Lithium/Examples/TestWindow")]
-    public static void ShowWindow()
-    {
-        var window = GetWindow<TestWindow>();
-        window.titleContent = new GUIContent("Window Test");
-    }
+    public static void ShowWindow() => GetWindow<TestWindow>();
 
-    protected override IComposition Layout() => CU.Flex(
+    protected override string WindowName => "Window Test";
+    
+    protected override IComponent Layout() => CU.Flex(
         direction: FlexDirection.Row,
         content: new [] { ToggleButton(), ToggleButton() }
     );
 
-    private static Composition ToggleButton() => new(state =>
+    private static IComponent ToggleButton() => new(state =>
     {
         var isOn = state.Remember(false);
         
