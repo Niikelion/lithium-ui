@@ -6,19 +6,19 @@ You can find quick startup guide [here](bootstrap.md).
 
 In lithium, ui hierarchy is built using `components`.
 
-A `component` is any function with return type of `IComposition` or its implementation. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary syntax.
+A `component` is any function with return type of `IComponent` or its implementation. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary syntax.
 
 # Store
 
-Because of this approach, state of a component cannot be stored as a field of a class. In order to achieve this, we need to wrap our component with `Composition` object:
+Because of this approach, state of a component cannot be stored as a field of a class. In order to achieve this, we need to wrap our component with `Component` object:
 
 ```cs
-Composition ComponentWithState() => new (state => {
+IComponent ComponentWithState() => new (state => {
     //body of component goes here
 });
 ```
 
-Note, that we can access our state via `state` object of type `CompositionState`.
+Note, that we can access our state via `state` object of type `ComponentState`.
 
 
 
@@ -43,7 +43,7 @@ Lithium allows you to provide value of any type as a context that can be retriev
 
 ### Helpers
 
-Also, there are some methods in `CompositionState` that can help you manage your state:
+Also, there are some methods in `ComponentState` that can help you manage your state:
 
 * `MutableValue<T> Remember<T>(T value)` - remembers value in the state on first render and returns current value of a variable.
 * `MutableValue<T> RememberF<T>(Func<T> factory)` - same as `Remember`, but instead of storing provided value, executes `factory` on the first render and stores result as value in the state.
@@ -81,7 +81,7 @@ using CU = UI.Lt.Utils.CompositionUtils;
 Now, we can reduce:
 
 ```cs
-Composition Toggle() => new (state => {
+IComponent Toggle() => new (state => {
     var toggleState = state.Remember(false);
     
     return UI.Lt.Common.Button.V(
@@ -94,7 +94,7 @@ Composition Toggle() => new (state => {
 to:
 
 ```cs
-Composition Toggle() => new (state => {
+IComponent Toggle() => new (state => {
     var toggleState = state.Remember(false);
     
     return CU.Button(
@@ -135,7 +135,7 @@ Note, that some components, like `List` automatically assign ids for their child
 If you have component that does not change its layout, you can mark it as static to further improve state preservation:
 
 ```cs
-Composition StaticExample() =>
+IComponent StaticExample() =>
     new (ctx => CU.Text("Some text"), isStatic: true);
 ```
 

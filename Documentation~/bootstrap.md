@@ -12,13 +12,13 @@ Using lithium we can create:
 * `Editor` by extending `ComposableEditor` instead of `Editor`
 * `Property Drawer` by extending `ComposablePropertyDrawer` instead of `PropertyDrawer`
 
-Regardless of your choice, you need to define method `IComposition Layout()` that will by your layout function.
+Regardless of your choice, you need to define `IComponent Layout()` method that will by your layout function.
 
-For implementation simplicity we well create custom window.
+For simplicity we will create a custom window.
 
 ## Defining window
 
-This is the minimal example showing how to create custom window:
+This is the minimal example showing how to create the custom window:
 
 ```csharp
 using CU = UI.Li.Utils.CompositionUtils;
@@ -26,13 +26,11 @@ using CU = UI.Li.Utils.CompositionUtils;
 public class TestWindow: ComposableWindow
 {
     [MenuItem("Lithium/Examples/TestWindow")]
-    public static void ShowWindow()
-    {
-        var window = GetWindow<TestWindow>();
-        window.titleContent = new GUIContent("Window Test");
-    }
+    public static void ShowWindow() => GetWindow<TestWindow>();
     
-    protected override IComposition Layout() => CU.Text("Hello, world!");
+    protected override string WindowName => "Window Test";
+    
+    protected override IComponent Layout() => CU.Text("Hello, world!");
 }
 ```
 
@@ -44,20 +42,17 @@ As you can see, the only difference from standard custom window definition is th
 
 ## Adding state
 
-Sometimes we need to store some date between renders of our component. That's where `Composition` comes in.
+Sometimes we need to store some date between renders of our component. That's where `Component` comes in.
 It allows us to store some variables in the state object:
 
 ```csharp
-    protected override IComposition Layout() => new Composition(state =>
-    {
-        return CU.Text("Hello, world!");
-    }, isStatic: true);
+    protected override IComponent Layout() => new Component(state => CU.Text("Hello, world!"), isStatic: true);
 ```
 
 Now that we can store some values, we can make something dynamic, for example button that toggles between `On` and `Off` text:
 
 ```csharp
-    protected override IComposition Layout() => new Composition(state =>
+    protected override IComponent Layout() => new Component(state =>
     {
         var isOn = state.Remember(false);
         
@@ -77,12 +72,12 @@ It is a simple flex-box component that allows us to position our elements the sa
 For example, if we want to have two buttons side by side, we can simply do this:
 
 ```csharp
-    protected override IComposition Layout() => CU.Flex(
+    protected override IComponent Layout() => CU.Flex(
         direction: FlexDirection.Row,
         content: new [] { ToggleButton(), ToggleButton() }
     );
 
-    private static Composition ToggleButton() => new(state =>
+    private static Component ToggleButton() => new(state =>
     {
         var isOn = state.Remember(false);
         
@@ -99,7 +94,7 @@ For example, if we want to have two buttons side by side, we can simply do this:
 Couple remarks about this code:
 * only set `isStatic` to `true` if you always return same component,
 * note, that we used `data` parameter of `CU.Button`(it can be used to modify style properties or callbacks),
-* `Layout` not longer returns `Composition`(it no longer contains any state, so it is not needed).
+* `Layout` not longer returns `Component`(it no longer contains any state, so it is not needed).
 
 ## Further reading
 
