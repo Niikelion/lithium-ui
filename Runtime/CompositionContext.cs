@@ -701,7 +701,7 @@ namespace UI.Li
                             }
 
                             localEntryStack.Push(entry);
-                            nodeStack.Push(new TmpNode(entry.Component.GetType().Name, entry.Component, entry.Id));
+                            nodeStack.Push(new TmpNode(entry.Component.ToString(), entry.Component, entry.Id));
                             
                             break;
                         }

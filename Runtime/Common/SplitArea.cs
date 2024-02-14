@@ -43,7 +43,7 @@ namespace UI.Li.Common
         
         protected override VisualElement GetElement(VisualElement source)
         {
-            var element = Use(source, () => new TwoPaneSplitView(reverse ? 1 : 0, initialMainPanelSize, orientation), _ => false);
+            var element = Use(source, () => new UI.Li.Common.UIElements.TwoPaneSplitView(reverse ? 1 : 0, initialMainPanelSize, orientation), _ => true);
             
             element.contentContainer.Clear();
 
@@ -59,12 +59,16 @@ namespace UI.Li.Common
 
         protected override VisualElement PrepareElement(VisualElement target)
         {
-            var element = base.PrepareElement(target) as TwoPaneSplitView;
+            var element = base.PrepareElement(target) as UI.Li.Common.UIElements.TwoPaneSplitView;
             
             Debug.Assert(element != null);
 
             element.EnableInClassList("unity-two-pane-split-view", true);
-            
+
+            element.fixedPaneInitialDimension = initialMainPanelSize;
+            element.fixedPaneIndex = reverse ? 1 : 0;
+            element.orientation = orientation;
+
             if (!reverse)
             {
                 element.Add(mainContent.Render());
@@ -75,11 +79,9 @@ namespace UI.Li.Common
                 element.Add(secondaryContent.Render());
                 element.Add(mainContent.Render());
             }
-
-            element.fixedPaneInitialDimension = initialMainPanelSize;
-            element.fixedPaneIndex = reverse ? 1 : 0;
-            element.orientation = orientation;
-
+            
+            element.UpdateChildren();
+            
             return element;
         }
     }

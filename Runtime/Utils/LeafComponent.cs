@@ -59,5 +59,7 @@ namespace UI.Li.Utils
             previouslyRendered = null;
             OnRender = null;
         }
+
+        public override string ToString() => "LightComponent";
     }
 }

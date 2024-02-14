@@ -55,5 +55,7 @@ namespace UI.Li
             innerComponent?.Dispose();
             OnRender = null;
         }
+
+        public override string ToString() => "Component";
     }
 }

@@ -429,5 +429,7 @@ namespace UI.Li.Common
 
         [PublicAPI]
         protected void AddCleanup(VisualElement element, Action onCleanup) => CompositionContext.ElementUserData.AppendCleanupAction(element, onCleanup);
+
+        public override string ToString() => GetType().Name;
     }
 }
