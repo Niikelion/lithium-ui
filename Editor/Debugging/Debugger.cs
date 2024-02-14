@@ -23,7 +23,6 @@ namespace UI.Li.Editor.Debugging
         
         [MenuItem("Lithium/Debugger")]
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
-
         protected override string WindowName => "Component Debugger";
 
         protected override IComponent Layout() => new Component(ctx =>

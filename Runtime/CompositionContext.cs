@@ -133,12 +133,7 @@ namespace UI.Li
                         return;
 
                     foreach (var contextEntry in addedContexts)
-                    {
-                        if (contexts.ContainsKey(contextEntry.Key))
-                            contexts[contextEntry.Key] = contextEntry.Value;
-                        else
-                            contexts.Add(contextEntry.Key, contextEntry.Value);
-                    }
+                        contexts[contextEntry.Key] = contextEntry.Value;
                 }
 
                 public void RevertContexts(Dictionary<Type, object> contexts)
@@ -492,8 +487,8 @@ namespace UI.Li
                 
                 InsertAtPointer(new Frame(value));
                 value.OnValueChanged += () =>
-                {
                     currentEntry.Dirty = true;
+                {
                     MakeDirty();
                 };
                 
@@ -521,7 +516,7 @@ namespace UI.Li
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
         [NotNull]
-        public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new MutableValue<T>(value) : null);
+        public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new ContextMutableValue<T>(value, this) : null);
 
         /// <summary>
         /// Remembers given value in current component state.
@@ -533,7 +528,7 @@ namespace UI.Li
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
         [PublicAPI]
         [NotNull]
-        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new MutableValue<T>(factory()));
+        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ContextMutableValue<T>(factory(), this));
 
         [PublicAPI]
         [NotNull]
@@ -564,6 +559,9 @@ namespace UI.Li
         public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
             [NotNull] FactoryDelegate<IDictionary<TKey, TValue>> factory) =>
             Use(() => new MutableDictionary<TKey, TValue>(factory()));
+        
+        [PublicAPI]
+        [NotNull]
         public ValueReference<T> RememberRefF<T>([NotNull] Func<T> factory) => Use(() => new ValueReference<T>(factory()));
 
         [PublicAPI]

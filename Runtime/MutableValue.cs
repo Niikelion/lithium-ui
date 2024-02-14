@@ -27,7 +27,7 @@ namespace UI.Li
         /// </summary>
         /// <remarks>Calling setter invokes <see cref="OnValueChanged"/>.</remarks>
         [PublicAPI]
-        public T Value
+        public virtual T Value
         {
             get => value;
             set
@@ -53,7 +53,7 @@ namespace UI.Li
         
         public void Dispose() => OnValueChanged = null;
 
-        public override string ToString() => value.ToString();
+        public override string ToString() => value?.ToString();
     }
 
     public class ValueReference<T> : IMutableValue

@@ -248,8 +248,9 @@ namespace UI.Li.Utils
         public static Scroll Scroll(
             IComponent content,
             ScrollViewMode mode = ScrollViewMode.Vertical,
+            Action<float, Scroll.Orientation> onScroll = null,
             Element.Data data = new()
-        ) => Common.Scroll.V(content, mode, data);
+        ) => Common.Scroll.V(content, mode, onScroll, data);
     }
 
     /// <summary>

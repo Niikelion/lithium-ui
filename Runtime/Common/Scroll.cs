@@ -1,5 +1,7 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using UI.Li.Utils.Continuations;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Common
@@ -9,14 +11,21 @@ namespace UI.Li.Common
     /// </summary>
     public class Scroll: Element
     {
+        public enum Orientation
+        {
+            Vertical,
+            Horizontal
+        }
+        
         private readonly IComponent content;
         private readonly ScrollViewMode mode;
+        private readonly Action<float, Orientation> onScroll;
 
         [PublicAPI]
         [NotNull]
         public static Scroll V([NotNull] IComponent content, ScrollViewMode mode = ScrollViewMode.Vertical,
-            Data data = new()) =>
-            new(content, mode, data);
+            Action<float, Orientation> onScroll = null, Data data = new()) =>
+            new(content, mode, onScroll, data);
 
         protected override void OnState(CompositionContext context)
         {
@@ -59,20 +68,15 @@ namespace UI.Li.Common
         }
 
         //TODO: add scroll handlers
-        private void OnVerticalScrollChanged(float value)
-        {
-            //
-        }
+        private void OnVerticalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Vertical);
+
+        private void OnHorizontalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Horizontal);
         
-        private void OnHorizontalScrollChanged(float value)
-        {
-            //
-        }
-        
-        private Scroll([NotNull] IComponent content, ScrollViewMode mode, Data data): base(data)
+        private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, Data data): base(data)
         {
             this.content = content;
             this.mode = mode;
+            this.onScroll = onScroll;
         }
     }
 }
