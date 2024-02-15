@@ -31,28 +31,28 @@ This makes it not the best choice for in-game interfaces.
 
 ## Roadmap
 
-Currently planned features in no particullar order:
+Currently planned features in no particular order:
 
 * fully-featured layout debugger with support for viewing state and contexts,
 * styling system,
-* list component
+* list component,
 * port of every component available in UI Elements Builder,
-* port of every style available in UI Elemenets Builder,
+* port of every style available in UI Elements Builder,
 * support for named variables,
 * pooling of VisualElements for performance boost.
 
 ## UI Elements interoperability
 
-Lithium is built on top of UI Elements, which allows for almost seemles interoperability between these systems.
+Lithium is built on top of UI Elements, which allows for almost seamless interoperability between them.
 
 `CompositionRenderer` can be used to generate `VisualElement`s structure from Lithium layout, which you can later insert into your ui document.
 
-Using `VisualElements`s inside Lithium on the other hands require a bit more work. You need to implement custom `Composition`.
+Using `VisualElements`s inside Lithium on the other hand requires a bit more work. You need to implement custom `IComponent` or extend `Element`.
 To see how is can be done take a look at [text implementation](Runtime/Common/Text.cs).
 
 ## Contributing
 
-If you feel like some feature is missing our you find any bug feel free to open a new issue following community guidelines.
+If you feel like some feature is missing or you find any bug, feel free to open a new issue following the community guidelines.
 
 ## License
 
