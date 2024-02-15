@@ -487,8 +487,8 @@ namespace UI.Li
                 
                 InsertAtPointer(new Frame(value));
                 value.OnValueChanged += () =>
-                    currentEntry.Dirty = true;
                 {
+                    currentEntry.Dirty = true;
                     MakeDirty();
                 };
                 
