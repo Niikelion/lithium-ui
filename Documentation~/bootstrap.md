@@ -77,7 +77,7 @@ For example, if we want to have two buttons side by side, we can simply do this:
         content: new [] { ToggleButton(), ToggleButton() }
     );
 
-    private static Component ToggleButton() => new(state =>
+    private static Component ToggleButton() => new (state =>
     {
         var isOn = state.Remember(false);
         
@@ -91,10 +91,10 @@ For example, if we want to have two buttons side by side, we can simply do this:
 
 ![Two toggle window](assets/bootstrap_on_off.png)
 
-Couple remarks about this code:
-* only set `isStatic` to `true` if you always return same component,
+Couple remarks about above example:
+* only set `isStatic` to `true` if you always return the same ui structure,
 * note, that we used `data` parameter of `CU.Button`(it can be used to modify style properties or callbacks),
-* `Layout` not longer returns `Component`(it no longer contains any state, so it is not needed).
+* `Layout` method no longer returns `Component`(it no longer contains any state, so it is not needed).
 
 ## Further reading
 
