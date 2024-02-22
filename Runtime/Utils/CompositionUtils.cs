@@ -19,6 +19,18 @@ namespace UI.Li.Utils
     /// <remarks>Yeah, I know it's not pretty by we don't have functions outside classes soo...</remarks>
     [PublicAPI] public static class CompositionUtils
     {
+        public class IdWrapper : Wrapper
+        {
+            private readonly int id;
+
+            [NotNull] public static IdWrapper V([NotNull] IComponent component, int id) => new (component, id);
+            private IdWrapper([NotNull] IComponent innerComponent, int id): base(innerComponent) => this.id = id;
+            protected override void BeforeInnerRecompose(CompositionContext context) => context.SetNextEntryId(id);
+        }
+
+        public static StyleFunc Styled(Style style) => component => StyleWrapper.V(component, style);
+        public static IComponent WithStyle(Style style, IComponent component) => StyleWrapper.V(component, style);
+
         /// <summary>
         /// Returns given compositions with set id.
         /// </summary>
@@ -26,14 +38,8 @@ namespace UI.Li.Utils
         /// <param name="id">id</param>
         /// <param name="component">component to add id to</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
-        public static IComponent WithId(int id, IComponent component)
-        {
-            component.OnBeforeRecompose += ctx => ctx.SetNextEntryId(id);
-            
-            return component;
-        }
+        public static IComponent WithId(int id, IComponent component) => IdWrapper.V(component, id);
 
         /// <summary>
         /// Utility for switching between static compositions.
@@ -42,7 +48,6 @@ namespace UI.Li.Utils
         /// <param name="choice">number of currently selected component</param>
         /// <param name="compositions">available compositions to choose from</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static IComponent Switch(int choice, [NotNull] params Func<IComponent>[] compositions) =>
             WithId(choice, compositions[choice]());
@@ -55,7 +60,6 @@ namespace UI.Li.Utils
         /// <param name="onTrue">component chosen when choice is <c>true</c></param>
         /// <param name="onFalse">component chosen when choice is <c>false</c></param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static IComponent Switch(bool choice, [NotNull] Func<IComponent> onTrue, [NotNull] Func<IComponent> onFalse) =>
             choice ? WithId(1, onTrue()) : WithId(2, onFalse());
@@ -66,7 +70,6 @@ namespace UI.Li.Utils
         /// <param name="text">text</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Text Text([NotNull] string text, Element.Data data = new()) =>
             Common.Text.V(text, data);
@@ -78,7 +81,6 @@ namespace UI.Li.Utils
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Button Button([NotNull] Action onClick, [NotNull] IComponent content, Element.Data data = new()) =>
             Common.Button.V(onClick, content, data);
@@ -89,7 +91,6 @@ namespace UI.Li.Utils
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Button Button([NotNull] Action onClick, [NotNull] string content, Element.Data data = new()) =>
             Common.Button.V(onClick, content, data);
@@ -101,7 +102,6 @@ namespace UI.Li.Utils
         /// <param name="direction">direction of content flow</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Flex Flex([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, Element.Data data = new()) =>
             Common.Flex.V(content, direction, data);
@@ -115,7 +115,6 @@ namespace UI.Li.Utils
         /// <param name="focused">indices whether element should be focused after render or not</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static TextField TextField(
             [NotNull] Action<string> onValueChanged,
@@ -133,7 +132,6 @@ namespace UI.Li.Utils
         /// <param name="options">displayed options</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Dropdown Dropdown(
             int initialValue,
@@ -150,7 +148,6 @@ namespace UI.Li.Utils
         /// <param name="data">additional element data</param>
         /// <typeparam name="T">enum to be used as in a dropdown</typeparam>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Dropdown Dropdown<T>(
             T initialValue,
@@ -164,7 +161,6 @@ namespace UI.Li.Utils
         /// <param name="content">content of the box</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Box Box(IComponent content = null, Element.Data data = new()) => Common.Box.V(content, data);
 
@@ -179,7 +175,6 @@ namespace UI.Li.Utils
         /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static IComponent Foldout(
             [NotNull] IComponent header,
@@ -202,7 +197,6 @@ namespace UI.Li.Utils
         /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static IComponent Foldout(
             [NotNull] string header,
@@ -224,7 +218,6 @@ namespace UI.Li.Utils
         /// <param name="reverse">places main area at the end of container</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static SplitArea SplitArea(
             [NotNull] IComponent mainContent,
@@ -235,7 +228,6 @@ namespace UI.Li.Utils
             Element.Data data = new()
         ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, data);
 
-        [PublicAPI]
         [NotNull]
         public static Toggle Toggle(
             [NotNull] Action<bool> onValueChanged,
@@ -243,7 +235,6 @@ namespace UI.Li.Utils
             Element.Data data = new()
         ) => Common.Toggle.V(onValueChanged, initialValue, data);
 
-        [PublicAPI]
         [NotNull]
         public static Scroll Scroll(
             IComponent content,
@@ -267,7 +258,7 @@ namespace UI.Li.Utils
         /// </summary>
         /// <param name="component">component to render</param>
         /// <param name="name">name of context to be displayed in debugger</param>
-        [PublicAPI] public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed")
+        public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed")
         {
             this.component = component;
             context = new CompositionContext(name);
@@ -276,19 +267,18 @@ namespace UI.Li.Utils
         /// <summary>
         /// Recomposes component, <see cref="IComponent.Recompose"/>.
         /// </summary>
-        [PublicAPI] public void Update() => component.Recompose(context);
+        public void Update() => component.Recompose(context);
 
         /// <summary>
         /// Renders component, <see cref="IComponent.Render"/>.
         /// </summary>
         /// <returns></returns>
-        [PublicAPI] public VisualElement Render() => component.Render();
+        public VisualElement Render() => component.Render();
 
         /// <summary>
         /// Updates and renders component at the same time.
         /// </summary>
         /// <returns></returns>
-        [PublicAPI]
         public VisualElement UpdateAndRender()
         {
             Update();

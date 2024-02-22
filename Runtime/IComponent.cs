@@ -10,14 +10,13 @@ namespace UI.Li
     /// <remarks>Component should only store constant creation parameters and temporary state used between recompositions and renders.</remarks>
     [PublicAPI] public interface IComponent: IDisposable
     {
-        [PublicAPI] event Action<VisualElement> OnRender;
-        [PublicAPI] event Action<CompositionContext> OnBeforeRecompose;
+        event Action<VisualElement> OnRender;
 
         /// <summary>
         /// Renders given component. Consecutive returned values should be treated as new versions of the same component.
         /// </summary>
         /// <returns>VisualElement representing given component</returns>
-        [PublicAPI] [NotNull] public VisualElement Render();
+        [NotNull] public VisualElement Render();
 
         /// <summary>
         /// <para>Recomposes given component.</para>
@@ -28,6 +27,6 @@ namespace UI.Li
         /// </summary>
         /// <remarks>It is used for every recomposition, including initial component.</remarks>
         /// <param name="context">context containing state data.</param>
-        [PublicAPI] public void Recompose([NotNull] CompositionContext context);
+        public void Recompose([NotNull] CompositionContext context);
     }
 }

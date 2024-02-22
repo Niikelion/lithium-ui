@@ -12,7 +12,6 @@ namespace UI.Li
         public delegate IComponent StatefulComponent(ComponentState state);
         
         public event Action<VisualElement> OnRender;
-        public event Action<CompositionContext> OnBeforeRecompose;
         
         [NotNull] private readonly StatefulComponent composer;
         private readonly bool isStatic;
@@ -41,7 +40,6 @@ namespace UI.Li
 
         public void Recompose(CompositionContext context)
         {
-            OnBeforeRecompose?.Invoke(context);
             context.StartFrame(this);
             innerComponent = composer(new ComponentState(context));
             if (isStatic)

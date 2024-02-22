@@ -52,7 +52,7 @@ namespace UI.Li.Common
         {
             var ret = base.PrepareElement(target);
 
-            ret.style.flexDirection = new StyleEnum<FlexDirection>(direction);
+            ret.style.flexDirection = direction;
 
             foreach (var child in content)
                 ret.Add(child.Render());

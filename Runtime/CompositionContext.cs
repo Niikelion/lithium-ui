@@ -59,7 +59,7 @@ namespace UI.Li
                     element.userData = data;
                 }
 
-                data.onCleanup += onCleanup;
+                data.onCleanup = onCleanup + data.onCleanup;
 
                 return element;
             }
@@ -265,6 +265,7 @@ namespace UI.Li
         private int batchScopeLevel;
         private int nextEntryId;
         private bool nextEntryPreventOverride;
+        private IComponent nextEntryOrigin;
 
 #if UNITY_EDITOR // for reference listing
         static CompositionContext()
@@ -327,6 +328,9 @@ namespace UI.Li
         /// <param name="entryId">Id for next component</param>
         [PublicAPI] public void SetNextEntryId(int entryId = 0) => nextEntryId = entryId;
 
+        [PublicAPI]
+        public void SetNextEntryOrigin(IComponent origin) => nextEntryOrigin ??= origin;
+        
         /// <summary>
         /// Forces preferring updates over overrides in the next recomposition. 
         /// </summary>
@@ -341,9 +345,11 @@ namespace UI.Li
         [PublicAPI]
         public VisualElement StartFrame([NotNull] IComponent component, RecompositionStrategy strategy = RecompositionStrategy.Override)
         {
+            SetNextEntryOrigin(component);
             int currentNestingLevel = entryStack.TryPeek(out var lastEntry) ? lastEntry.NestingLevel + 1 : 0;
 
             int currentEntryId = nextEntryId;
+            component = TakeOrigin();
             
             isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering);
             nextEntryPreventOverride = false;
@@ -931,5 +937,12 @@ namespace UI.Li
         private Frame GetAtPointer() => frames.Get(framePointer++);
 
         private void AdvancePointer() => ++framePointer;
+
+        private IComponent TakeOrigin()
+        {
+            var ret = nextEntryOrigin;
+            nextEntryOrigin = null;
+            return ret;
+        }
     }
 }

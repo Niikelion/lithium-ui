@@ -50,13 +50,16 @@ namespace UI.Li.Common
             /// <summary>
             /// Structure used to store native event handlers.
             /// </summary>
-            public struct Events
+            [PublicAPI] public struct Events
             {
                 public EventCallback<ClickEvent> OnClick;
                 public EventCallback<KeyDownEvent> OnKeyDown;
                 public EventCallback<KeyUpEvent> OnKeyUp;
                 public EventCallback<BlurEvent> OnBlur;
                 public EventCallback<FocusEvent> OnFocus;
+                public EventCallback<MouseDownEvent> OnMouseDown;
+                public EventCallback<MouseEnterEvent> OnMouseEnter;
+                public EventCallback<MouseLeaveEvent> OnMouseLeave;
                 public Action<MeshGenerationContext> OnRepaint;
 
                 /// <summary>
@@ -72,6 +75,9 @@ namespace UI.Li.Common
                     OnKeyUp?.Run(Attach);
                     OnBlur?.Run(Attach);
                     OnFocus?.Run(Attach);
+                    OnMouseDown?.Run(Attach);
+                    OnMouseEnter?.Run(Attach);
+                    OnMouseLeave?.Run(Attach);
 
                     element.generateVisualContent += OnRepaint;
                 }
@@ -89,6 +95,9 @@ namespace UI.Li.Common
                     OnKeyUp?.Run(Detach);
                     OnBlur?.Run(Detach);
                     OnFocus?.Run(Detach);
+                    OnMouseDown?.Run(Detach);
+                    OnMouseEnter?.Run(Detach);
+                    OnMouseLeave?.Run(Detach);
 
                     element.generateVisualContent -= OnRepaint;
                 }
@@ -151,6 +160,8 @@ namespace UI.Li.Common
             private readonly Action<SyntheticKeyEvent> onKeyUp;
             private readonly Action onBlur;
             private readonly Action onFocus;
+            private readonly Action onMouseEnter;
+            private readonly Action onMouseLeave;
             private readonly Action<MeshGenerationContext> onRepaint;
             #endregion
 
@@ -181,6 +192,8 @@ namespace UI.Li.Common
                 Action<SyntheticKeyEvent> onKeyUp = null,
                 Action onBlur = null,
                 Action onFocus = null,
+                Action onMouseEnter = null,
+                Action onMouseLeave = null,
                 Action<MeshGenerationContext> onRepaint = null,
                 string tooltip = null
             )
@@ -211,6 +224,8 @@ namespace UI.Li.Common
                 this.onKeyUp = onKeyUp;
                 this.onBlur = onBlur;
                 this.onFocus = onFocus;
+                this.onMouseEnter = onMouseEnter;
+                this.onMouseLeave = onMouseLeave;
                 this.onRepaint = onRepaint;
                 this.tooltip = tooltip;
             }
@@ -262,17 +277,15 @@ namespace UI.Li.Common
                 element.style.marginBottom = margin.Bottom ?? StyleKeyword.Null;
 
                 element.tooltip = tooltip;
-                
-                var onClickCallback = onClick;
+
                 var onKeyDownCallback = onKeyDown;
                 var onKeyUpCallback = onKeyUp;
-                var onBlurCallback = onBlur;
-                var onFocusCallback = onFocus;
-                var onRepaintCallback = onRepaint;
 
+                EventCallback<T> DiscardArg<T>(Action f) => f != null ? _ => f() : null;
+                
                 var ret = new Events
                 {
-                    OnClick = onClickCallback != null ? _ => onClickCallback() : null,
+                    OnClick = DiscardArg<ClickEvent>(onClick),
                     OnKeyDown = onKeyDownCallback != null
                         ? evt => onKeyDownCallback(new SyntheticKeyEvent(
                             type: SyntheticKeyEvent.EventType.Down,
@@ -293,9 +306,11 @@ namespace UI.Li.Common
                             cmd: evt.ctrlKey
                         ))
                         : null,
-                    OnBlur = onBlurCallback != null ? _ => onBlurCallback() : null,
-                    OnFocus = onFocusCallback != null ? _ => onFocusCallback() : null,
-                    OnRepaint = onRepaintCallback
+                    OnBlur = DiscardArg<BlurEvent>(onBlur),
+                    OnFocus = DiscardArg<FocusEvent>(onFocus),
+                    OnMouseEnter = DiscardArg<MouseEnterEvent>(onMouseEnter),
+                    OnMouseLeave = DiscardArg<MouseLeaveEvent>(onMouseLeave),
+                    OnRepaint = onRepaint
                 };
 
                 ret.Register(element);
@@ -305,7 +320,6 @@ namespace UI.Li.Common
         }
         
         public event Action<VisualElement> OnRender;
-        public event Action<CompositionContext> OnBeforeRecompose;
         
         /// <summary>
         /// Reference to previously rendered element.
@@ -345,8 +359,6 @@ namespace UI.Li.Common
 
         public void Recompose(CompositionContext context)
         {
-            OnBeforeRecompose?.Invoke(context);
-            
             PreviouslyRendered = context.StartFrame(this, RecompositionStrategy);
             
             OnState(context);

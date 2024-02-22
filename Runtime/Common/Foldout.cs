@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using JetBrains.Annotations;
+using UI.Li.Common.Units;
 using UnityEngine.UIElements;
 
 using CU = UI.Li.Utils.CompositionUtils;
@@ -88,13 +89,22 @@ namespace UI.Li.Common
 
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
+        private static readonly StyleFunc DefaultNobStyle = CU.Styled(new Style
+        {
+            FlexGrow = 1,
+            Margin = 2
+        });
+
+        private static readonly StyleFunc DefaultNobBoxStyle = CU.Styled(new Style
+        {
+            Width = 13
+        });
+
         [PublicAPI]
         [NotNull]
         public static IComponent FoldoutNob(bool open, [NotNull] Action onClick) =>
-            CU.Box(
-                content: CU.Box(data: new(
-                    flexGrow: 1,
-                    margin: new(2),
+            DefaultNobBoxStyle(CU.Box(
+                content: DefaultNobStyle(CU.Box(data: new(
                     onRepaint: mgc =>
                     {
                         var color = mgc.visualElement.resolvedStyle.color;
@@ -129,11 +139,10 @@ namespace UI.Li.Common
                             });
                         }
                     }
-                )),
+                ))),
                 data: new(
-                    width: 13,
                     onClick: onClick
-                ));
+                )));
 
         private static IComponent DefaultHeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick) =>
             CU.Flex(
