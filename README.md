@@ -8,10 +8,6 @@ Lithium is an ui framework built on top of UI Elements designed to simplify edit
 By combining advantages of both ImGui and UI Elements, lithium provides alternative way to define your ui.
 For more information see [documentation](Documentation~/ui.lithium.md).
 
-## Getting started
-
-Quick start guide is available [here](Documentation~/bootstrap.md).
-
 ## Why to use Lithium
 
 There are a couple of reasons why you should give Lithium a try in your next project, it:
@@ -28,6 +24,32 @@ There are a couple of reasons why you should give Lithium a try in your next pro
 That being said, Lithium does not work in every scenario.
 Because layouts are defined from code it is not very ui-designer-friendly.
 This makes it not the best choice for in-game interfaces.
+
+## Examples
+
+### Hello world window
+
+```csharp
+﻿using UI.Li;
+using UI.Li.Editor;
+using UnityEditor;
+using UnityEngine;
+using CU = UI.Li.Utils.CompositionUtils;
+
+public class HelloWindow: ComposableWindow
+{
+    [MenuItem("Test/HelloWindow")]
+    public static void ShowWindow() => GetWindow<HelloWindow>();
+
+    protected override string WindowName => "Hello world!";
+    
+    protected override IComponent Layout() => CU.Text("Hello world!");
+}
+```
+
+## Getting started
+
+Ready to learn more? Quick start guide is available [here](Documentation~/bootstrap.md).
 
 ## Roadmap
 
