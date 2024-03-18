@@ -76,13 +76,15 @@ Ready to learn more? Quick start guide is available [here](Documentation~/bootst
 
 Currently planned features in no particular order:
 
-* fully-featured layout debugger with support for viewing state and contexts,
-* styling system,
-* list component,
-* port of every component available in UI Elements Builder,
-* port of every style available in UI Elements Builder,
-* support for named variables,
-* pooling of VisualElements for performance boost.
+- [ ] fully-featured layout debugger with support for viewing state and contexts,
+- [x] styling system
+- [ ] optimization of styling system,
+- [ ] list component,
+- [ ] port of every component available in UI Elements Builder,
+- [x] port of every style available in UI Elements Builder,
+- [ ] support for named variables,
+- [ ] pooling of `VisualElement` for performance boost.
+- [ ] remove `Element.Data` object, replace it with style system and `IManipulator` list
 
 ## UI Elements interoperability
 
