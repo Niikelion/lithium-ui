@@ -68,7 +68,6 @@ namespace UI.Li.Editor
         private readonly IComponent editor;
         private readonly string name;
 
-        [PublicAPI]
         [NotNull]
         public static CustomField V(SerializedProperty property, IComponent editor, Data data = new())
             => new(property, editor, data);
