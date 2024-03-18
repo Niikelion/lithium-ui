@@ -39,7 +39,7 @@ namespace UI.Li.Common
         /// Creates <see cref="Dropdown"/> instance using enum.
         /// </summary>
         /// <param name="initialValue">default selected option</param>
-        /// <param name="onSelectionChanged">callback invoked every time selected opton changes</param>
+        /// <param name="onSelectionChanged">callback invoked every time selected option changes</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <typeparam name="T">enum to be displayed in dropdown</typeparam>
         /// <returns></returns>
@@ -71,7 +71,7 @@ namespace UI.Li.Common
 
         protected override void OnState(CompositionContext context)
         {
-            ctxRef = new WeakReference<CompositionContext>(context);
+            ctxRef = new (context);
             currentValue = context.Remember(initialValue);
         }
 

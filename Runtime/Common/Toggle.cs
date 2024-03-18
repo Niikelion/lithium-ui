@@ -28,8 +28,8 @@ namespace UI.Li.Common
         {
             var elem = base.PrepareElement(target);
 
-            elem.AddToClassList("unity-base-field");
-            elem.AddToClassList("unity-toggle");
+            elem.AddToClassList(UnityEngine.UIElements.Toggle.ussClassName);
+            elem.AddToClassList(BaseField<bool>.ussClassName);
 
             return elem;
         }

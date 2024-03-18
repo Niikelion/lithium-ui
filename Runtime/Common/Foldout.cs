@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using JetBrains.Annotations;
-using UI.Li.Common.Units;
 using UnityEngine.UIElements;
 
 using CU = UI.Li.Utils.CompositionUtils;
@@ -51,14 +50,13 @@ namespace UI.Li.Common
 
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: new []
-                {
+                content: IComponent.Seq(
                     (headerContainer ?? DefaultHeaderContainer).Invoke(
-                        new[] { nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header },
+                        IComponent.Seq(nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header),
                         nobToggleOnly ? null : ToggleFoldout
                     ),
                     (contentContainer ?? DefaultContentContainer).Invoke(content, state)
-                }
+                )
             );
         }, isStatic: true);
 
@@ -89,13 +87,13 @@ namespace UI.Li.Common
 
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
-        private static readonly StyleFunc DefaultNobStyle = CU.Styled(new Style
+        private static readonly StyleFunc DefaultNobStyle = CU.Styled(new()
         {
             FlexGrow = 1,
             Margin = 2
         });
 
-        private static readonly StyleFunc DefaultNobBoxStyle = CU.Styled(new Style
+        private static readonly StyleFunc DefaultNobBoxStyle = CU.Styled(new()
         {
             Width = 13
         });

@@ -63,7 +63,7 @@ namespace UI.Li.Common
             
             Debug.Assert(element != null);
 
-            element.EnableInClassList("unity-two-pane-split-view", true);
+            element.AddToClassList("unity-two-pane-split-view");
 
             element.fixedPaneInitialDimension = initialMainPanelSize;
             element.fixedPaneIndex = reverse ? 1 : 0;

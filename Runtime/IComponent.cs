@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 
@@ -28,5 +29,12 @@ namespace UI.Li
         /// <remarks>It is used for every recomposition, including initial component.</remarks>
         /// <param name="context">context containing state data.</param>
         public void Recompose([NotNull] CompositionContext context);
+
+        /// <summary>
+        /// Wrapper function for cleaner sequence creation
+        /// </summary>
+        /// <param name="sequence">elements to pack into sequence.</param>
+        /// <returns>Provided parameters as sequence</returns>
+        public static IEnumerable<IComponent> Seq(params IComponent[] sequence) => sequence;
     }
 }

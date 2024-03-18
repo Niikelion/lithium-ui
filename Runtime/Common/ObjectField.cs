@@ -28,7 +28,7 @@ namespace UI.Li.Common
         
         protected override VisualElement GetElement(VisualElement source)
         {
-            var element = Use<UnityEditor.UIElements.ObjectField>(source);
+            var element = Use<ObjectField>(source);
 
             element.objectType = typeof(T);
             element.value = defaultValue;

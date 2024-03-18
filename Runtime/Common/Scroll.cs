@@ -1,7 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
 using UI.Li.Utils.Continuations;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Common
@@ -60,7 +59,7 @@ namespace UI.Li.Common
         {
             var ret = base.PrepareElement(target);
 
-            ret.AddToClassList("unity-scroll-view");
+            ret.AddToClassList(ScrollView.ussClassName);
 
             content?.Run(c => ret.Add(c.Render()));
             

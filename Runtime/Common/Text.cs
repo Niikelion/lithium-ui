@@ -31,8 +31,8 @@ namespace UI.Li.Common
         {
             var ret = base.PrepareElement(target);
             
-            ret.AddToClassList("unity-text-element");
-            ret.AddToClassList("unity-label");
+            ret.AddToClassList(Label.ussClassName);
+            ret.AddToClassList(TextElement.ussClassName);
             
             return ret;
         }

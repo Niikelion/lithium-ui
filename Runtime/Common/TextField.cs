@@ -68,10 +68,10 @@ namespace UI.Li.Common
         {
             var ret = base.PrepareElement(target);
 
-            ret.AddToClassList("unity-base-field");
-            ret.AddToClassList("unity-base-text-field");
-            ret.AddToClassList("unity-text-field");
-
+            ret.AddToClassList(UnityEngine.UIElements.TextField.ussClassName);
+            ret.AddToClassList(TextInputBaseField<string>.ussClassName);
+            ret.AddToClassList(BaseField<string>.ussClassName);
+            
             return ret;
         }
 

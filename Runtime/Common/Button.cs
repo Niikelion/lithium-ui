@@ -52,8 +52,8 @@ namespace UI.Li.Common
         {
             var ret = base.PrepareElement(target);
 
-            ret.AddToClassList("unity-text-element");
-            ret.AddToClassList("unity-button");
+            ret.AddToClassList(UnityEngine.UIElements.Button.ussClassName);
+            ret.AddToClassList(TextElement.ussClassName);
             
             return ret;
         }

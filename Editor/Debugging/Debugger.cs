@@ -50,7 +50,7 @@ namespace UI.Li.Editor.Debugging
             
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: new[] { CU.WithId(1, Toolbar()), CU.WithId(2, Content()) },
+                content: IComponent.Seq(CU.WithId(1, Toolbar()), CU.WithId(2, Content())),
                 data: new(flexGrow: 1)
             );
 
@@ -63,17 +63,14 @@ namespace UI.Li.Editor.Debugging
                     data: new(
                         alignItems: Align.Center
                     ),
-                    content: new IComponent[]
-                    {
-                        CU.Dropdown(
-                            data: new(
-                                minWidth: 240
-                            ),
-                            initialValue: instances.Value.IndexOf(selectedContext.Value)+1,
-                            options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
-                            onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
-                        )
-                    }
+                    content: IComponent.Seq(CU.Dropdown(
+                        data: new(
+                            minWidth: 240
+                        ),
+                        initialValue: instances.Value.IndexOf(selectedContext.Value)+1,
+                        options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
+                        onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
+                    ))
                 );
 
             IComponent DisplayHierarchy() => Hierarchy(hierarchy);
@@ -105,7 +102,7 @@ namespace UI.Li.Editor.Debugging
         {
             return CU.Scroll(CU.Flex(
                 direction: FlexDirection.Column,
-                content: roots.Select((root, i) => CU.WithId(i+1, RenderNode(root, ctx))).ToArray()
+                content: roots.Select((root, i) => CU.WithId(i+1, RenderNode(root, ctx)))
             ));
         }, isStatic: true);
         
@@ -178,9 +175,7 @@ namespace UI.Li.Editor.Debugging
             );
             
             static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(
-                data: new(
-                    display: visible ? DisplayStyle.Flex : DisplayStyle.None
-                ),
+                data: new(display: visible ? DisplayStyle.Flex : DisplayStyle.None),
                 content: content
             );
         }

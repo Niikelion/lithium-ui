@@ -30,7 +30,7 @@ This makes it not the best choice for in-game interfaces.
 ### Hello world window
 
 ```csharp
-﻿using UI.Li;
+using UI.Li;
 using UI.Li.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -44,6 +44,27 @@ public class HelloWindow: ComposableWindow
     protected override string WindowName => "Hello world!";
     
     protected override IComponent Layout() => CU.Text("Hello world!");
+}
+```
+
+### Add action to inspector
+
+```csharp
+using UI.Li;
+using UI.Li.Editor;
+using UnityEditor;
+using UnityEngine;
+using CU = UI.Li.Utils.CompositionUtils;
+
+// Assuming we have MonoBehaviour "TestBehaviour"
+[CustomEditor(typeof(TestBehaviour))]
+public class TestBehaviourEditor: ComposableEditor
+{
+    protected override IComponent Layout() => CU.Flex(new IComponent[]
+    {
+        DefaultInspector.V(this),
+        CU.Button(content: "Tick", onClick: () => Debug.Log("Tack"))
+    });
 }
 ```
 

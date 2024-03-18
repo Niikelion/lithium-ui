@@ -31,11 +31,10 @@ namespace UI.Li.Common
                 
                 var selected = ctx.Remember(0);
                 
-                return CU.Flex(direction: FlexDirection.Column, content: new[]
-                {
+                return CU.Flex(direction: FlexDirection.Column, content: IComponent.Seq(
                     List(cachedTabs.Select(t => t.Label), i => selected.Value = i, selected.Value, label),
                     CU.WithId(selected.Value, cachedTabs[selected.Value].Content())
-                });
+                ));
             }, isStatic: true);
 
         [NotNull]
