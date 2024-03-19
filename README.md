@@ -85,6 +85,7 @@ Currently planned features in no particular order:
 - [ ] support for named variables,
 - [ ] pooling of `VisualElement` for performance boost.
 - [ ] remove `Element.Data` object, replace it with style system and `IManipulator` list
+- [ ] add ui portals
 
 ## UI Elements interoperability
 
