@@ -137,7 +137,7 @@ namespace UI.Li.Common
                             });
                         }
                     }
-                ))),
+                ), content: null)),
                 data: new(
                     onClick: onClick
                 )));

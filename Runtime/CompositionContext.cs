@@ -64,11 +64,40 @@ namespace UI.Li
                 return element;
             }
 
+            public static VisualElement AddManipulator(VisualElement element, IManipulator manipulator)
+            {
+                if (element.userData is not ElementUserData data)
+                {
+                    if (element.userData != null)
+                        throw new Exception("Corrupted user data");
+
+                    data = new ElementUserData();
+                    element.userData = data;
+                }
+
+                data.manipulators.Add(manipulator);
+                
+                return element;
+            }
+
+            public static VisualElement AddManipulators(VisualElement element, IEnumerable<IManipulator> manipulators)
+            {
+                foreach (var manipulator in manipulators)
+                    AddManipulator(element, manipulator);
+                
+                return element;
+            }
+            
             public static VisualElement CleanUp(VisualElement element)
             {
                 if (element.userData is not ElementUserData data)
                     return element;
 
+                foreach (var manipulator in data.manipulators)
+                    element.RemoveManipulator(manipulator);
+                
+                data.manipulators.Clear();
+                
                 data.onCleanup?.Invoke();
                 data.onCleanup = null;
 
@@ -76,6 +105,12 @@ namespace UI.Li
             }
 
             private Action onCleanup;
+            private readonly HashSet<IManipulator> manipulators;
+
+            private ElementUserData()
+            {
+                manipulators = new HashSet<IManipulator>();
+            }
         }
 
         [NotNull] public delegate T FactoryDelegate<out T>();

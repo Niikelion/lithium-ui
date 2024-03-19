@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using UI.Li.Utils.Continuations;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UI.Li.Common
 {
@@ -12,6 +13,8 @@ namespace UI.Li.Common
     /// <remarks>Good base class for compositions that supports styling and callbacks of <see cref="VisualElement"/></remarks>
     [PublicAPI] public class Element: IComponent
     {
+#pragma warning disable 0618
+        
         /// <summary>
         /// Simplified <see cref="KeyboardEventBase{T}"/>, <see cref="KeyDownEvent"/> and <see cref="KeyUpEvent"/>.
         /// </summary>
@@ -45,7 +48,7 @@ namespace UI.Li.Common
         /// <summary>
         /// Struct containing all styles and events that can be applied to element.
         /// </summary>
-        [PublicAPI] public struct Data
+        [PublicAPI] [Obsolete("Use styles and/or manipulators instead", false)] public struct Data
         {
             /// <summary>
             /// Structure used to store native event handlers.
@@ -130,7 +133,6 @@ namespace UI.Li.Common
             private readonly string name;
             private readonly List<string> classList;
             
-            // TODO: maybe implement smth like react styled-components?
             #region styles
             private readonly DisplayStyle? display;
             private readonly FlexDirection? flexDirection;
@@ -336,17 +338,24 @@ namespace UI.Li.Common
             CompositionContext.RecompositionStrategy.Override;
         
         private readonly Data data;
+        private readonly IManipulator[] manipulators;
 
         /// <summary>
         /// Constructs <see cref="Element"/> instance.
         /// </summary>
         /// <param name="data">additional element data <seealso cref="Data"/></param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] public static Element V(Data data = new()) => new(data);
+        [PublicAPI] [NotNull] public static Element V(Data data) => new(data: data);
+        
+        [PublicAPI] [NotNull] public static Element V(params IManipulator[] manipulators) => new(manipulators: manipulators);
+        [PublicAPI] [NotNull] public static Element V(IEnumerable<IManipulator> manipulators) => new (manipulators: manipulators);
 
-        public Element(Data data = new())
+        public Element(Data data) : this(data: data, manipulators: null) { }
+
+        public Element(IEnumerable<IManipulator> manipulators = null, Data data = new())
         {
             this.data = data;
+            this.manipulators = manipulators?.ToArray() ?? Array.Empty<IManipulator>();
         }
         
         public VisualElement Render()
@@ -401,7 +410,10 @@ namespace UI.Li.Common
         {
             var lingeringEvents = data.Apply(target);
 
-            return CompositionContext.ElementUserData.AppendCleanupAction(target, () => lingeringEvents.Unregister(target));
+            CompositionContext.ElementUserData.AppendCleanupAction(target, () => lingeringEvents.Unregister(target));
+            CompositionContext.ElementUserData.AddManipulators(target, manipulators);
+            
+            return target;
         }
 
         /// <summary>

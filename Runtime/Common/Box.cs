@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using UI.Li.Utils.Continuations;
 
@@ -19,7 +20,18 @@ namespace UI.Li.Common
         /// <returns></returns>
         [PublicAPI]
         [NotNull]
-        public static Box V(IComponent content = null, Data data = new()) => new(content, data);
+        [Obsolete]
+        public static Box V(IComponent content, Data data) => new(content, data);
+
+        /// <summary>
+        /// Creates <see cref="Box"/> instance with given content.
+        /// </summary>
+        /// <param name="content">content to be wrapped</param>
+        /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
+        /// <returns></returns>
+        [PublicAPI]
+        [NotNull]
+        public static Box V(IComponent content = null, params IManipulator[] manipulators) => new(content, manipulators);
         
         public override void Dispose()
         {
@@ -40,7 +52,13 @@ namespace UI.Li.Common
             return ret;
         }
 
+        [Obsolete]
         private Box(IComponent content, Data data): base(data)
+        {
+            this.content = content;
+        }
+
+        private Box(IComponent content, params IManipulator[] manipulators) : base(manipulators)
         {
             this.content = content;
         }

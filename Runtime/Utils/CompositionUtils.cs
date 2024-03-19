@@ -16,8 +16,9 @@ namespace UI.Li.Utils
     /// <summary>
     /// Utility class aimed to simplify basic use of components.
     /// </summary>
-    /// <remarks>Yeah, I know it's not pretty by we don't have functions outside classes soo...</remarks>
-    [PublicAPI] public static class CompositionUtils
+    /// <remarks>Yeah, I know it's not pretty but we don't have functions outside classes soo...</remarks>
+    [PublicAPI]
+    public static class CompositionUtils
     {
         public class IdWrapper : Wrapper
         {
@@ -162,8 +163,19 @@ namespace UI.Li.Utils
         /// <param name="data">additional element data</param>
         /// <returns></returns>
         [NotNull]
-        public static Box Box(IComponent content = null, Element.Data data = new()) => Common.Box.V(content, data);
+        [Obsolete]
+        public static Box Box(IComponent content, Element.Data data) => Common.Box.V(content, data);
 
+        /// <summary>
+        /// Creates box component, see <see cref="Common.Box.V(IComponent, IManipulator[])"/>.
+        /// </summary>
+        /// <param name="content">content of the box</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        [Obsolete]
+        public static Box Box(IComponent content = null, params IManipulator[] manipulators) => Common.Box.V(content, manipulators);
+        
         /// <summary>
         /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Element.Data, Func{bool, Action, IComponent})"/>.
         /// </summary>
@@ -294,5 +306,15 @@ namespace UI.Li.Utils
             context.Dispose();
             component.Dispose();
         }
+    }
+
+    /// <summary>
+    /// Utility class aimed to simplify basic use of manipulators.
+    /// </summary>
+    [PublicAPI]
+    public static class EventUtils
+    {
+        [NotNull]
+        public static IManipulator OnClick([NotNull] Action onClick) => new Clickable(onClick);
     }
 }

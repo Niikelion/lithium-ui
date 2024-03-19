@@ -111,18 +111,18 @@ Component Toggle() => new (state => {
 `CompositionUtils` provides:
 
 * `WithId(int id, IComposition composition)` - sets `id` for `composition`.
-
+* `WithStyle`
 * `Switch`
-
 * `Text`
-
 * `Button`
-
 * `Flex`
-
-* `Foldout`
-
+* `TextField`
+* `Dropdown`
 * `Box`
+* `Foldout`
+* `SplitArea`
+* `Toggle`
+* `Scroll`
 
 To learn more about how to use them, you can read the documentation for the members of `CompositionUtils` that should be accessible through your idee of choice.
 
