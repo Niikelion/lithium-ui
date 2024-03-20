@@ -16,6 +16,7 @@
   - [Let](#let)
   - [Run](#run)
   - [When](#when)
+- [Portals](#portals)
 - [Summary](#summary)
 
 ## Getting started
@@ -268,6 +269,20 @@ CU.Text("Test").When(disabled, gray);
 ```
 
 Note that `When` can only change type to the base class.
+
+## Portals
+
+Portals are the proper way to render elements between the context boundary or even outside the lithium system.
+
+To use them, simply create `Portal.Link` and pass it to `Portal.Achor.V`(container) and `Portal.V`(content).
+They will be linked and content will be the direct child of the container.
+If you wish to render lithium content outside lithium, or attach content from outside lithium to the context,
+omit adding one of the components and instead of them use properties `Content` and `Container` directly.
+For example, to use custom container just set `Container` to this container and use `Portal.V` inside lithium context.
+
+Note, that this is not the recommended way to render some element in the different part of the same lithium context.
+Adequate solution may depend on the situation, but it is usually better to use context to pass data,
+including content rendered.
 
 ## Summary
 

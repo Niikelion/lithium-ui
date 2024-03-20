@@ -46,7 +46,7 @@ namespace UI.Li
             Reorder
         }
 
-        public class ElementUserData
+        [PublicAPI] public class ElementUserData
         {
             public static VisualElement AppendCleanupAction(VisualElement element, Action onCleanup)
             {
@@ -110,7 +110,7 @@ namespace UI.Li
 
             private ElementUserData()
             {
-                manipulators = new HashSet<IManipulator>();
+                manipulators = new ();
             }
         }
 

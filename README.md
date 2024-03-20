@@ -86,7 +86,8 @@ Currently planned features in no particular order:
 - [ ] pooling of `VisualElement` for performance boost.
 - [X] support for manipulators.
 - [ ] remove `Element.Data` object, replace it with style system and `IManipulator` list
-- [ ] add ui portals
+- [X] ui portals
+- [ ] remove events from `IComponent`
 
 ## UI Elements interoperability
 
