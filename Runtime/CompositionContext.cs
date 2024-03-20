@@ -69,13 +69,14 @@ namespace UI.Li
                 if (element.userData is not ElementUserData data)
                 {
                     if (element.userData != null)
-                        throw new Exception("Corrupted user data");
+                        throw new ("Corrupted user data");
 
-                    data = new ElementUserData();
+                    data = new();
                     element.userData = data;
                 }
 
                 data.manipulators.Add(manipulator);
+                element.AddManipulator(manipulator);
                 
                 return element;
             }

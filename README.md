@@ -84,6 +84,7 @@ Currently planned features in no particular order:
 - [x] port of every style available in UI Elements Builder,
 - [ ] support for named variables,
 - [ ] pooling of `VisualElement` for performance boost.
+- [X] support for manipulators.
 - [ ] remove `Element.Data` object, replace it with style system and `IManipulator` list
 - [ ] add ui portals
 

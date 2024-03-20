@@ -71,9 +71,19 @@ namespace UI.Li.Utils
         /// <param name="text">text</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
-        public static Text Text([NotNull] string text, Element.Data data = new()) =>
+        [NotNull] [Obsolete]
+        public static Text Text([NotNull] string text, Element.Data data) =>
             Common.Text.V(text, data);
+        
+        /// <summary>
+        /// Creates text component, see <see cref="Common.Text.V(string, Element.Data)"/>.
+        /// </summary>
+        /// <param name="text">text</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Text Text([NotNull] string text, params IManipulator[] manipulators) =>
+            Common.Text.V(text, manipulators);
         
         /// <summary>
         /// Creates button component, see <see cref="Common.Button.V(Action, IComponent, Element.Data)"/>.
@@ -82,8 +92,8 @@ namespace UI.Li.Utils
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
-        public static Button Button([NotNull] Action onClick, [NotNull] IComponent content, Element.Data data = new()) =>
+        [NotNull] [Obsolete]
+        public static Button Button([NotNull] Action onClick, [NotNull] IComponent content, Element.Data data) =>
             Common.Button.V(onClick, content, data);
         /// <summary>
         /// Creates button component, see <see cref="Common.Button.V(Action, string, Element.Data)"/>.
@@ -92,10 +102,31 @@ namespace UI.Li.Utils
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
-        public static Button Button([NotNull] Action onClick, [NotNull] string content, Element.Data data = new()) =>
+        [NotNull] [Obsolete]
+        public static Button Button([NotNull] Action onClick, [NotNull] string content, Element.Data data) =>
             Common.Button.V(onClick, content, data);
 
+        /// <summary>
+        /// Creates button component, see <see cref="Common.Button.V(Action, IComponent, Element.Data)"/>.
+        /// </summary>
+        /// <param name="onClick">called when element is clicked</param>
+        /// <param name="content">content of the button</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Button Button([NotNull] Action onClick, [NotNull] IComponent content, params IManipulator[] manipulators) =>
+            Common.Button.V(onClick, content, manipulators);
+        /// <summary>
+        /// Creates button component, see <see cref="Common.Button.V(Action, string, Element.Data)"/>.
+        /// </summary>
+        /// <param name="onClick">called when element is clicked</param>
+        /// <param name="content">content of the button</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Button Button([NotNull] Action onClick, [NotNull] string content, params IManipulator[] manipulators) =>
+            Common.Button.V(onClick, content, manipulators);
+        
         /// <summary>
         /// Creates flex component, see <see cref="Common.Flex.V(IEnumerable{IComponent}, FlexDirection, Element.Data)"/>.
         /// </summary>
@@ -103,10 +134,21 @@ namespace UI.Li.Utils
         /// <param name="direction">direction of content flow</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
-        public static Flex Flex([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, Element.Data data = new()) =>
+        [NotNull] [Obsolete]
+        public static Flex Flex([NotNull] IEnumerable<IComponent> content, FlexDirection direction, Element.Data data) =>
             Common.Flex.V(content, direction, data);
-
+        
+        /// <summary>
+        /// Creates flex component, see <see cref="Common.Flex.V(IEnumerable{IComponent}, FlexDirection, Element.Data)"/>.
+        /// </summary>
+        /// <param name="content">content of flex element</param>
+        /// <param name="direction">direction of content flow</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Flex Flex([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, params IManipulator[] manipulators) =>
+            Common.Flex.V(content, direction, manipulators);
+        
         /// <summary>
         /// Creates text field component, see <see cref="Common.TextField.V(Action{string}, string, string, bool, Element.Data)"/>.
         /// </summary>
@@ -116,14 +158,32 @@ namespace UI.Li.Utils
         /// <param name="focused">indices whether element should be focused after render or not</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
+        [NotNull] [Obsolete]
+        public static TextField TextField(
+            [NotNull] Action<string> onValueChanged,
+            [NotNull] string initialValue,
+            [NotNull] string tooltip,
+            bool focused,
+            Element.Data data
+        ) => Common.TextField.V(onValueChanged, initialValue, tooltip, focused, data);
+        
+        /// <summary>
+        /// Creates text field component, see <see cref="Common.TextField.V(Action{string}, string, string, bool, Element.Data)"/>.
+        /// </summary>
+        /// <param name="onValueChanged">called when field content changes</param>
+        /// <param name="initialValue">initial text</param>
+        /// <param name="tooltip">tooltip</param>
+        /// <param name="focused">indices whether element should be focused after render or not</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
         [NotNull]
         public static TextField TextField(
             [NotNull] Action<string> onValueChanged,
             [NotNull] string initialValue = "",
             [NotNull] string tooltip = "",
             bool focused = false,
-            Element.Data data = new()
-        ) => Common.TextField.V(onValueChanged, initialValue, tooltip, focused, data);
+            params IManipulator[] manipulators
+        ) => Common.TextField.V(onValueChanged, initialValue, tooltip, focused, manipulators);
 
         /// <summary>
         /// Creates dropdown field component, see <see cref="Common.Dropdown.V(int, Action{int}, List{string}, Element.Data)"/>.
@@ -133,12 +193,12 @@ namespace UI.Li.Utils
         /// <param name="options">displayed options</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
+        [NotNull] [Obsolete]
         public static Dropdown Dropdown(
             int initialValue,
             [NotNull] Action<int> onSelectionChanged,
             [NotNull] List<string> options,
-            Element.Data data = new()
+            Element.Data data
         ) => Common.Dropdown.V(initialValue, onSelectionChanged, options, data);
         
         /// <summary>
@@ -149,12 +209,43 @@ namespace UI.Li.Utils
         /// <param name="data">additional element data</param>
         /// <typeparam name="T">enum to be used as in a dropdown</typeparam>
         /// <returns></returns>
+        [NotNull] [Obsolete]
+        public static Dropdown Dropdown<T>(
+            T initialValue,
+            [NotNull] Action<T> onSelectionChanged,
+            Element.Data data
+        ) where T : Enum => Common.Dropdown.V(initialValue, onSelectionChanged, data);
+        
+        /// <summary>
+        /// Creates dropdown field component, see <see cref="Common.Dropdown.V(int, Action{int}, List{string}, Element.Data)"/>.
+        /// </summary>
+        /// <param name="initialValue">number of initially selected option starting from 0</param>
+        /// <param name="onSelectionChanged">selection changed callback</param>
+        /// <param name="options">displayed options</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Dropdown Dropdown(
+            int initialValue,
+            [NotNull] Action<int> onSelectionChanged,
+            [NotNull] List<string> options,
+            params IManipulator[] manipulators
+        ) => Common.Dropdown.V(initialValue, onSelectionChanged, options, manipulators);
+        
+        /// <summary>
+        /// Creates dropdown field component, see <see cref="Common.Dropdown.V{T}(T, Action{T}, Element.Data)"/>.
+        /// </summary>
+        /// <param name="initialValue">enum option selected by default</param>
+        /// <param name="onSelectionChanged">on selection changed callback</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <typeparam name="T">enum to be used as in a dropdown</typeparam>
+        /// <returns></returns>
         [NotNull]
         public static Dropdown Dropdown<T>(
             T initialValue,
             [NotNull] Action<T> onSelectionChanged,
-            Element.Data data = new()
-        ) where T : Enum => Common.Dropdown.V(initialValue, onSelectionChanged, data);
+            params IManipulator[] manipulators
+        ) where T : Enum => Common.Dropdown.V(initialValue, onSelectionChanged, manipulators);
         
         /// <summary>
         /// Creates box component, see <see cref="Common.Box.V(IComponent, Element.Data)"/>.
@@ -173,7 +264,6 @@ namespace UI.Li.Utils
         /// <param name="manipulators">manipulators</param>
         /// <returns></returns>
         [NotNull]
-        [Obsolete]
         public static Box Box(IComponent content = null, params IManipulator[] manipulators) => Common.Box.V(content, manipulators);
         
         /// <summary>
@@ -187,15 +277,15 @@ namespace UI.Li.Utils
         /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
-        [NotNull]
+        [NotNull] [Obsolete]
         public static IComponent Foldout(
             [NotNull] IComponent header,
             [NotNull] IComponent content,
-            bool initiallyOpen = false,
-            bool nobToggleOnly = false,
-            Foldout.HeaderContainer headerContainer = null,
-            Foldout.ContentContainer contentContainer = null,
-            Element.Data data = new()
+            bool initiallyOpen,
+            bool nobToggleOnly,
+            Foldout.HeaderContainer headerContainer,
+            Foldout.ContentContainer contentContainer,
+            Element.Data data
         ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data);
         
         /// <summary>
@@ -209,6 +299,50 @@ namespace UI.Li.Utils
         /// <param name="contentContainer">container used to render content</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
+        [NotNull] [Obsolete]
+        public static IComponent Foldout(
+            [NotNull] string header,
+            [NotNull] IComponent content,
+            bool initiallyOpen,
+            bool nobToggleOnly,
+            Foldout.HeaderContainer headerContainer,
+            Foldout.ContentContainer contentContainer,
+            Element.Data data
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data);
+
+        /// <summary>
+        /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// </summary>
+        /// <param name="header">header of the foldout</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, use whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static IComponent Foldout(
+            [NotNull] IComponent header,
+            [NotNull] IComponent content,
+            bool initiallyOpen = false,
+            bool nobToggleOnly = false,
+            Foldout.HeaderContainer headerContainer = null,
+            Foldout.ContentContainer contentContainer = null,
+            params IManipulator[] manipulators
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
+        
+        /// <summary>
+        /// Creates foldout component, see <see cref="Common.Foldout.V(string, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Element.Data, Func{bool, Action, IComponent})"/>.
+        /// </summary>
+        /// <param name="header">header text</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, us whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
         [NotNull]
         public static IComponent Foldout(
             [NotNull] string header,
@@ -217,8 +351,8 @@ namespace UI.Li.Utils
             bool nobToggleOnly = false,
             Foldout.HeaderContainer headerContainer = null,
             Foldout.ContentContainer contentContainer = null,
-            Element.Data data = new()
-        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, data);
+            params IManipulator[] manipulators
+        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
 
         /// <summary>
         /// Creates split area component, see <see cref="Common.SplitArea.V(IComponent, IComponent, TwoPaneSplitViewOrientation, float, bool, Element.Data)"/>.
@@ -230,6 +364,26 @@ namespace UI.Li.Utils
         /// <param name="reverse">places main area at the end of container</param>
         /// <param name="data">additional element data</param>
         /// <returns></returns>
+        [NotNull] [Obsolete]
+        public static SplitArea SplitArea(
+            [NotNull] IComponent mainContent,
+            [NotNull] IComponent secondaryContent,
+            TwoPaneSplitViewOrientation orientation,
+            float initialSize,
+            bool reverse,
+            Element.Data data
+        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, data);
+
+        /// <summary>
+        /// Creates split area component, see <see cref="Common.SplitArea.V(IComponent, IComponent, TwoPaneSplitViewOrientation, float, bool, Element.Data)"/>.
+        /// </summary>
+        /// <param name="mainContent">main area</param>
+        /// <param name="secondaryContent">secondary area</param>
+        /// <param name="orientation">orientation</param>
+        /// <param name="initialSize">initial size of main area</param>
+        /// <param name="reverse">places main area at the end of container</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
         [NotNull]
         public static SplitArea SplitArea(
             [NotNull] IComponent mainContent,
@@ -237,23 +391,39 @@ namespace UI.Li.Utils
             TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
             float initialSize = 0,
             bool reverse = false,
-            Element.Data data = new()
-        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, data);
+            params IManipulator[] manipulators
+        ) => Common.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, manipulators);
+
+        
+        [NotNull] [Obsolete]
+        public static Toggle Toggle(
+            [NotNull] Action<bool> onValueChanged,
+            bool initialValue,
+            Element.Data data
+        ) => Common.Toggle.V(onValueChanged, initialValue, data);
 
         [NotNull]
         public static Toggle Toggle(
             [NotNull] Action<bool> onValueChanged,
             bool initialValue = false,
-            Element.Data data = new()
-        ) => Common.Toggle.V(onValueChanged, initialValue, data);
-
+            params IManipulator[] manipulators
+        ) => Common.Toggle.V(onValueChanged, initialValue, manipulators);
+        
+        [NotNull] [Obsolete]
+        public static Scroll Scroll(
+            IComponent content,
+            ScrollViewMode mode,
+            Action<float, Scroll.Orientation> onScroll,
+            Element.Data data
+        ) => Common.Scroll.V(content, mode, onScroll, data);
+        
         [NotNull]
         public static Scroll Scroll(
             IComponent content,
             ScrollViewMode mode = ScrollViewMode.Vertical,
             Action<float, Scroll.Orientation> onScroll = null,
-            Element.Data data = new()
-        ) => Common.Scroll.V(content, mode, onScroll, data);
+            params IManipulator[] manipulators
+        ) => Common.Scroll.V(content, mode, onScroll, manipulators);
     }
 
     /// <summary>
@@ -273,7 +443,7 @@ namespace UI.Li.Utils
         public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed")
         {
             this.component = component;
-            context = new CompositionContext(name);
+            context = new (name);
         }
 
         /// <summary>
@@ -306,15 +476,5 @@ namespace UI.Li.Utils
             context.Dispose();
             component.Dispose();
         }
-    }
-
-    /// <summary>
-    /// Utility class aimed to simplify basic use of manipulators.
-    /// </summary>
-    [PublicAPI]
-    public static class EventUtils
-    {
-        [NotNull]
-        public static IManipulator OnClick([NotNull] Action onClick) => new Clickable(onClick);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UI.Li.Common;
+using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -50,9 +52,11 @@ namespace UI.Li.Editor.Debugging
             
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: IComponent.Seq(CU.WithId(1, Toolbar()), CU.WithId(2, Content())),
-                data: new(flexGrow: 1)
-            );
+                content: IComponent.Seq(
+                    CU.WithId(1, Toolbar()),
+                    CU.WithId(2, Content())
+                )
+            ).WithStyle(fillStyle);
 
             List<CompositionContext> GetInstances() =>
                 CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
@@ -60,18 +64,12 @@ namespace UI.Li.Editor.Debugging
             IComponent Toolbar() =>
                 CU.Flex(
                     direction: FlexDirection.Row,
-                    data: new(
-                        alignItems: Align.Center
-                    ),
                     content: IComponent.Seq(CU.Dropdown(
-                        data: new(
-                            minWidth: 240
-                        ),
                         initialValue: instances.Value.IndexOf(selectedContext.Value)+1,
                         options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
                         onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
-                    ))
-                );
+                    ).WithStyle(toolbarDropdownStyle))
+                ).WithStyle(centerItemsStyle);
 
             IComponent DisplayHierarchy() => Hierarchy(hierarchy);
 
@@ -81,9 +79,8 @@ namespace UI.Li.Editor.Debugging
                     CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
                     orientation: TwoPaneSplitViewOrientation.Horizontal,
                     initialSize: 200,
-                    reverse: true,
-                    data: new (flexGrow: 1)
-                );
+                    reverse: true
+                ).WithStyle(fillStyle);
 
             IComponent DetailPanel() => CU.Switch(selectedNode.Value.Node != null,
                 () => CU.Flex(selectedNode.Value.Node.Values.Select((val, i) =>
@@ -127,15 +124,8 @@ namespace UI.Li.Editor.Debugging
                 var children = node.Children;
                 if (children.Count == 0)
                 {
-                    return CU.WithId(1, CU.Text(
-                        name,
-                        data: new(
-                            flexGrow: 1,
-                            padding: new (left: offset),
-                            onClick: OnSelected,
-                            backgroundColor: bkColor
-                        )
-                    ));
+                    return CU.WithId(1, CU.Text(name, manipulators: new Clickable(OnSelected))
+                        .WithStyle(new (flexGrow: 1, padding: new (left: offset), backgroundColor: bkColor)));
                 }
 
                 var content = new IComponent[children.Count];
@@ -151,14 +141,12 @@ namespace UI.Li.Editor.Debugging
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    data: new(flexGrow: 1),
-                    header: CU.Text(name, data: new(onClick: OnSelected, backgroundColor: bkColor)),
+                    header: CU.Text(name, manipulators: new Clickable(OnSelected)).WithStyle(new (backgroundColor: bkColor)),
                     content: CU.WithId(1, CU.Flex(
                         direction: FlexDirection.Column,
-                        data: new(flexGrow: 1),
                         content: content
-                    ))
-                ));
+                    ).WithStyle(fillStyle))
+                ).WithStyle(fillStyle));
             }
 
             void OnSelected() => selCtx.OnSelect?.Invoke(node, currentId);
@@ -166,18 +154,15 @@ namespace UI.Li.Editor.Debugging
             IComponent HeaderContainer(IEnumerable<IComponent> content, Action onClick) => CU.Flex(
                 direction: FlexDirection.Row,
                 content: content,
-                data: new(
-                    onClick: onClick,
-                    padding: new(left: offset),
-                    flexGrow: 1,
-                    backgroundColor: bkColor
-                )
-            );
+                manipulators: onClick?.Let(c => new Clickable(c))
+            ).WithStyle(new (padding: new (left: offset), flexGrow: 1, backgroundColor: bkColor));
             
-            static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(
-                data: new(display: visible ? DisplayStyle.Flex : DisplayStyle.None),
-                content: content
-            );
+            static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(content)
+                .WithStyle(new (display: visible ? DisplayStyle.Flex : DisplayStyle.None));
         }
+
+        private static readonly Style fillStyle = new(flexGrow: 1);
+        private static readonly Style toolbarDropdownStyle = new(minWidth: 240);
+        private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
     }
 }

@@ -18,7 +18,7 @@ namespace UI.Li.Common
         {
             label ??= DefaultLabel;
             
-            return CU.Flex(direction: FlexDirection.Row, content: labels.Select(Label)).S(TabListStyle);
+            return CU.Flex(direction: FlexDirection.Row, content: labels.Select(Label)).WithStyle(tabListStyle);
             
             IComponent Label(IComponent text, int i) => label(text, () => onSelect(i), selected == i);
         }
@@ -40,16 +40,10 @@ namespace UI.Li.Common
         [NotNull]
         public static IComponent V(params (IComponent Lable, Func<IComponent> Content)[] tabs) => V(null, tabs);
 
-        private static IComponent DefaultLabel(IComponent content, Action onSelect, bool selected) => CU.Button(onSelect, content).Cs(selected, SelectedLabelStyle);
-        
-        private static readonly StyleFunc TabListStyle = CU.Styled(new Style
-        {
-            AlignContent = Align.FlexStart
-        });
+        private static IComponent DefaultLabel(IComponent content, Action onSelect, bool selected) => CU.Button(onSelect, content).WithConditionalStyle(selected, selectedLabelStyle);
 
-        private static readonly StyleFunc SelectedLabelStyle = CU.Styled(new Style
-        {
-            BackgroundColor = new Color(0.5f, 0.5f, 0.5f)
-        });
+        private static readonly Style tabListStyle = new(alignContent: Align.FlexStart);
+
+        private static readonly Style selectedLabelStyle = new(backgroundColor: new Color(0.5f, 0.5f, 0.5f));
     }
 }

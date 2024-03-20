@@ -8,7 +8,7 @@ namespace UI.Li.Common
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.ScrollView"/>
     /// </summary>
-    public class Scroll: Element
+    [PublicAPI] public class Scroll: Element
     {
         public enum Orientation
         {
@@ -20,11 +20,15 @@ namespace UI.Li.Common
         private readonly ScrollViewMode mode;
         private readonly Action<float, Orientation> onScroll;
 
-        [PublicAPI]
+        [NotNull] [Obsolete]
+        public static Scroll V([NotNull] IComponent content, ScrollViewMode mode,
+            Action<float, Orientation> onScroll, Data data) =>
+            new(content, mode, onScroll, data);
+
         [NotNull]
         public static Scroll V([NotNull] IComponent content, ScrollViewMode mode = ScrollViewMode.Vertical,
-            Action<float, Orientation> onScroll = null, Data data = new()) =>
-            new(content, mode, onScroll, data);
+            Action<float, Orientation> onScroll = null, params IManipulator[] manipulators) =>
+            new(content, mode, onScroll, manipulators);
 
         protected override void OnState(CompositionContext context)
         {
@@ -66,12 +70,19 @@ namespace UI.Li.Common
             return ret;
         }
 
-        //TODO: add scroll handlers
+        //TODO: move to scroll manipulators
         private void OnVerticalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Vertical);
 
         private void OnHorizontalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Horizontal);
         
-        private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, Data data): base(data)
+        [Obsolete] private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, Data data): base(data)
+        {
+            this.content = content;
+            this.mode = mode;
+            this.onScroll = onScroll;
+        }
+        
+        private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, IManipulator[] manipulators): base(manipulators)
         {
             this.content = content;
             this.mode = mode;

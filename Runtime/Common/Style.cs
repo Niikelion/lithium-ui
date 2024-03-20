@@ -12,6 +12,9 @@ namespace UI.Li.Common
     public static class StyleExtensions
     {
         public static IComponent WithStyle(this IComponent obj, Style style) => new StyleWrapper(obj, style);
+
+        public static IComponent WithConditionalStyle(this IComponent obj, bool condition, Style style) =>
+            condition ? obj.WithStyle(style) : obj;
         public static IComponent S(this IComponent obj, StyleFunc style) => style(obj);
         public static IComponent Cs(this IComponent obj, bool condition, StyleFunc style) => condition ? style(obj) : obj;
         
@@ -99,10 +102,7 @@ namespace UI.Li.Common
         public StyleLength? MinWidth  { get; set; }
         public StyleFloat? Opacity  { get; set; }
         public StyleEnum<Overflow>? Overflow { get; set; }
-        public StyleLength? PaddingBottom  { get; set; }
-        public StyleLength? PaddingLeft  { get; set; }
-        public StyleLength? PaddingRight  { get; set; }
-        public StyleLength? PaddingTop  { get; set; }
+        public Frame? Padding { get; set; }
         public StyleEnum<Position>? Position { get; set; }
         public StyleLength? Right  { get; set; }
         public StyleRotate? Rotate { get; set; }
@@ -138,7 +138,7 @@ namespace UI.Li.Common
         
         public static Style CopyFromElement(VisualElement element)
         {
-            Style ret = new Style(null)
+            var ret = new Style(null)
             {
                 AlignContent = element.style.alignContent,
                 AlignItems = element.style.alignItems,
@@ -181,10 +181,6 @@ namespace UI.Li.Common
                 MinWidth = element.style.minWidth,
                 Opacity = element.style.opacity,
                 Overflow = element.style.overflow,
-                PaddingBottom = element.style.paddingBottom,
-                PaddingLeft = element.style.paddingLeft,
-                PaddingRight = element.style.paddingRight,
-                PaddingTop = element.style.paddingTop,
                 Position = element.style.position,
                 Right = element.style.right,
                 Rotate = element.style.rotate,
@@ -217,7 +213,8 @@ namespace UI.Li.Common
                 WhiteSpace = element.style.whiteSpace,
                 Width = element.style.width,
                 WordSpacing = element.style.wordSpacing,
-                Margin = new (element.style.marginLeft, element.style.marginRight, element.style.marginTop, element.style.marginBottom)
+                Margin = new (element.style.marginLeft, element.style.marginRight, element.style.marginTop, element.style.marginBottom),
+                Padding = new (element.style.paddingLeft, element.style.paddingRight, element.style.paddingTop, element.style.paddingBottom)
             };
 
             return ret;
@@ -266,10 +263,6 @@ namespace UI.Li.Common
             if (MinWidth.HasValue) element.style.minWidth = MinWidth.Value;
             if (Opacity.HasValue) element.style.opacity = Opacity.Value;
             if (Overflow.HasValue) element.style.overflow = Overflow.Value;
-            if (PaddingBottom.HasValue) element.style.paddingBottom = PaddingBottom.Value;
-            if (PaddingLeft.HasValue) element.style.paddingLeft = PaddingLeft.Value;
-            if (PaddingRight.HasValue) element.style.paddingRight = PaddingRight.Value;
-            if (PaddingTop.HasValue) element.style.paddingTop = PaddingTop.Value;
             if (Position.HasValue) element.style.position = Position.Value;
             if (Right.HasValue) element.style.right = Right.Value;
             if (Rotate.HasValue) element.style.rotate = Rotate.Value;
@@ -307,7 +300,12 @@ namespace UI.Li.Common
             if (Margin?.Right != null) element.style.marginRight = Margin.Value.Right.Value;
             if (Margin?.Top != null) element.style.marginTop = Margin.Value.Top.Value;
             if (Margin?.Bottom != null) element.style.marginBottom = Margin.Value.Bottom.Value;
-            
+
+            if (Padding?.Left != null) element.style.paddingLeft = Padding.Value.Left.Value;
+            if (Padding?.Right != null) element.style.paddingRight = Padding.Value.Right.Value;
+            if (Padding?.Top != null) element.style.paddingTop = Padding.Value.Top.Value;
+            if (Padding?.Bottom != null) element.style.paddingBottom = Padding.Value.Bottom.Value;
+
             element.MarkDirtyRepaint();
         }
 
@@ -354,10 +352,6 @@ namespace UI.Li.Common
             StyleLength? minWidth = null,
             StyleFloat? opacity = null,
             StyleEnum<Overflow>? overflow = null,
-            StyleLength? paddingBottom = null,
-            StyleLength? paddingLeft = null,
-            StyleLength? paddingRight = null,
-            StyleLength? paddingTop = null,
             StyleEnum<Position>? position = null,
             StyleLength? right = null,
             StyleRotate? rotate = null,
@@ -390,7 +384,8 @@ namespace UI.Li.Common
             StyleEnum<WhiteSpace>? whiteSpace = null,
             StyleLength? width = null,
             StyleLength? wordSpacing = null,
-            Frame? margin = null
+            Frame? margin = null,
+            Frame? padding = null
         )
         {
             AlignContent = alignContent ?? parentStyle?.AlignContent;
@@ -434,10 +429,6 @@ namespace UI.Li.Common
             MinWidth = minWidth ?? parentStyle?.MinWidth;
             Opacity = opacity ?? parentStyle?.Opacity;
             Overflow = overflow ?? parentStyle?.Overflow;
-            PaddingBottom = paddingBottom ?? parentStyle?.PaddingBottom;
-            PaddingLeft = paddingLeft ?? parentStyle?.PaddingLeft;
-            PaddingRight = paddingRight ?? parentStyle?.PaddingRight;
-            PaddingTop = paddingTop ?? parentStyle?.PaddingTop;
             Position = position ?? parentStyle?.Position;
             Right = right ?? parentStyle?.Right;
             Rotate = rotate ?? parentStyle?.Rotate;
@@ -471,6 +462,7 @@ namespace UI.Li.Common
             Width = width ?? parentStyle?.Width;
             WordSpacing = wordSpacing ?? parentStyle?.WordSpacing;
             Margin = margin ?? parentStyle?.Margin;
+            Padding = padding ?? parentStyle?.Padding;
         }
     }
 }

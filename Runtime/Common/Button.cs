@@ -19,7 +19,8 @@ namespace UI.Li.Common
         /// <param name="content">content of the button</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] public static Button V([NotNull] Action onClick, [NotNull] IComponent content, Data data = new()) => new(onClick, content, data);
+        [NotNull] [Obsolete]
+        public static Button V([NotNull] Action onClick, [NotNull] IComponent content, Data data) => new(onClick, content, data);
         /// <summary>
         /// Creates <see cref="Button"/> instance with given text.
         /// </summary>
@@ -27,9 +28,37 @@ namespace UI.Li.Common
         /// <param name="content">text of the button</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <returns></returns>
-        [PublicAPI] [NotNull] public static Button V([NotNull] Action onClick, [NotNull] string content, Data data = new()) => new(onClick, Text.V(content), data);
+        [NotNull] [Obsolete] 
+        public static Button V([NotNull] Action onClick, [NotNull] string content, Data data) => new(onClick, Text.V(content), data);
         
-        private Button([NotNull] Action onClick, [NotNull] IComponent content, Data data): base(data)
+        /// <summary>
+        /// Creates <see cref="Button"/> instance with given content.
+        /// </summary>
+        /// <param name="onClick">callback invoked every time element is clicked <seealso cref="UnityEngine.UIElements.Button.clicked"/></param>
+        /// <param name="content">content of the button</param>
+        /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
+        /// <returns></returns>
+        [NotNull]
+        public static Button V([NotNull] Action onClick, [NotNull] IComponent content, params IManipulator[] manipulators) => new(onClick, content, manipulators);
+        /// <summary>
+        /// Creates <see cref="Button"/> instance with given text.
+        /// </summary>
+        /// <param name="onClick">callback invoked every time element is clicked <seealso cref="UnityEngine.UIElements.Button.clicked"/></param>
+        /// <param name="content">text of the button</param>
+        /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
+        /// <returns></returns>
+        [NotNull]
+        public static Button V([NotNull] Action onClick, [NotNull] string content, params IManipulator[] manipulators) => new(onClick, Text.V(content), manipulators);
+
+        
+        [Obsolete] private Button([NotNull] Action onClick, [NotNull] IComponent content, Data data): base(data)
+        {
+            this.onClick = onClick;
+            this.content = content;
+        }
+
+        private Button([NotNull] Action onClick, [NotNull] IComponent content, IManipulator[] manipulators) : base(
+            manipulators)
         {
             this.onClick = onClick;
             this.content = content;

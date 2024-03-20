@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UI.Li.Common;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
@@ -68,15 +69,13 @@ namespace UI.Li.Editor
         private readonly IComponent editor;
         private readonly string name;
 
-        [NotNull]
-        public static CustomField V(SerializedProperty property, IComponent editor, Data data = new())
+        [NotNull] [Obsolete]
+        public static CustomField V(SerializedProperty property, IComponent editor, Data data)
             => new(property, editor, data);
-
-        private CustomField(SerializedProperty property, IComponent editor, Data data): base(data)
-        {
-            this.editor = editor;
-            name = property.displayName;
-        }
+        
+        [NotNull]
+        public static CustomField V(SerializedProperty property, IComponent editor, params IManipulator[] manipulators)
+            => new(property, editor, manipulators);
 
         public override void Dispose()
         {
@@ -103,6 +102,18 @@ namespace UI.Li.Editor
             element.text = name;
             
             return element;
+        }
+        
+        [Obsolete] private CustomField(SerializedProperty property, IComponent editor, Data data): base(data)
+        {
+            this.editor = editor;
+            name = property.displayName;
+        }
+        
+        private CustomField(SerializedProperty property, IComponent editor, IManipulator[] manipulators): base(manipulators)
+        {
+            this.editor = editor;
+            name = property.displayName;
         }
     }
 }

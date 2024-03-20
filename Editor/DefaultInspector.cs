@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using UI.Li.Common;
 using UnityEditor.UIElements;
@@ -10,12 +11,13 @@ namespace UI.Li.Editor
     {
         [NotNull] private readonly UnityEditor.Editor editor;
         
-        [NotNull] public static DefaultInspector V([NotNull] UnityEditor.Editor editor, Data data = new()) => new (editor, data);
-        
-        private DefaultInspector([NotNull] UnityEditor.Editor editor, Data data): base(data)
-        {
-            this.editor = editor;
-        }
+        [NotNull] [Obsolete]
+        public static DefaultInspector V([NotNull] UnityEditor.Editor editor, Data data) =>
+            new (editor, data);
+
+        [NotNull]
+        public static DefaultInspector V([NotNull] UnityEditor.Editor editor, params IManipulator[] manipulators) =>
+            new (editor, manipulators);
 
         protected override VisualElement GetElement(VisualElement source)
         {
@@ -25,5 +27,9 @@ namespace UI.Li.Editor
             
             return element;
         }
+        
+        [Obsolete] private DefaultInspector([NotNull] UnityEditor.Editor editor, Data data): base(data) => this.editor = editor;
+
+        private DefaultInspector([NotNull] UnityEditor.Editor editor, IManipulator[] manipulators): base(manipulators) => this.editor = editor;
     }
 }
