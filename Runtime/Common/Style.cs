@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using UI.Li.Utils;
+using UI.Li.Utils.Continuations;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,7 +17,7 @@ namespace UI.Li.Common
         public static IComponent WithConditionalStyle(this IComponent obj, bool condition, Style style) =>
             condition ? obj.WithStyle(style) : obj;
         public static IComponent S(this IComponent obj, StyleFunc style) => style(obj);
-        public static IComponent Cs(this IComponent obj, bool condition, StyleFunc style) => condition ? style(obj) : obj;
+        public static IComponent Cs(this IComponent obj, bool condition, StyleFunc style) => obj.When(condition, style);
         
         public static Func<IComponent> S<TC>(this StyleFunc style, Func<TC> cmp) where TC: IComponent => () => style(cmp());
         public static Func<T1, IComponent> S<TC, T1>(this StyleFunc style, Func<T1, TC> cmp) where TC: IComponent => arg1 => style(cmp(arg1));

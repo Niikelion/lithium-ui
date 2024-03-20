@@ -82,10 +82,9 @@ For example, if we want to have two buttons side by side, we can simply do this:
         var isOn = state.Remember(false);
         
         return CU.Button(
-            data: new( flexGrow: 1 ),
             content: isOn ? "On" : "Off",
             onClick: () => isOn.Value = !isOn
-        );
+        ).WithStyle(new ( flexGrow: 1 ));
     }, isStatic: true);
 ```
 
@@ -93,7 +92,7 @@ For example, if we want to have two buttons side by side, we can simply do this:
 
 Couple remarks about above example:
 * only set `isStatic` to `true` if you always return the same ui structure,
-* note, that we used `data` parameter of `CU.Button`(it can be used to modify style properties or callbacks),
+* note, that we used `WithStyle` method to attach some styles to the element,
 * `Layout` method no longer returns `Component`(it no longer contains any state, so it is not needed).
 
 ## Further reading

@@ -1,18 +1,38 @@
-# Getting started
+# Toc
+- [Getting started](#getting-started)
+- [Core concepts](#core-concepts)
+- [State](#state)
+  - [Variables](#variables)
+  - [Callback](#callbacks)
+  - [Contexts](#contexts)
+  - [Ordering](#ordering)
+- [Built-in component](#built-in-components)
+- [Hierarchy and state loss](#hierarchy-and-state-loss)
+- [Styling](#styling)
+  - [Styling elements](#styling-elements)
+  - [Styling functions](#styling-functions)
+  - [Styling component functions](#styling-component-functions)
+- [Scope functions](#scope-functions)
+  - [Let](#let)
+  - [Run](#run)
+  - [When](#when)
+- [Summary](#summary)
+
+## Getting started
 
 You can find quick startup guide [here](bootstrap.md).
 
-# Core concepts
+## Core concepts
 
 In lithium, ui hierarchy is built using `components`.
 
 A `component` is any function with return type of `IComponent` or any type implementing this interface. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary classes.
 
-# State
+## State
 
 Because of this approach, state of a component cannot be stored as a field of a class. In order to get around this problem, we need to wrap our component with `Component` object:
 
-```cs
+```csharp
 Component ComponentWithState() => new (state => {
     //body of the component goes here
 });
@@ -63,7 +83,7 @@ Lithium allows you to provide value of any type as a context that can be retriev
 
 Note, that every function except for `UseContext` needs to be called in the exactly same order on every render, so for example:
 
-```cs
+```csharp
 if (some_condition)
     ctx.Remember(5);
 ```
@@ -72,19 +92,19 @@ is not allowed when `some_condition` might change during component instance life
 This is mainly because variables and callbacks are not named, so order of the calls is used as identification.
 `UseContext` fetches global value so it is not affected by the order of the calls.
 
-# Built-in components
+## Built-in components
 
 To further simplify the process, lithium provides convenient utility class that serves as factory for other components.
 
 Place this using right after imports to write `CU` instead of `CompositionUtils`:
 
-```cs
+```csharp
 using CU = UI.Lt.Utils.CompositionUtils;
 ```
 
 Now, we can reduce:
 
-```cs
+```csharp
 Component Toggle() => new (state => {
     var toggleState = state.Remember(false);
     
@@ -97,7 +117,7 @@ Component Toggle() => new (state => {
 
 to:
 
-```cs
+```csharp
 Component Toggle() => new (state => {
     var toggleState = state.Remember(false);
     
@@ -136,10 +156,118 @@ To preserve the state, we can assign id to our elements to make them more distin
 
 If you have a component that does not change its layout, you can mark it as static to further improve the state preservation:
 
-```cs
+```csharp
 Component StaticExample() =>
     new (ctx => CU.Text("Some text"), isStatic: true);
 ```
+
+## Styling
+
+`Style` type represents styles that can be applied to the element.
+It contains all styles from the `IStyle` interface from `UI Toolkit`.
+
+### Styling elements
+
+Functions that can be used for styling:
+
+- `WithStyle(Style style)` - applies given style to the element.
+- `WithConditionalStyle(bool condition, Style style)` - applies given style to the element if `condition` is `true`.
+
+For example:
+
+```csharp
+CU.Text("Red text").WithStyle(new (color: Color.red));
+
+bool disabled = [...];
+CU.Text("Some text").WithConditionalStyle(disabled, new (color: Color.gray));
+```
+
+### Styling functions
+
+Instead of using the style directly, you can convert it to the styling function:
+```csharp
+StyleFunc Red = CU.Styled(new (color: Color.red));
+```
+
+Now you can use it like this:
+```csharp
+Red(CU.Text("Red text"));
+```
+
+This is purely cosmetic and does not affect how styles are applied.
+
+### Styling component functions
+
+Instead of styling the element directly, you can attach styles to the component function.
+In order to do this, you first need to convert your style to styling function, and then you can use:
+
+- `S(StyleFunc s)` - wraps target component with style information from `s`.
+- `Cs(bool condition, StyleFunc s)` - wraps target component with style information from `s` if `condition` is `true`.
+
+This may look confusing, so let's look at some examples:
+
+```csharp
+Func<string, IManipulator[], IComponent> Text = CU.Text;
+var style = CU.Styled(new (color: Color.gray));
+
+var GrayText = style.S(Text);
+
+bool disabled = [...];
+var Text = style.Cs(disabled, Text);
+
+[...]
+
+IComponent SomeComponent() => GrayText("Text", Array.Empty<IManipulator>());
+IComponent SomeComponent2() => Text("Text2", Array.Empty<IManipulator>());
+```
+
+Note:
+- You loose all default values.
+- `params` is flattened to simple array parameter.
+- All parameter names are lost.
+
+Because all of this, that feature may be removed in the future.
+
+## Scope functions
+
+Scope functions are defined in the `ObjectUtils` static class and are heavily inspired by Kotlin scope functions.
+They are designed to make working with `lithium` in object oriented language easier.
+
+### Let
+`Let` can be used to transform value if it is not null:
+
+```csharp
+Transform child = [...];
+return child?.Let(c => c.name) ?? "Empty";
+
+// but also:
+return child?.Let(() => child.name) ?? "Empty";
+```
+
+### Run
+
+`Run` is same as `Let` but does not return any value:
+
+```csharp
+Transform child = [...];
+child?.Run(c => c.parent = transform);
+
+// but also:
+child?.Run(() => child.parent = transform);
+```
+
+### When
+
+`When` can be used to transform the value when the condition is met, otherwise return original value:
+
+```csharp
+var gray = CU.Styled(new (color: Color.gray));
+bool disabled = [...];
+
+CU.Text("Test").When(disabled, gray);
+```
+
+Note that `When` can only change type to the base class.
 
 ## Summary
 
