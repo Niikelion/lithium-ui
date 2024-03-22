@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Utils
@@ -29,6 +30,10 @@ namespace UI.Li.Utils
         [NotNull]
         public static IManipulator OnFocus([NotNull] Action onFocus) =>
             new Focusable(onFocus);
+
+        [NotNull]
+        public static IManipulator OnSize([NotNull] Action<Rect> onSizeChanged) =>
+            new SizeWatcher(onSizeChanged);
     }
 
     [PublicAPI]
@@ -136,5 +141,22 @@ namespace UI.Li.Utils
     public class Focusable : ActionHandlerBase<FocusEvent>
     {
         public Focusable([NotNull] Action onFocus) : base(onFocus) { }
+    }
+    
+    [PublicAPI]
+    public class SizeWatcher : Manipulator
+    {
+        [NotNull] private readonly Action<Rect> onSizeChanged;
+
+        public SizeWatcher([NotNull] Action<Rect> onSizeChanged) => this.onSizeChanged = onSizeChanged;
+        
+        protected override void RegisterCallbacksOnTarget() =>
+            target.RegisterCallback<GeometryChangedEvent>(OnSizeChanged);
+
+        protected override void UnregisterCallbacksFromTarget() =>
+            target.UnregisterCallback<GeometryChangedEvent>(OnSizeChanged);
+
+        private void OnSizeChanged(GeometryChangedEvent evt) =>
+            onSizeChanged.Invoke(evt.newRect);
     }
 }

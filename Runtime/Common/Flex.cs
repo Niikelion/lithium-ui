@@ -45,18 +45,6 @@ namespace UI.Li.Common
             base.Dispose();
         }
 
-        [Obsolete] private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, Data data): base(data)
-        {
-            this.direction = direction;
-            this.content = content.ToArray();
-        }
-        
-        private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, IManipulator[] manipulators): base(manipulators)
-        {
-            this.direction = direction;
-            this.content = content.ToArray();
-        }
-
         protected override RecompositionStrategy RecompositionStrategy => RecompositionStrategy.Reorder;
 
         protected override void OnState(CompositionContext context)
@@ -75,6 +63,18 @@ namespace UI.Li.Common
                 ret.Add(child.Render());
             
             return ret;
+        }
+        
+        [Obsolete] private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, Data data): base(data)
+        {
+            this.direction = direction;
+            this.content = content.ToArray();
+        }
+        
+        private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, IManipulator[] manipulators): base(manipulators)
+        {
+            this.direction = direction;
+            this.content = content.ToArray();
         }
     }
 }

@@ -151,6 +151,28 @@ namespace UI.Li.Utils
             Common.Flex.V(content, direction, manipulators);
         
         /// <summary>
+        /// Creates flex column, see <see cref="Common.Flex.V(IEnumerable{IComponent}, FlexDirection, Element.Data)"/>.
+        /// </summary>
+        /// <param name="content">content of flex element</param>
+        /// <param name="reverse">reverse the direction</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Flex Column(IManipulator[] manipulators = null, bool reverse = false, params IComponent[] content) =>
+            Common.Flex.V(content, reverse ? FlexDirection.ColumnReverse : FlexDirection.Column, manipulators ?? Array.Empty<IManipulator>());
+        
+        /// <summary>
+        /// Creates flex row, see <see cref="Common.Flex.V(IEnumerable{IComponent}, FlexDirection, Element.Data)"/>.
+        /// </summary>
+        /// <param name="content">content of flex element</param>
+        /// <param name="reverse">reverse the direction</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Flex Row(IManipulator[] manipulators = null, bool reverse = false, params IComponent[] content) =>
+            Common.Flex.V(content, reverse ? FlexDirection.RowReverse : FlexDirection.Row, manipulators ?? Array.Empty<IManipulator>());
+        
+        /// <summary>
         /// Creates text field component, see <see cref="Common.TextField.V(Action{string}, string, string, bool, Element.Data)"/>.
         /// </summary>
         /// <param name="onValueChanged">called when field content changes</param>
