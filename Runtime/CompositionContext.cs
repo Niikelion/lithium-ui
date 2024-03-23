@@ -868,9 +868,12 @@ namespace UI.Li
 
             var entry = frame.Entry;
             
-            // we found less nested entry frame, so we need to insert new entry here
+            // we found more nested entry frame, so we need to insert new entry here
             if (entry.NestingLevel > currentNestingLevel)
+            {
+                ClearAllNested(currentNestingLevel);
                 return true;
+            }
 
             if (reorderData != null)
             {
@@ -882,9 +885,12 @@ namespace UI.Li
                 }
                 
                 // we found some more deeply nested data than expected
-                if (entry.NestingLevel != currentNestingLevel)
+                if (entry.NestingLevel > currentNestingLevel)
                     throw new InvalidOperationException(
                         "Id of component and/or layout unexpected change");
+
+                if (entry.NestingLevel < currentNestingLevel)
+                    return true;
                 
                 // we found matching element
                 if (entry.Id == entryId)
@@ -941,6 +947,7 @@ namespace UI.Li
 
             // we found some more deeply nested data than expected
             if (entry.NestingLevel > currentNestingLevel)
+                // TODO: check if reachable
                 throw new InvalidOperationException(
                     "Id of component and/or layout unexpected change");
             

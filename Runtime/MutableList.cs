@@ -2,6 +2,7 @@
 using System.Collections;
 using JetBrains.Annotations;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UI.Li
 {
@@ -135,6 +136,8 @@ namespace UI.Li
             values.RemoveAt(index);
             BroadcastUpdate();
         }
+
+        public override string ToString() => $"[ {string.Join(", ", values.Select(v => v.value))} ]";
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

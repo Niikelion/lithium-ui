@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UI.Li.Common;
+using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
@@ -33,29 +34,35 @@ namespace UI.Li.Editor.Debugging
 
             var instances = ctx.RememberF(GetInstances);
             var selectedNode = ctx.Remember<(CompositionContext.CompositionNode Node, int Id)>((null, -1));
+
+            void OnSelect(CompositionContext.CompositionNode node, int id) => selectedNode.Value = (node, id);
+
             ctx.ProvideContext(new SelectedNodeCtx {
                 Id = selectedNode.Value.Id,
-                OnSelect = (node, id) => { selectedNode.Value = (node, id); }
+                OnSelect = OnSelect
             });
             ctx.ProvideContext(new NodeIdCtx { Id = 1 });
 
             ctx.OnInit(() =>
             {
                 CompositionContext.OnInstanceListChanged += AttachCallback;
+                selectedContext.OnValueChanged += ResetSelection;
 
-                return () => CompositionContext.OnInstanceListChanged -= AttachCallback;
+                return () =>
+                {
+                    selectedContext.OnValueChanged -= ResetSelection;
+                    CompositionContext.OnInstanceListChanged -= AttachCallback;
+                };
 
                 void AttachCallback() => instances.Value = GetInstances();
+                void ResetSelection() => selectedNode.Value = (null, -1);
             });
             
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
             
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: IComponent.Seq(
-                    CU.WithId(1, Toolbar()),
-                    CU.WithId(2, Content())
-                )
+                content: IComponent.Seq(Toolbar().Id(1), Content().Id(2))
             ).WithStyle(fillStyle);
 
             List<CompositionContext> GetInstances() =>
@@ -75,8 +82,8 @@ namespace UI.Li.Editor.Debugging
 
             IComponent Content() =>
                 CU.SplitArea(
-                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
-                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
+                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel).Id(1),
+                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy).Id(2),
                     orientation: TwoPaneSplitViewOrientation.Horizontal,
                     initialSize: 200,
                     reverse: true
@@ -84,7 +91,7 @@ namespace UI.Li.Editor.Debugging
 
             IComponent DetailPanel() => CU.Switch(selectedNode.Value.Node != null,
                 () => CU.Flex(selectedNode.Value.Node.Values.Select((val, i) =>
-                    CU.Text($"{i}: {val}")
+                    CU.Text($"{i}: {val}").Id(i+1)
                 )),
                 () => CU.Box()
             );
