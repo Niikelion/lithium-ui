@@ -221,7 +221,8 @@ namespace UI.Li.Common
             return ret;
         }
         
-        public void ApplyToElement(VisualElement element)
+        // ReSharper disable once PureAttributeOnVoidMethod
+        [Pure] public void ApplyToElement(VisualElement element)
         {
             if (AlignContent.HasValue) element.style.alignContent = AlignContent.Value;
             if (AlignItems.HasValue) element.style.alignItems = AlignItems.Value;

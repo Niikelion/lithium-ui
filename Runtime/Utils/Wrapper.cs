@@ -37,5 +37,8 @@ namespace UI.Li.Utils
         protected virtual void BeforeInnerRecompose(CompositionContext context) { }
 
         public override string ToString() => InnerComponent.ToString();
+
+        public virtual bool StateLayoutEquals(IComponent other) =>
+            other is Wrapper wrapper && GetType() == wrapper.GetType() && InnerComponent.StateLayoutEquals(wrapper.InnerComponent);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UI.Li.Common
 {
-    public class Toggle: Element
+    [PublicAPI] public sealed class Toggle: Element
     {
         [NotNull] private readonly Action<bool> onValueChanged;
         private readonly bool initialValue;
@@ -16,7 +16,9 @@ namespace UI.Li.Common
         [NotNull]
         public static Toggle V([NotNull] Action<bool> onValueChanged, bool initialValue = false, params IManipulator[] manipulators) =>
             new (onValueChanged, initialValue, manipulators);
-        
+
+        public override bool StateLayoutEquals(IComponent other) => other is Toggle;
+
         protected override VisualElement GetElement(VisualElement source)
         {
             var element = Use<UnityEngine.UIElements.Toggle>(source);

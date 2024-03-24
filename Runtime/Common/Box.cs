@@ -8,7 +8,7 @@ namespace UI.Li.Common
     /// <summary>
     /// Component used for wrapping single elements.
     /// </summary>
-    public class Box: Element
+    [PublicAPI] public sealed class Box: Element
     {
         [CanBeNull] private readonly IComponent content;
 
@@ -18,7 +18,6 @@ namespace UI.Li.Common
         /// <param name="content">content to be wrapped</param>
         /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         [Obsolete]
         public static Box V(IComponent content, Data data) => new(content, data);
@@ -29,7 +28,6 @@ namespace UI.Li.Common
         /// <param name="content">content to be wrapped</param>
         /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         public static Box V(IComponent content = null, params IManipulator[] manipulators) => new(content, manipulators);
         
@@ -39,7 +37,15 @@ namespace UI.Li.Common
             base.Dispose();
         }
 
-        protected override void OnState(CompositionContext context) => content?.Recompose(context);
+        public override bool StateLayoutEquals(IComponent other) => other is Box;
+
+        protected override void OnState(CompositionContext context)
+        {
+            if (content == null) return;
+            
+            context.PreventNextEntryOverride();
+            content.Recompose(context);
+        }
 
         protected override VisualElement PrepareElement(VisualElement target)
         {
@@ -53,14 +59,8 @@ namespace UI.Li.Common
         }
 
         [Obsolete]
-        private Box(IComponent content, Data data): base(data)
-        {
-            this.content = content;
-        }
+        private Box(IComponent content, Data data): base(data) => this.content = content;
 
-        private Box(IComponent content, params IManipulator[] manipulators) : base(manipulators)
-        {
-            this.content = content;
-        }
+        private Box(IComponent content, params IManipulator[] manipulators) : base(manipulators) => this.content = content;
     }
 }

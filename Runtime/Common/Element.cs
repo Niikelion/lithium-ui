@@ -382,6 +382,8 @@ namespace UI.Li.Common
             PreviouslyRendered = null;
         }
 
+        public virtual bool StateLayoutEquals(IComponent other) => GetType() == other.GetType();
+
         /// <summary>
         /// Used to obtain <see cref="VisualElement"/> instance. Override this method if you need instance of <see cref="VisualElement"/> subclass.
         /// </summary>
@@ -389,7 +391,6 @@ namespace UI.Li.Common
         /// <remarks>During render, <see cref="PreviouslyRendered"/> is passed to this function and return value is passed to <see cref="PrepareElement"/> to obtain render result. When overriding you don't need to call base implementation.</remarks>
         /// <param name="source">cached element</param>
         /// <returns></returns>
-        [PublicAPI]
         [NotNull]
         protected virtual VisualElement GetElement([CanBeNull] VisualElement source) => Use<VisualElement>(source, true);
 

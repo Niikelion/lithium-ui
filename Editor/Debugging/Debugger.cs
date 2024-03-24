@@ -62,7 +62,7 @@ namespace UI.Li.Editor.Debugging
             
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: IComponent.Seq(Toolbar().Id(1), Content().Id(2))
+                content: CU.Seq(Toolbar(), Content())
             ).WithStyle(fillStyle);
 
             List<CompositionContext> GetInstances() =>
@@ -82,20 +82,24 @@ namespace UI.Li.Editor.Debugging
 
             IComponent Content() =>
                 CU.SplitArea(
-                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel).Id(1),
-                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy).Id(2),
+                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
+                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
                     orientation: TwoPaneSplitViewOrientation.Horizontal,
                     initialSize: 200,
                     reverse: true
                 ).WithStyle(fillStyle);
 
-            IComponent DetailPanel() => CU.Switch(selectedNode.Value.Node != null,
-                () => CU.Flex(selectedNode.Value.Node.Values.Select((val, i) =>
-                    CU.Text($"{i}: {val}").Id(i+1)
-                )),
-                () => CU.Box()
-            );
+            IComponent Value(IMutableValue value, int i) => CU.Text($"{i}: {value}");
+            
+            IComponent DetailPanel()
+            {
+                var values = selectedNode.Value.Node?.Values?.Select(Value);
                 
+                return CU.Switch(values != null,
+                    () => CU.Flex(CU.Seq(values)),
+                    () => CU.Box()
+                );
+            }
         }, isStatic: true);
         
         private static IComponent RenderNoPanel() => CU.Text("No panel selected.");
@@ -106,7 +110,7 @@ namespace UI.Li.Editor.Debugging
         {
             return CU.Scroll(CU.Flex(
                 direction: FlexDirection.Column,
-                content: roots.Select((root, i) => CU.WithId(i+1, RenderNode(root, ctx)))
+                content: CU.Seq(roots.Select((root, i) => RenderNode(root, ctx)))
             ));
         }, isStatic: true);
         
@@ -122,7 +126,7 @@ namespace UI.Li.Editor.Debugging
 
             StyleColor? bkColor = selected ? Color.Lerp(Color.black, Color.Lerp(Color.cyan, Color.blue, 0.5f), 0.5f) : null;
 
-            return CU.WithId(currentId, CU.Box(RenderNodeContent()));
+            return CU.Box(RenderNodeContent()).Id(currentId);
             
             IComponent RenderNodeContent()
             {
@@ -131,28 +135,21 @@ namespace UI.Li.Editor.Debugging
                 var children = node.Children;
                 if (children.Count == 0)
                 {
-                    return CU.WithId(1, CU.Text(name, manipulators: new Clickable(OnSelected))
-                        .WithStyle(new (flexGrow: 1, padding: new (left: offset), backgroundColor: bkColor)));
+                    return CU.Text(name, manipulators: new Clickable(OnSelected))
+                        .WithStyle(new (flexGrow: 1, padding: new (left: offset), backgroundColor: bkColor)).Id(1);
                 }
 
-                var content = new IComponent[children.Count];
-
-                int i = 0;
-                foreach (var child in children)
-                {
-                    content[i] = RenderNode(child, ctx, level + 1);
-                    ++i;
-                }
+                var content = children.Select(child => RenderNode(child, ctx, level + 1));
 
                 return CU.WithId(2, CU.Foldout(
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
                     header: CU.Text(name, manipulators: new Clickable(OnSelected)).WithStyle(new (backgroundColor: bkColor)),
-                    content: CU.WithId(1, CU.Flex(
+                    content: CU.Flex(
                         direction: FlexDirection.Column,
-                        content: content
-                    ).WithStyle(fillStyle))
+                        content: CU.Seq(content)
+                    ).WithStyle(fillStyle).Id(1)
                 ).WithStyle(fillStyle));
             }
 

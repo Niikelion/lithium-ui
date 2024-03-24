@@ -78,7 +78,9 @@ namespace UI.Li.Common
         protected override void OnState(CompositionContext context)
         {
             base.OnState(context);
+            context.PreventNextEntryOverride();
             mainContent.Recompose(context);
+            context.PreventNextEntryOverride();
             secondaryContent.Recompose(context);
         }
 

@@ -10,7 +10,7 @@ namespace UI.Li.Common
     /// Component representing <see cref="DropdownField"/>.
     /// </summary>
     [PublicAPI]
-    public class Dropdown: Element
+    public sealed class Dropdown: Element
     {
         private readonly int initialValue;
         private readonly List<string> options;
@@ -96,6 +96,9 @@ namespace UI.Li.Common
             ctxRef = null;
             base.Dispose();
         }
+
+        public override bool StateLayoutEquals(IComponent other) =>
+            other is Dropdown dropdown && options.SequenceEqual(dropdown.options);
 
         [Obsolete] private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, Data data) : base(data)
         {

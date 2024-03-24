@@ -8,7 +8,7 @@ namespace UI.Li.Common
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.ScrollView"/>
     /// </summary>
-    [PublicAPI] public class Scroll: Element
+    [PublicAPI] public sealed class Scroll: Element
     {
         public enum Orientation
         {
@@ -16,7 +16,7 @@ namespace UI.Li.Common
             Horizontal
         }
         
-        private readonly IComponent content;
+        [NotNull] private readonly IComponent content;
         private readonly ScrollViewMode mode;
         private readonly Action<float, Orientation> onScroll;
 
@@ -33,14 +33,16 @@ namespace UI.Li.Common
         protected override void OnState(CompositionContext context)
         {
             context.PreventNextEntryOverride();
-            content?.Recompose(context);
+            content.Recompose(context);
         }
 
         public override void Dispose()
         {
-            content?.Dispose();
+            content.Dispose();
             base.Dispose();
         }
+
+        public override bool StateLayoutEquals(IComponent other) => other is Scroll;
 
         protected override VisualElement GetElement(VisualElement source)
         {

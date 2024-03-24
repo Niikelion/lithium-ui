@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace UI.Li.Common
 {
     [PublicAPI]
-    public class ObjectField<T>: Element where T: UnityEngine.Object
+    public sealed class ObjectField<T>: Element where T: UnityEngine.Object
     {
         [NotNull] private readonly Action<T> changeCallback;
         private readonly T defaultValue;
@@ -29,7 +29,6 @@ namespace UI.Li.Common
         [NotNull]
         public static ObjectField<T> V([NotNull] MutableValue<T> value, params IManipulator[] manipulators) =>
             new(v => value.Value = v, value.Value, manipulators);
-
         
         [Obsolete] private ObjectField([NotNull] Action<T> onValueChanged, T defaultValue, Data data): base(data)
         {

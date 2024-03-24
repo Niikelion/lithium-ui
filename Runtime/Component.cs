@@ -7,7 +7,7 @@ namespace UI.Li
     /// <summary>
     /// Class designed for providing state for your components.
     /// </summary>
-    [PublicAPI] public class Component: IComponent
+    [PublicAPI] public sealed class Component: IComponent
     {
         public delegate IComponent StatefulComponent(ComponentState state);
         
@@ -46,7 +46,7 @@ namespace UI.Li
                 context.PreventNextEntryOverride();
             innerComponent.Recompose(context);
             context.EndFrame();
-        } 
+        }
 
         public void Dispose()
         {
@@ -55,5 +55,10 @@ namespace UI.Li
         }
 
         public override string ToString() => "Component";
+
+        public bool StateLayoutEquals(IComponent other) =>
+            other is Component component &&
+            isStatic == component.isStatic &&
+            composer == component.composer;
     }
 }

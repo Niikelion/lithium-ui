@@ -387,7 +387,7 @@ namespace UI.Li
             int currentEntryId = nextEntryId;
             component = TakeOrigin();
             
-            isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering);
+            isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering, component);
             nextEntryPreventOverride = false;
             nextEntryId = 0;
 
@@ -413,7 +413,7 @@ namespace UI.Li
 
                 currentEntry = frame.Entry;
 
-                if (currentEntry.Component != component)
+                if (!Equals(currentEntry.Component, component))
                 {
                     currentEntry.Component.Dispose();
                     currentEntry.Component = component;
@@ -855,7 +855,7 @@ namespace UI.Li
             }
         }
 
-        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride, RemapHelper<int> reorderData)
+        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride, RemapHelper<int> reorderData, IComponent component)
         {
             if (framePointer >= frames.Count)
                 return true;
@@ -867,6 +867,7 @@ namespace UI.Li
                 throw new InvalidOperationException("Component layout unexpected change");
 
             var entry = frame.Entry;
+            preventOverride = preventOverride || entry.Component.StateLayoutEquals(component);
             
             // we found more nested entry frame, so we need to insert new entry here
             if (entry.NestingLevel > currentNestingLevel)
@@ -899,7 +900,7 @@ namespace UI.Li
                     return false;
                 }
                 // first, try to find given entry and bring it closer
-                (int foundStart, int foundSize) = reorderData.FindAndRemove(entryId);
+                var (foundStart, foundSize) = reorderData.FindAndRemove(entryId);
 
                 // we still don't have a match, insert new
                 if (foundSize == 0)

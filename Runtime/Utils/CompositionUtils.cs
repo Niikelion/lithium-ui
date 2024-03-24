@@ -3,6 +3,7 @@ using UI.Li.Common;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Linq;
 using Box = UI.Li.Common.Box;
 using Flex = UI.Li.Common.Flex;
 using Button = UI.Li.Common.Button;
@@ -56,6 +57,13 @@ namespace UI.Li.Utils
                 context.EndFrame();
             }
 
+            public override string ToString() => $"Switch[{choice}]";
+
+            public bool StateLayoutEquals(IComponent other) =>
+                other is SwitchWrapper wrapper &&
+                choice == wrapper.choice &&
+                content.StateLayoutEquals(wrapper.content);
+            
             private SwitchWrapper([NotNull] IComponent content, int choice)
             {
                 this.content = content;
@@ -459,7 +467,16 @@ namespace UI.Li.Utils
             Action<float, Scroll.Orientation> onScroll = null,
             params IManipulator[] manipulators
         ) => Common.Scroll.V(content, mode, onScroll, manipulators);
+        
+        public static IEnumerable<IComponent> Seq(int startId = 1, params IComponent[] content) =>
+            content.Select((c, i) => c.Id(i + startId));
 
+        public static IEnumerable<IComponent> Seq(params IComponent[] content) =>
+            Seq(1, content);
+        
+        public static IEnumerable<IComponent> Seq(IEnumerable<IComponent> content, int startId = 1) =>
+            Seq(startId, content.ToArray());
+        
         public static IComponent Id(this IComponent obj, int id) => WithId(id, obj);
     }
 

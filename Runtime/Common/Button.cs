@@ -50,7 +50,8 @@ namespace UI.Li.Common
         [NotNull]
         public static Button V([NotNull] Action onClick, [NotNull] string content, params IManipulator[] manipulators) => new(onClick, Text.V(content), manipulators);
 
-        
+        public override bool StateLayoutEquals(IComponent other) => other is Button;
+
         [Obsolete] private Button([NotNull] Action onClick, [NotNull] IComponent content, Data data): base(data)
         {
             this.onClick = onClick;
