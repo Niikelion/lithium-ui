@@ -68,7 +68,7 @@ namespace UI.Li.Common
 
         protected override void OnState(CompositionContext context)
         {
-            ctxRef = new WeakReference<CompositionContext>(context);
+            ctxRef = new(context);
             currentValue = context.Remember(initialValue);
         }
 
@@ -83,6 +83,9 @@ namespace UI.Li.Common
             
             AddCleanup(field, () => field.UnregisterValueChangedCallback(OnValueChanged));
 
+            if (source == null && focused)
+                field.schedule.Execute(() => field.Focus());
+            
             return field;
         }
 

@@ -110,7 +110,7 @@ namespace UI.Li.Editor.Debugging
         {
             return CU.Scroll(CU.Flex(
                 direction: FlexDirection.Column,
-                content: CU.Seq(roots.Select((root, i) => RenderNode(root, ctx)))
+                content: roots.Select(root => RenderNode(root, ctx))
             ));
         }, isStatic: true);
         
@@ -124,8 +124,6 @@ namespace UI.Li.Editor.Debugging
             
             int offset = 13 * level;
 
-            StyleColor? bkColor = selected ? Color.Lerp(Color.black, Color.Lerp(Color.cyan, Color.blue, 0.5f), 0.5f) : null;
-
             return CU.Box(RenderNodeContent()).Id(currentId);
             
             IComponent RenderNodeContent()
@@ -136,21 +134,24 @@ namespace UI.Li.Editor.Debugging
                 if (children.Count == 0)
                 {
                     return CU.Text(name, manipulators: new Clickable(OnSelected))
-                        .WithStyle(new (flexGrow: 1, padding: new (left: offset), backgroundColor: bkColor)).Id(1);
+                        .WithStyle(new (flexGrow: 1, padding: new (left: offset)))
+                        .WithStyle(textStyle)
+                        .WithConditionalStyle(selected, selectedStyle).Id(1);
                 }
 
                 var content = children.Select(child => RenderNode(child, ctx, level + 1));
 
-                return CU.WithId(2, CU.Foldout(
+                return CU.Foldout(
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    header: CU.Text(name, manipulators: new Clickable(OnSelected)).WithStyle(new (backgroundColor: bkColor)),
+                    header: CU.Text(name, manipulators: new Clickable(OnSelected))
+                        .WithStyle(textStyle),
                     content: CU.Flex(
                         direction: FlexDirection.Column,
-                        content: CU.Seq(content)
-                    ).WithStyle(fillStyle).Id(1)
-                ).WithStyle(fillStyle));
+                        content: content
+                    ).WithStyle(fillStyle)
+                ).WithStyle(fillStyle).Id(2);
             }
 
             void OnSelected() => selCtx.OnSelect?.Invoke(node, currentId);
@@ -159,7 +160,8 @@ namespace UI.Li.Editor.Debugging
                 direction: FlexDirection.Row,
                 content: content,
                 manipulators: onClick?.Let(c => new Clickable(c))
-            ).WithStyle(new (padding: new (left: offset), flexGrow: 1, backgroundColor: bkColor));
+            ).WithStyle(new (padding: new (left: offset), flexGrow: 1))
+                .WithConditionalStyle(selected, selectedStyle);
             
             static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(content)
                 .WithStyle(new (display: visible ? DisplayStyle.Flex : DisplayStyle.None));
@@ -168,5 +170,7 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style fillStyle = new(flexGrow: 1);
         private static readonly Style toolbarDropdownStyle = new(minWidth: 240);
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
+        private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
+        private static readonly Style textStyle = new(color: Color.white);
     }
 }
