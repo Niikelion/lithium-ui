@@ -20,8 +20,8 @@ namespace UI.Li.Utils
             new Repaintable(onRepaint);
 
         [NotNull]
-        public static IManipulator OnKey(Action<KeyHandler.SyntheticKeyEvent> onKeyDown = null,
-            Action<KeyHandler.SyntheticKeyEvent> onKeyUp = null) => new KeyHandler(onKeyDown, onKeyUp);
+        public static IManipulator OnKey(Action<SyntheticKeyEvent> onKeyDown = null,
+            Action<SyntheticKeyEvent> onKeyUp = null) => new KeyHandler(onKeyDown, onKeyUp);
 
         [NotNull]
         public static IManipulator OnBlur([NotNull] Action onBlur) =>
@@ -30,6 +30,14 @@ namespace UI.Li.Utils
         [NotNull]
         public static IManipulator OnFocus([NotNull] Action onFocus) =>
             new Focusable(onFocus);
+
+        [NotNull]
+        public static IManipulator OnMouseEnter([NotNull] Action<SyntheticMouseEvent> onMouseEnter) =>
+            new MouseEnterHandler(onMouseEnter);
+
+        [NotNull]
+        public static IManipulator OnMouseLeave([NotNull] Action<SyntheticMouseEvent> onMouseLeave) =>
+            new MouseLeaveHandler(onMouseLeave);
 
         [NotNull]
         public static IManipulator OnSize([NotNull] Action<Rect> onSizeChanged) =>
@@ -48,39 +56,56 @@ namespace UI.Li.Utils
         protected override void UnregisterCallbacksFromTarget() => target.generateVisualContent -= onRepaint;
     }
 
-    [PublicAPI]
-    public class KeyHandler : Manipulator
+    /// <summary>
+    /// Simplified <see cref="KeyboardEventBase{T}"/>, <see cref="KeyDownEvent"/> and <see cref="KeyUpEvent"/>.
+    /// </summary>
+    /// <remarks>Exposes only important event data and omits all references to objects from UIElements system to improve encapsulation.</remarks>
+    [PublicAPI] public struct SyntheticKeyEvent
     {
-        /// <summary>
-        /// Simplified <see cref="KeyboardEventBase{T}"/>, <see cref="KeyDownEvent"/> and <see cref="KeyUpEvent"/>.
-        /// </summary>
-        /// <remarks>Exposes only important event data and omits all references to objects from UIElements system to improve encapsulation.</remarks>
-        public struct SyntheticKeyEvent
+        public enum EventType
         {
-            public enum EventType
-            {
-                Up,
-                Down
-            }
+            Up,
+            Down
+        }
             
-            [PublicAPI] public readonly char Character;
-            [PublicAPI] public readonly bool Alt;
-            [PublicAPI] public readonly bool Ctrl;
-            [PublicAPI] public readonly bool Shift;
-            [PublicAPI] public readonly bool Cmd;
-            [PublicAPI] public readonly EventType Type;
+        public readonly char Character => sourceEvent.character;
+        public readonly bool Alt => sourceEvent.altKey;
+        public readonly bool Ctrl => sourceEvent.ctrlKey;
+        public readonly bool Shift => sourceEvent.shiftKey;
+        public readonly bool Cmd => sourceEvent.commandKey;
+        public readonly EventType Type;
 
-            public SyntheticKeyEvent(EventType type, char character, bool alt, bool ctrl, bool shift, bool cmd)
-            {
-                Type = type;
-                Character = character;
-                Alt = alt;
-                Ctrl = ctrl;
-                Shift = shift;
-                Cmd = cmd;
-            }
+        private IKeyboardEvent sourceEvent;
+            
+        public SyntheticKeyEvent(EventType type, IKeyboardEvent source)
+        {
+            Type = type;
+            sourceEvent = source;
+        }
+    }
+
+    [PublicAPI]
+    public struct SyntheticMouseEvent
+    {
+        public enum EventType
+        {
+            Enter,
+            Leave
         }
 
+        public readonly EventType Type;
+        private readonly IMouseEvent sourceEvent;
+
+        public SyntheticMouseEvent(EventType type, IMouseEvent source)
+        {
+            Type = type;
+            sourceEvent = source;
+        }
+    }
+    
+    [PublicAPI]
+    public sealed class KeyHandler : Manipulator
+    {
         public KeyHandler(Action<SyntheticKeyEvent> onKeyDown = null, Action<SyntheticKeyEvent> onKeyUp = null)
         {
             this.onKeyDown = onKeyDown;
@@ -101,26 +126,14 @@ namespace UI.Li.Utils
             target.UnregisterCallback<KeyUpEvent>(OnKeyUp);
         }
 
-        private void OnKeyDown(KeyDownEvent e) => onKeyDown?.Invoke(new(
-            type: SyntheticKeyEvent.EventType.Down,
-            character: e.character,
-            alt: e.altKey,
-            ctrl: e.ctrlKey,
-            shift: e.shiftKey,
-            cmd: e.commandKey
-            ));
+        private void OnKeyDown(KeyDownEvent e) =>
+            onKeyDown?.Invoke(new SyntheticKeyEvent(type: SyntheticKeyEvent.EventType.Down, e));
         
-        private void OnKeyUp(KeyUpEvent e) => onKeyDown?.Invoke(new(
-            type: SyntheticKeyEvent.EventType.Up,
-            character: e.character,
-            alt: e.altKey,
-            ctrl: e.ctrlKey,
-            shift: e.shiftKey,
-            cmd: e.commandKey
-        ));
+        private void OnKeyUp(KeyUpEvent e) =>
+            onKeyDown?.Invoke(new SyntheticKeyEvent(type: SyntheticKeyEvent.EventType.Up, e));
     }
 
-    public class ActionHandlerBase<T> : Manipulator where T : EventBase<T>, new()
+    public abstract class ActionHandlerBase<T> : Manipulator where T : EventBase<T>, new()
     {
         [NotNull] private readonly Action handler;
 
@@ -132,15 +145,46 @@ namespace UI.Li.Utils
     }
     
     [PublicAPI]
-    public class Blurrable : ActionHandlerBase<BlurEvent>
+    public sealed class Blurrable : ActionHandlerBase<BlurEvent>
     {
         public Blurrable([NotNull] Action onBlur) : base(onBlur) { }
     }
     
     [PublicAPI]
-    public class Focusable : ActionHandlerBase<FocusEvent>
+    public sealed class Focusable : ActionHandlerBase<FocusEvent>
     {
         public Focusable([NotNull] Action onFocus) : base(onFocus) { }
+    }
+
+    [PublicAPI]
+    public abstract class MouseHandlerBase<T> : Manipulator where T : MouseEventBase<T>, new()
+    {
+        [NotNull] private readonly Action<SyntheticMouseEvent> onMouseEvent;
+        private readonly SyntheticMouseEvent.EventType eventType;
+        
+        protected MouseHandlerBase([NotNull] Action<SyntheticMouseEvent> onMouseEvent, SyntheticMouseEvent.EventType eventType)
+        {
+            this.onMouseEvent = onMouseEvent;
+            this.eventType = eventType;
+        }
+
+        protected override void RegisterCallbacksOnTarget() => target.RegisterCallback<T>(OnMouseEvent);
+
+        protected override void UnregisterCallbacksFromTarget() => target.UnregisterCallback<T>(OnMouseEvent);
+        
+        private void OnMouseEvent(T e) => onMouseEvent(new SyntheticMouseEvent(eventType, e));
+    }
+
+    [PublicAPI]
+    public sealed class MouseEnterHandler : MouseHandlerBase<MouseEnterEvent>
+    {
+        public MouseEnterHandler([NotNull] Action<SyntheticMouseEvent> onMouseEnter) : base(onMouseEnter, SyntheticMouseEvent.EventType.Enter) { }
+    }
+    
+    [PublicAPI]
+    public sealed class MouseLeaveHandler : MouseHandlerBase<MouseEnterEvent>
+    {
+        public MouseLeaveHandler([NotNull] Action<SyntheticMouseEvent> onMouseLeave) : base(onMouseLeave, SyntheticMouseEvent.EventType.Leave) { }
     }
     
     [PublicAPI]

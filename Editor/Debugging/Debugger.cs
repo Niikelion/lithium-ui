@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UI.Li.Common;
+using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
@@ -33,29 +34,35 @@ namespace UI.Li.Editor.Debugging
 
             var instances = ctx.RememberF(GetInstances);
             var selectedNode = ctx.Remember<(CompositionContext.CompositionNode Node, int Id)>((null, -1));
+
+            void OnSelect(CompositionContext.CompositionNode node, int id) => selectedNode.Value = (node, id);
+
             ctx.ProvideContext(new SelectedNodeCtx {
                 Id = selectedNode.Value.Id,
-                OnSelect = (node, id) => { selectedNode.Value = (node, id); }
+                OnSelect = OnSelect
             });
             ctx.ProvideContext(new NodeIdCtx { Id = 1 });
 
             ctx.OnInit(() =>
             {
                 CompositionContext.OnInstanceListChanged += AttachCallback;
+                selectedContext.OnValueChanged += ResetSelection;
 
-                return () => CompositionContext.OnInstanceListChanged -= AttachCallback;
+                return () =>
+                {
+                    selectedContext.OnValueChanged -= ResetSelection;
+                    CompositionContext.OnInstanceListChanged -= AttachCallback;
+                };
 
                 void AttachCallback() => instances.Value = GetInstances();
+                void ResetSelection() => selectedNode.Value = (null, -1);
             });
             
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
             
             return CU.Flex(
                 direction: FlexDirection.Column,
-                content: IComponent.Seq(
-                    CU.WithId(1, Toolbar()),
-                    CU.WithId(2, Content())
-                )
+                content: CU.Seq(Toolbar(), Content())
             ).WithStyle(fillStyle);
 
             List<CompositionContext> GetInstances() =>
@@ -82,13 +89,17 @@ namespace UI.Li.Editor.Debugging
                     reverse: true
                 ).WithStyle(fillStyle);
 
-            IComponent DetailPanel() => CU.Switch(selectedNode.Value.Node != null,
-                () => CU.Flex(selectedNode.Value.Node.Values.Select((val, i) =>
-                    CU.Text($"{i}: {val}")
-                )),
-                () => CU.Box()
-            );
+            IComponent Value(IMutableValue value, int i) => CU.Text($"{i}: {value}");
+            
+            IComponent DetailPanel()
+            {
+                var values = selectedNode.Value.Node?.Values?.Select(Value);
                 
+                return CU.Switch(values != null,
+                    () => CU.Flex(CU.Seq(values)),
+                    () => CU.Box()
+                );
+            }
         }, isStatic: true);
         
         private static IComponent RenderNoPanel() => CU.Text("No panel selected.");
@@ -99,7 +110,7 @@ namespace UI.Li.Editor.Debugging
         {
             return CU.Scroll(CU.Flex(
                 direction: FlexDirection.Column,
-                content: roots.Select((root, i) => CU.WithId(i+1, RenderNode(root, ctx)))
+                content: roots.Select(root => RenderNode(root, ctx))
             ));
         }, isStatic: true);
         
@@ -113,9 +124,7 @@ namespace UI.Li.Editor.Debugging
             
             int offset = 13 * level;
 
-            StyleColor? bkColor = selected ? Color.Lerp(Color.black, Color.Lerp(Color.cyan, Color.blue, 0.5f), 0.5f) : null;
-
-            return CU.WithId(currentId, CU.Box(RenderNodeContent()));
+            return CU.Box(RenderNodeContent()).Id(currentId);
             
             IComponent RenderNodeContent()
             {
@@ -124,29 +133,25 @@ namespace UI.Li.Editor.Debugging
                 var children = node.Children;
                 if (children.Count == 0)
                 {
-                    return CU.WithId(1, CU.Text(name, manipulators: new Clickable(OnSelected))
-                        .WithStyle(new (flexGrow: 1, padding: new (left: offset), backgroundColor: bkColor)));
+                    return CU.Text(name, manipulators: new Clickable(OnSelected))
+                        .WithStyle(new (flexGrow: 1, padding: new (left: offset)))
+                        .WithStyle(textStyle)
+                        .WithConditionalStyle(selected, selectedStyle).Id(1);
                 }
 
-                var content = new IComponent[children.Count];
+                var content = children.Select(child => RenderNode(child, ctx, level + 1));
 
-                int i = 0;
-                foreach (var child in children)
-                {
-                    content[i] = RenderNode(child, ctx, level + 1);
-                    ++i;
-                }
-
-                return CU.WithId(2, CU.Foldout(
+                return CU.Foldout(
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    header: CU.Text(name, manipulators: new Clickable(OnSelected)).WithStyle(new (backgroundColor: bkColor)),
-                    content: CU.WithId(1, CU.Flex(
+                    header: CU.Text(name, manipulators: new Clickable(OnSelected))
+                        .WithStyle(textStyle),
+                    content: CU.Flex(
                         direction: FlexDirection.Column,
                         content: content
-                    ).WithStyle(fillStyle))
-                ).WithStyle(fillStyle));
+                    ).WithStyle(fillStyle)
+                ).WithStyle(fillStyle).Id(2);
             }
 
             void OnSelected() => selCtx.OnSelect?.Invoke(node, currentId);
@@ -155,7 +160,8 @@ namespace UI.Li.Editor.Debugging
                 direction: FlexDirection.Row,
                 content: content,
                 manipulators: onClick?.Let(c => new Clickable(c))
-            ).WithStyle(new (padding: new (left: offset), flexGrow: 1, backgroundColor: bkColor));
+            ).WithStyle(new (padding: new (left: offset), flexGrow: 1))
+                .WithConditionalStyle(selected, selectedStyle);
             
             static IComponent ContentContainer(IComponent content, bool visible) => CU.Box(content)
                 .WithStyle(new (display: visible ? DisplayStyle.Flex : DisplayStyle.None));
@@ -164,5 +170,7 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style fillStyle = new(flexGrow: 1);
         private static readonly Style toolbarDropdownStyle = new(minWidth: 240);
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
+        private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
+        private static readonly Style textStyle = new(color: Color.white);
     }
 }

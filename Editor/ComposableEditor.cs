@@ -11,7 +11,7 @@ namespace UI.Li.Editor
         public sealed override VisualElement CreateInspectorGUI()
         {
             renderer?.Dispose();
-            renderer = new ComponentRenderer(Layout(), EditorName);
+            renderer = new (Layout(), EditorName);
 
             return renderer.UpdateAndRender();
         }

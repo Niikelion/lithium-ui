@@ -1,12 +1,11 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using UI.Li.Common;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Utils
 {
     [PublicAPI]
-    public class StyleWrapper: Wrapper //TODO: add option to combine Wrappers to reduce instance count(possibly, by copying StyleWrapper properties when wrapping StyleWrapper with StyleWrapper)
+    public sealed class StyleWrapper: Wrapper //TODO: add option to combine Wrappers to reduce instance count(possibly, by copying StyleWrapper properties when wrapping StyleWrapper with StyleWrapper)
     {
         private readonly Style style;
         

@@ -167,7 +167,7 @@ namespace UI.Li.Common
         });
 
         [NotNull]
-        public static IComponent FoldoutNob(bool open, [NotNull] Action onClick) =>
+        public static IComponent FoldoutNob(bool open, Action onClick) =>
             defaultNobBoxStyle(CU.Box(
                 content: defaultNobStyle(CU.Box(manipulators: new Repaintable(
                     onRepaint: mgc =>
@@ -205,7 +205,7 @@ namespace UI.Li.Common
                         }
                     }
                 ), content: null)),
-                new Clickable(onClick), new Clickable(onClick)
+                onClick?.Let(c => new Clickable(c))
             ));
 
         private static IComponent DefaultHeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick) =>
@@ -216,9 +216,9 @@ namespace UI.Li.Common
             );
 
         private static IComponent DefaultContentContainer([NotNull] IComponent content, bool visible) =>
-            CU.Box(content).S(CU.Styled(new (
+            CU.Box(content).WithStyle(new (
                 padding: new (left: 13),
                 display: visible ? DisplayStyle.Flex : DisplayStyle.None
-            )));
+            ));
     }
 }

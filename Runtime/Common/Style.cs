@@ -221,93 +221,110 @@ namespace UI.Li.Common
             return ret;
         }
         
-        public void ApplyToElement(VisualElement element)
+        // ReSharper disable once PureAttributeOnVoidMethod
+        [Pure] public void ApplyToElement(VisualElement element)
         {
-            if (AlignContent.HasValue) element.style.alignContent = AlignContent.Value;
-            if (AlignItems.HasValue) element.style.alignItems = AlignItems.Value;
-            if (AlignSelf.HasValue) element.style.alignSelf = AlignSelf.Value;
-            if (BackgroundColor.HasValue) element.style.backgroundColor = BackgroundColor.Value;
-            if (BackgroundImage.HasValue) element.style.backgroundImage = BackgroundImage.Value;
-            if (BackgroundPositionX.HasValue) element.style.backgroundPositionX = BackgroundPositionX.Value;
-            if (BackgroundPositionY.HasValue) element.style.backgroundPositionY = BackgroundPositionY.Value;
-            if (BackgroundRepeat.HasValue) element.style.backgroundRepeat = BackgroundRepeat.Value;
-            if (BackgroundSize.HasValue) element.style.backgroundSize = BackgroundSize.Value;
-            if (BorderBottomColor.HasValue) element.style.borderBottomColor = BorderBottomColor.Value;
-            if (BorderBottomLeftRadius.HasValue) element.style.borderBottomLeftRadius = BorderBottomLeftRadius.Value;
-            if (BorderBottomRightRadius.HasValue) element.style.borderBottomRightRadius = BorderBottomRightRadius.Value;
-            if (BorderBottomWidth.HasValue) element.style.borderBottomWidth = BorderBottomWidth.Value;
-            if (BorderLeftColor.HasValue) element.style.borderLeftColor = BorderLeftColor.Value;
-            if (BorderLeftWidth.HasValue) element.style.borderLeftWidth = BorderLeftWidth.Value;
-            if (BorderRightColor.HasValue) element.style.borderRightColor = BorderRightColor.Value;
-            if (BorderRightWidth.HasValue) element.style.borderRightWidth = BorderRightWidth.Value;
-            if (BorderTopColor.HasValue) element.style.borderTopColor = BorderTopColor.Value;
-            if (BorderTopLeftRadius.HasValue) element.style.borderTopLeftRadius = BorderTopLeftRadius.Value;
-            if (BorderTopRightRadius.HasValue) element.style.borderTopRightRadius = BorderTopRightRadius.Value;
-            if (BorderTopWidth.HasValue) element.style.borderTopWidth = BorderTopWidth.Value;
-            if (Bottom.HasValue) element.style.bottom = Bottom.Value;
-            if (Color.HasValue) element.style.color = Color.Value;
-            if (Cursor.HasValue) element.style.cursor = Cursor.Value;
-            if (Display.HasValue) element.style.display = Display.Value;
-            if (FlexBasis.HasValue) element.style.flexBasis = FlexBasis.Value;
-            if (FlexDirection.HasValue) element.style.flexDirection = FlexDirection.Value;
-            if (FlexGrow.HasValue) element.style.flexGrow = FlexGrow.Value;
-            if (FlexShrink.HasValue) element.style.flexShrink = FlexShrink.Value;
-            if (FlexWrap.HasValue) element.style.flexWrap = FlexWrap.Value;
-            if (FontSize.HasValue) element.style.fontSize = FontSize.Value;
-            if (Height.HasValue) element.style.height = Height.Value;
-            if (JustifyContent.HasValue) element.style.justifyContent = JustifyContent.Value;
-            if (Left.HasValue) element.style.left = Left.Value;
-            if (LetterSpacing.HasValue) element.style.letterSpacing = LetterSpacing.Value;
-            if (MaxHeight.HasValue) element.style.maxHeight = MaxHeight.Value;
-            if (MaxWidth.HasValue) element.style.maxWidth = MaxWidth.Value;
-            if (MinHeight.HasValue) element.style.minHeight = MinHeight.Value;
-            if (MinWidth.HasValue) element.style.minWidth = MinWidth.Value;
-            if (Opacity.HasValue) element.style.opacity = Opacity.Value;
-            if (Overflow.HasValue) element.style.overflow = Overflow.Value;
-            if (Position.HasValue) element.style.position = Position.Value;
-            if (Right.HasValue) element.style.right = Right.Value;
-            if (Rotate.HasValue) element.style.rotate = Rotate.Value;
-            if (Scale.HasValue) element.style.scale = Scale.Value;
-            if (TextOverflow.HasValue) element.style.textOverflow = TextOverflow.Value;
-            if (TextShadow.HasValue) element.style.textShadow = TextShadow.Value;
-            if (Top.HasValue) element.style.top = Top.Value;
-            if (TransformOrigin.HasValue) element.style.transformOrigin = TransformOrigin.Value;
-            if (TransitionDelay.HasValue) element.style.transitionDelay = TransitionDelay.Value;
-            if (TransitionDuration.HasValue) element.style.transitionDuration = TransitionDuration.Value;
-            if (TransitionProperty.HasValue) element.style.transitionProperty = TransitionProperty.Value;
-            if (TransitionTimingFunction.HasValue) element.style.transitionTimingFunction = TransitionTimingFunction.Value;
-            if (Translate.HasValue) element.style.translate = Translate.Value;
-            if (UnityBackgroundImageTintColor.HasValue) element.style.unityBackgroundImageTintColor = UnityBackgroundImageTintColor.Value;
-            if (UnityFont.HasValue) element.style.unityFont = UnityFont.Value;
-            if (UnityFontDefinition.HasValue) element.style.unityFontDefinition = UnityFontDefinition.Value;
-            if (UnityFontStyleAndWeight.HasValue) element.style.unityFontStyleAndWeight = UnityFontStyleAndWeight.Value;
-            if (UnityOverflowClipBox.HasValue) element.style.unityOverflowClipBox = UnityOverflowClipBox.Value;
-            if (UnityParagraphSpacing.HasValue) element.style.unityParagraphSpacing = UnityParagraphSpacing.Value;
-            if (UnitySliceBottom.HasValue) element.style.unitySliceBottom = UnitySliceBottom.Value;
-            if (UnitySliceLeft.HasValue) element.style.unitySliceLeft = UnitySliceLeft.Value;
-            if (UnitySliceRight.HasValue) element.style.unitySliceRight = UnitySliceRight.Value;
-            if (UnitySliceScale.HasValue) element.style.unitySliceScale = UnitySliceScale.Value;
-            if (UnitySliceTop.HasValue) element.style.unitySliceTop = UnitySliceTop.Value;
-            if (UnityTextAlign.HasValue) element.style.unityTextAlign = UnityTextAlign.Value;
-            if (UnityTextOutlineColor.HasValue) element.style.unityTextOutlineColor = UnityTextOutlineColor.Value;
-            if (UnityTextOutlineWidth.HasValue) element.style.unityTextOutlineWidth = UnityTextOutlineWidth.Value;
-            if (UnityTextOverflowPosition.HasValue) element.style.unityTextOverflowPosition = UnityTextOverflowPosition.Value;
-            if (Visibility.HasValue) element.style.visibility = Visibility.Value;
-            if (WhiteSpace.HasValue) element.style.whiteSpace = WhiteSpace.Value;
-            if (Width.HasValue) element.style.width = Width.Value;
-            if (WordSpacing.HasValue) element.style.wordSpacing = WordSpacing.Value;
-            
-            if (Margin?.Left != null) element.style.marginLeft = Margin.Value.Left.Value;
-            if (Margin?.Right != null) element.style.marginRight = Margin.Value.Right.Value;
-            if (Margin?.Top != null) element.style.marginTop = Margin.Value.Top.Value;
-            if (Margin?.Bottom != null) element.style.marginBottom = Margin.Value.Bottom.Value;
+            if (element == null)
+                return;
 
-            if (Padding?.Left != null) element.style.paddingLeft = Padding.Value.Left.Value;
-            if (Padding?.Right != null) element.style.paddingRight = Padding.Value.Right.Value;
-            if (Padding?.Top != null) element.style.paddingTop = Padding.Value.Top.Value;
-            if (Padding?.Bottom != null) element.style.paddingBottom = Padding.Value.Bottom.Value;
+            try
+            {
+                if (AlignContent.HasValue) element.style.alignContent = AlignContent.Value;
+                if (AlignItems.HasValue) element.style.alignItems = AlignItems.Value;
+                if (AlignSelf.HasValue) element.style.alignSelf = AlignSelf.Value;
+                if (BackgroundColor.HasValue) element.style.backgroundColor = BackgroundColor.Value;
+                if (BackgroundImage.HasValue) element.style.backgroundImage = BackgroundImage.Value;
+                if (BackgroundPositionX.HasValue) element.style.backgroundPositionX = BackgroundPositionX.Value;
+                if (BackgroundPositionY.HasValue) element.style.backgroundPositionY = BackgroundPositionY.Value;
+                if (BackgroundRepeat.HasValue) element.style.backgroundRepeat = BackgroundRepeat.Value;
+                if (BackgroundSize.HasValue) element.style.backgroundSize = BackgroundSize.Value;
+                if (BorderBottomColor.HasValue) element.style.borderBottomColor = BorderBottomColor.Value;
+                if (BorderBottomLeftRadius.HasValue)
+                    element.style.borderBottomLeftRadius = BorderBottomLeftRadius.Value;
+                if (BorderBottomRightRadius.HasValue)
+                    element.style.borderBottomRightRadius = BorderBottomRightRadius.Value;
+                if (BorderBottomWidth.HasValue) element.style.borderBottomWidth = BorderBottomWidth.Value;
+                if (BorderLeftColor.HasValue) element.style.borderLeftColor = BorderLeftColor.Value;
+                if (BorderLeftWidth.HasValue) element.style.borderLeftWidth = BorderLeftWidth.Value;
+                if (BorderRightColor.HasValue) element.style.borderRightColor = BorderRightColor.Value;
+                if (BorderRightWidth.HasValue) element.style.borderRightWidth = BorderRightWidth.Value;
+                if (BorderTopColor.HasValue) element.style.borderTopColor = BorderTopColor.Value;
+                if (BorderTopLeftRadius.HasValue) element.style.borderTopLeftRadius = BorderTopLeftRadius.Value;
+                if (BorderTopRightRadius.HasValue) element.style.borderTopRightRadius = BorderTopRightRadius.Value;
+                if (BorderTopWidth.HasValue) element.style.borderTopWidth = BorderTopWidth.Value;
+                if (Bottom.HasValue) element.style.bottom = Bottom.Value;
+                if (Color.HasValue) element.style.color = Color.Value;
+                if (Cursor.HasValue) element.style.cursor = Cursor.Value;
+                if (Display.HasValue) element.style.display = Display.Value;
+                if (FlexBasis.HasValue) element.style.flexBasis = FlexBasis.Value;
+                if (FlexDirection.HasValue) element.style.flexDirection = FlexDirection.Value;
+                if (FlexGrow.HasValue) element.style.flexGrow = FlexGrow.Value;
+                if (FlexShrink.HasValue) element.style.flexShrink = FlexShrink.Value;
+                if (FlexWrap.HasValue) element.style.flexWrap = FlexWrap.Value;
+                if (FontSize.HasValue) element.style.fontSize = FontSize.Value;
+                if (Height.HasValue) element.style.height = Height.Value;
+                if (JustifyContent.HasValue) element.style.justifyContent = JustifyContent.Value;
+                if (Left.HasValue) element.style.left = Left.Value;
+                if (LetterSpacing.HasValue) element.style.letterSpacing = LetterSpacing.Value;
+                if (MaxHeight.HasValue) element.style.maxHeight = MaxHeight.Value;
+                if (MaxWidth.HasValue) element.style.maxWidth = MaxWidth.Value;
+                if (MinHeight.HasValue) element.style.minHeight = MinHeight.Value;
+                if (MinWidth.HasValue) element.style.minWidth = MinWidth.Value;
+                if (Opacity.HasValue) element.style.opacity = Opacity.Value;
+                if (Overflow.HasValue) element.style.overflow = Overflow.Value;
+                if (Position.HasValue) element.style.position = Position.Value;
+                if (Right.HasValue) element.style.right = Right.Value;
+                if (Rotate.HasValue) element.style.rotate = Rotate.Value;
+                if (Scale.HasValue) element.style.scale = Scale.Value;
+                if (TextOverflow.HasValue) element.style.textOverflow = TextOverflow.Value;
+                if (TextShadow.HasValue) element.style.textShadow = TextShadow.Value;
+                if (Top.HasValue) element.style.top = Top.Value;
+                if (TransformOrigin.HasValue) element.style.transformOrigin = TransformOrigin.Value;
+                if (TransitionDelay.HasValue) element.style.transitionDelay = TransitionDelay.Value;
+                if (TransitionDuration.HasValue) element.style.transitionDuration = TransitionDuration.Value;
+                if (TransitionProperty.HasValue) element.style.transitionProperty = TransitionProperty.Value;
+                if (TransitionTimingFunction.HasValue)
+                    element.style.transitionTimingFunction = TransitionTimingFunction.Value;
+                if (Translate.HasValue) element.style.translate = Translate.Value;
+                if (UnityBackgroundImageTintColor.HasValue)
+                    element.style.unityBackgroundImageTintColor = UnityBackgroundImageTintColor.Value;
+                if (UnityFont.HasValue) element.style.unityFont = UnityFont.Value;
+                if (UnityFontDefinition.HasValue) element.style.unityFontDefinition = UnityFontDefinition.Value;
+                if (UnityFontStyleAndWeight.HasValue)
+                    element.style.unityFontStyleAndWeight = UnityFontStyleAndWeight.Value;
+                if (UnityOverflowClipBox.HasValue) element.style.unityOverflowClipBox = UnityOverflowClipBox.Value;
+                if (UnityParagraphSpacing.HasValue) element.style.unityParagraphSpacing = UnityParagraphSpacing.Value;
+                if (UnitySliceBottom.HasValue) element.style.unitySliceBottom = UnitySliceBottom.Value;
+                if (UnitySliceLeft.HasValue) element.style.unitySliceLeft = UnitySliceLeft.Value;
+                if (UnitySliceRight.HasValue) element.style.unitySliceRight = UnitySliceRight.Value;
+                if (UnitySliceScale.HasValue) element.style.unitySliceScale = UnitySliceScale.Value;
+                if (UnitySliceTop.HasValue) element.style.unitySliceTop = UnitySliceTop.Value;
+                if (UnityTextAlign.HasValue) element.style.unityTextAlign = UnityTextAlign.Value;
+                if (UnityTextOutlineColor.HasValue) element.style.unityTextOutlineColor = UnityTextOutlineColor.Value;
+                if (UnityTextOutlineWidth.HasValue) element.style.unityTextOutlineWidth = UnityTextOutlineWidth.Value;
+                if (UnityTextOverflowPosition.HasValue)
+                    element.style.unityTextOverflowPosition = UnityTextOverflowPosition.Value;
+                if (Visibility.HasValue) element.style.visibility = Visibility.Value;
+                if (WhiteSpace.HasValue) element.style.whiteSpace = WhiteSpace.Value;
+                if (Width.HasValue) element.style.width = Width.Value;
+                if (WordSpacing.HasValue) element.style.wordSpacing = WordSpacing.Value;
 
-            element.MarkDirtyRepaint();
+                if (Margin?.Left != null) element.style.marginLeft = Margin.Value.Left.Value;
+                if (Margin?.Right != null) element.style.marginRight = Margin.Value.Right.Value;
+                if (Margin?.Top != null) element.style.marginTop = Margin.Value.Top.Value;
+                if (Margin?.Bottom != null) element.style.marginBottom = Margin.Value.Bottom.Value;
+
+                if (Padding?.Left != null) element.style.paddingLeft = Padding.Value.Left.Value;
+                if (Padding?.Right != null) element.style.paddingRight = Padding.Value.Right.Value;
+                if (Padding?.Top != null) element.style.paddingTop = Padding.Value.Top.Value;
+                if (Padding?.Bottom != null) element.style.paddingBottom = Padding.Value.Bottom.Value;
+
+                element.MarkDirtyRepaint();
+            }
+            catch (NullReferenceException)
+            {
+                // setting styles might fail when VisualElement is partially destroyed and we don't have a way to check that
+            }
         }
 
         public Style(

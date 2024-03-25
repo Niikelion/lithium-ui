@@ -7,7 +7,7 @@ namespace UI.Li.Common
     /// <summary>
     /// Component representing <see cref="UnityEngine.UIElements.TextField"/>.
     /// </summary>
-    [PublicAPI] public class TextField: Element
+    [PublicAPI] public sealed class TextField: Element
     {
         // TODO: show tooltip as grayed-out text when empty
         private readonly string tooltip;
@@ -61,9 +61,14 @@ namespace UI.Li.Common
             base.Dispose();
         }
 
+        public override bool StateLayoutEquals(IComponent other) =>
+            other is TextField textField &&
+            tooltip == textField.tooltip &&
+            onValueChanged == textField.onValueChanged;
+
         protected override void OnState(CompositionContext context)
         {
-            ctxRef = new WeakReference<CompositionContext>(context);
+            ctxRef = new(context);
             currentValue = context.Remember(initialValue);
         }
 
@@ -78,6 +83,9 @@ namespace UI.Li.Common
             
             AddCleanup(field, () => field.UnregisterValueChangedCallback(OnValueChanged));
 
+            if (source == null && focused)
+                field.schedule.Execute(() => field.Focus());
+            
             return field;
         }
 

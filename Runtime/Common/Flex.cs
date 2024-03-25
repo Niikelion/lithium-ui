@@ -13,7 +13,7 @@ namespace UI.Li.Common
     /// </summary>
     /// <remarks>Content structure change between recompositions may result in state loss. If you cannot ensure constant number and ordering of child elements consider using <see cref="List"/></remarks>
     /// <seealso cref="List"/>
-    [PublicAPI] public class Flex: Element
+    [PublicAPI] public sealed class Flex: Element
     {
         [NotNull] private readonly IComponent[] content;
         private readonly FlexDirection direction;
@@ -44,6 +44,9 @@ namespace UI.Li.Common
             
             base.Dispose();
         }
+
+        public override bool StateLayoutEquals(IComponent other) =>
+            other is Flex flex && content.Length == flex.content.Length && content.Zip(flex.content, (a ,b) => (a, b)).All(v => v.a.StateLayoutEquals(v.b));
 
         protected override RecompositionStrategy RecompositionStrategy => RecompositionStrategy.Reorder;
 

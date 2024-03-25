@@ -10,7 +10,7 @@ namespace UI.Li.Common
     /// Component representing <see cref="DropdownField"/>.
     /// </summary>
     [PublicAPI]
-    public class Dropdown: Element
+    public sealed class Dropdown: Element
     {
         private readonly int initialValue;
         private readonly List<string> options;
@@ -97,6 +97,11 @@ namespace UI.Li.Common
             base.Dispose();
         }
 
+        public override string ToString() => $"{base.ToString()} [{options[currentValue?.Value ?? initialValue]}]";
+
+        public override bool StateLayoutEquals(IComponent other) =>
+            other is Dropdown dropdown && options.SequenceEqual(dropdown.options);
+
         [Obsolete] private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, Data data) : base(data)
         {
             this.initialValue = initialValue;
@@ -132,6 +137,18 @@ namespace UI.Li.Common
             AddCleanup(field, () => field.UnregisterValueChangedCallback(OnSelectionChanged));
             
             return field;
+        }
+
+        protected override VisualElement PrepareElement(VisualElement target)
+        {
+            var element = base.PrepareElement(target);
+
+            element.AddToClassList(DropdownField.ussClassName);
+            element.AddToClassList(PopupField<string>.ussClassName);
+            element.AddToClassList(BasePopupField<string, string>.ussClassName);
+            element.AddToClassList(BaseField<string>.ussClassName);
+            
+            return element;
         }
 
         private void OnSelectionChanged(ChangeEvent<string> evt)

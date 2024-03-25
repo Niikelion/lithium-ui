@@ -8,7 +8,7 @@ namespace UI.Li.Utils
     /// Lightweight static component class that uses provided function to render component.
     /// </summary>
     /// <remarks>Can be used to easily wrap VisualElements</remarks>
-    public class LightComponent: IComponent
+    [PublicAPI] public sealed class LightComponent: IComponent
     {
         public event Action<VisualElement> OnRender;
         
@@ -18,10 +18,7 @@ namespace UI.Li.Utils
         /// <summary>
         /// Creates component using renderer function.
         /// </summary>
-        [PublicAPI] public LightComponent([NotNull] Func<VisualElement, VisualElement> renderer)
-        {
-            this.renderer = renderer;
-        }
+        [PublicAPI] public LightComponent([NotNull] Func<VisualElement, VisualElement> renderer) => this.renderer = renderer;
 
         /// <summary>
         /// Creates component using renderer function.
@@ -42,7 +39,9 @@ namespace UI.Li.Utils
             previouslyRendered = context.StartFrame(this);
             context.EndFrame();
         }
-        
+
+        public bool StateLayoutEquals(IComponent other) => other is LightComponent;
+
         public void Dispose()
         {
             previouslyRendered = null;

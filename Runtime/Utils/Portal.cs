@@ -2,9 +2,9 @@ using System;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 
-namespace UI.Li.lithium_ui.Runtime.Utils
+namespace UI.Li.Utils
 {
-    [PublicAPI] public class Portal : IComponent
+    [PublicAPI] public sealed class Portal : IComponent
     {
         [PublicAPI] public class Link
         {
@@ -58,6 +58,8 @@ namespace UI.Li.lithium_ui.Runtime.Utils
                 context.StartFrame(this);
                 context.EndFrame();
             }
+
+            public bool StateLayoutEquals(IComponent other) => other is Anchor;
         }
         
         public event Action<VisualElement> OnRender;
@@ -94,5 +96,7 @@ namespace UI.Li.lithium_ui.Runtime.Utils
             content.Recompose(context);
             context.EndFrame();
         }
+
+        public bool StateLayoutEquals(IComponent other) => other is Portal;
     }
 }

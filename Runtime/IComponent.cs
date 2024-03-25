@@ -31,6 +31,14 @@ namespace UI.Li
         public void Recompose([NotNull] CompositionContext context);
 
         /// <summary>
+        /// Checks if both components have same state layout. It may return true if and only if the layout is guaranteed to be the same.
+        /// </summary>
+        /// <remarks>Used for override prevention. Note, that it may return false even if layouts are the same, but may never return true when the differ.</remarks>
+        /// <param name="other">other component to compare against</param>
+        /// <returns>true if components are guaranteed to have the same layout</returns>
+        public bool StateLayoutEquals(IComponent other);
+        
+        /// <summary>
         /// Wrapper function for cleaner sequence creation
         /// </summary>
         /// <param name="sequence">elements to pack into sequence.</param>

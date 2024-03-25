@@ -322,7 +322,9 @@ namespace UI.Li
         public CompositionContext(string name = "Unnamed")
         {
             Name = name;
+#if UNITY_EDITOR // for reference listing
             RegisterInstance(this);
+#endif
         }
 
         /// <summary>
@@ -387,7 +389,7 @@ namespace UI.Li
             int currentEntryId = nextEntryId;
             component = TakeOrigin();
             
-            isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering);
+            isFirstRender = SetupFrame(currentEntryId, currentNestingLevel, nextEntryPreventOverride, lastEntry?.Reordering, component);
             nextEntryPreventOverride = false;
             nextEntryId = 0;
 
@@ -397,7 +399,7 @@ namespace UI.Li
             
             if (isFirstRender)
             {
-                InsertAtPointer(new Frame(
+                InsertAtPointer(new (
                     entryId: currentEntryId,
                     nestingLevel: currentNestingLevel,
                     component: component
@@ -413,7 +415,7 @@ namespace UI.Li
 
                 currentEntry = frame.Entry;
 
-                if (currentEntry.Component != component)
+                if (!Equals(currentEntry.Component, component))
                 {
                     currentEntry.Component.Dispose();
                     currentEntry.Component = component;
@@ -707,7 +709,10 @@ namespace UI.Li
                 frame.Dispose();
                 frames.RemoveAt(0);
             }
+            
+#if UNITY_EDITOR // for reference listing
             UnregisterInstance(this);
+#endif
         }
         
 #if UNITY_EDITOR // for reference listing
@@ -772,19 +777,15 @@ namespace UI.Li
             
             return ret;
         }
-#endif
         
         private static void RegisterInstance(CompositionContext ctx)
         {
-#if UNITY_EDITOR // for reference listing
             instances.Add(new(ctx));
             OnInstanceListChanged?.Invoke();
-#endif
         }
         
         private static void UnregisterInstance(CompositionContext ctx)
         {
-#if UNITY_EDITOR // for reference listing
             bool modified = false;
             
             instances.RemoveWhere(r =>
@@ -798,8 +799,8 @@ namespace UI.Li
             });
             if (modified)
                 syncQueue.Enqueue(() => OnInstanceListChanged?.Invoke());
-#endif
         }
+#endif
 
         private static void SwapVisualElements(VisualElement oldElement, [NotNull] VisualElement newElement)
         {
@@ -842,7 +843,7 @@ namespace UI.Li
         {
             if (entryStack.Count > 0)
                 throw new InvalidOperationException("Updating data before full layout render not supported");
-            
+
             if (batchScopeLevel > 0)
             {
                 dirty = true;
@@ -855,7 +856,7 @@ namespace UI.Li
             }
         }
 
-        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride, RemapHelper<int> reorderData)
+        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride, RemapHelper<int> reorderData, IComponent component)
         {
             if (framePointer >= frames.Count)
                 return true;
@@ -867,10 +868,14 @@ namespace UI.Li
                 throw new InvalidOperationException("Component layout unexpected change");
 
             var entry = frame.Entry;
+            preventOverride = preventOverride || entry.Component.StateLayoutEquals(component);
             
-            // we found less nested entry frame, so we need to insert new entry here
+            // we found more nested entry frame, so we need to insert new entry here
             if (entry.NestingLevel > currentNestingLevel)
+            {
+                ClearAllNested(currentNestingLevel);
                 return true;
+            }
 
             if (reorderData != null)
             {
@@ -882,9 +887,12 @@ namespace UI.Li
                 }
                 
                 // we found some more deeply nested data than expected
-                if (entry.NestingLevel != currentNestingLevel)
+                if (entry.NestingLevel > currentNestingLevel)
                     throw new InvalidOperationException(
                         "Id of component and/or layout unexpected change");
+
+                if (entry.NestingLevel < currentNestingLevel)
+                    return true;
                 
                 // we found matching element
                 if (entry.Id == entryId)
@@ -893,7 +901,7 @@ namespace UI.Li
                     return false;
                 }
                 // first, try to find given entry and bring it closer
-                (int foundStart, int foundSize) = reorderData.FindAndRemove(entryId);
+                var (foundStart, foundSize) = reorderData.FindAndRemove(entryId);
 
                 // we still don't have a match, insert new
                 if (foundSize == 0)
@@ -941,6 +949,7 @@ namespace UI.Li
 
             // we found some more deeply nested data than expected
             if (entry.NestingLevel > currentNestingLevel)
+                // TODO: check if reachable
                 throw new InvalidOperationException(
                     "Id of component and/or layout unexpected change");
             
