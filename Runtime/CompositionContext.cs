@@ -322,7 +322,9 @@ namespace UI.Li
         public CompositionContext(string name = "Unnamed")
         {
             Name = name;
+#if UNITY_EDITOR // for reference listing
             RegisterInstance(this);
+#endif
         }
 
         /// <summary>
@@ -397,7 +399,7 @@ namespace UI.Li
             
             if (isFirstRender)
             {
-                InsertAtPointer(new Frame(
+                InsertAtPointer(new (
                     entryId: currentEntryId,
                     nestingLevel: currentNestingLevel,
                     component: component
@@ -707,7 +709,10 @@ namespace UI.Li
                 frame.Dispose();
                 frames.RemoveAt(0);
             }
+            
+#if UNITY_EDITOR // for reference listing
             UnregisterInstance(this);
+#endif
         }
         
 #if UNITY_EDITOR // for reference listing
@@ -772,19 +777,15 @@ namespace UI.Li
             
             return ret;
         }
-#endif
         
         private static void RegisterInstance(CompositionContext ctx)
         {
-#if UNITY_EDITOR // for reference listing
             instances.Add(new(ctx));
             OnInstanceListChanged?.Invoke();
-#endif
         }
         
         private static void UnregisterInstance(CompositionContext ctx)
         {
-#if UNITY_EDITOR // for reference listing
             bool modified = false;
             
             instances.RemoveWhere(r =>
@@ -798,8 +799,8 @@ namespace UI.Li
             });
             if (modified)
                 syncQueue.Enqueue(() => OnInstanceListChanged?.Invoke());
-#endif
         }
+#endif
 
         private static void SwapVisualElements(VisualElement oldElement, [NotNull] VisualElement newElement)
         {
@@ -842,7 +843,7 @@ namespace UI.Li
         {
             if (entryStack.Count > 0)
                 throw new InvalidOperationException("Updating data before full layout render not supported");
-            
+
             if (batchScopeLevel > 0)
             {
                 dirty = true;

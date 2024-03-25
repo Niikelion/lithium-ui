@@ -360,7 +360,9 @@ namespace UI.Li.Common
         
         public VisualElement Render()
         {
-            var ret = PrepareElement(GetElement(PreviouslyRendered));
+            var coreElement = GetElement(PreviouslyRendered);
+            var ret = PrepareElement(coreElement);
+            
             OnRender?.Invoke(ret);
             PreviouslyRendered = ret;
             return ret;
@@ -428,7 +430,7 @@ namespace UI.Li.Common
         [NotNull]
         protected T Use<T>([CanBeNull] VisualElement source, bool clear = false) where T : VisualElement, new()
         {
-            if (source is not T element || element.GetType() != typeof(T)) return new T();
+            if (source is not T element || element.GetType() != typeof(T)) return new ();
 
             if (clear)
                 element.contentContainer.Clear();
