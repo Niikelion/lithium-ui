@@ -15,7 +15,7 @@ namespace UI.Li.Common
     /// Component representing list of sub-components.
     /// </summary>
     /// <remarks>WIP, use at your own risk!</remarks>
-    [PublicAPI] public class List
+    [PublicAPI] [Obsolete("WIP")] public class List
     {
         private struct ValueComparer : IComparer<KeyValuePair<IComponent, int>>
         {
