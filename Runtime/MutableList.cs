@@ -34,9 +34,9 @@ namespace UI.Li
 
         public void Dispose()
         {
+            OnValueChanged = null;
             Clear();
             nextId = 0;
-            OnValueChanged = null;
         }
 
         public IEnumerator<T> GetEnumerator()
