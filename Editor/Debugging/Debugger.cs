@@ -96,7 +96,7 @@ namespace UI.Li.Editor.Debugging
                 var values = selectedNode.Value.Node?.Values?.Select(Value);
                 
                 return CU.Switch(values != null,
-                    () => CU.Flex(CU.Seq(values)),
+                    () => CU.Row(CU.Seq(values)),
                     () => CU.Box()
                 );
             }
@@ -108,10 +108,11 @@ namespace UI.Li.Editor.Debugging
         
         private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
         {
-            return CU.Scroll(CU.Flex(
-                direction: FlexDirection.Column,
-                content: roots.Select(root => RenderNode(root, ctx))
-            ));
+            return CU.Scroll(
+                CU.Column(
+                    roots.Select(root => RenderNode(root, ctx))
+                )
+            );
         }, isStatic: true);
         
         private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx, int level = 0)
@@ -147,10 +148,7 @@ namespace UI.Li.Editor.Debugging
                     contentContainer: ContentContainer,
                     header: CU.Text(name, manipulators: new Clickable(OnSelected))
                         .WithStyle(textStyle),
-                    content: CU.Flex(
-                        direction: FlexDirection.Column,
-                        content: content
-                    ).WithStyle(fillStyle)
+                    content: CU.Column(content).WithStyle(fillStyle)
                 ).WithStyle(fillStyle).Id(2);
             }
 
