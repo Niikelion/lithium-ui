@@ -96,7 +96,7 @@ namespace UI.Li.Editor.Debugging
                 var values = selectedNode.Value.Node?.Values?.Select(Value);
                 
                 return CU.Switch(values != null,
-                    () => CU.Row(CU.Seq(values)),
+                    () => CU.Column(CU.Seq(values)),
                     () => CU.Box()
                 );
             }
