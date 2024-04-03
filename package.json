@@ -1,6 +1,6 @@
 {
   "name": "niikelion.ui.lithium",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "displayName": "Lithium UI",
   "description": "Reactive UI library designed for editor tools creation.",
   "unity": "2022.3",
