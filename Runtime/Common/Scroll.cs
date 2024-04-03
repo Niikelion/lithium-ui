@@ -20,11 +20,6 @@ namespace UI.Li.Common
         private readonly ScrollViewMode mode;
         private readonly Action<float, Orientation> onScroll;
 
-        [NotNull] [Obsolete]
-        public static Scroll V([NotNull] IComponent content, ScrollViewMode mode,
-            Action<float, Orientation> onScroll, Data data) =>
-            new(content, mode, onScroll, data);
-
         [NotNull]
         public static Scroll V([NotNull] IComponent content, ScrollViewMode mode = ScrollViewMode.Vertical,
             Action<float, Orientation> onScroll = null, params IManipulator[] manipulators) =>
@@ -67,7 +62,7 @@ namespace UI.Li.Common
 
             ret.AddToClassList(ScrollView.ussClassName);
 
-            content?.Run(c => ret.Add(c.Render()));
+            content.Run(c => ret.Add(c.Render()));
             
             return ret;
         }
@@ -76,13 +71,6 @@ namespace UI.Li.Common
         private void OnVerticalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Vertical);
 
         private void OnHorizontalScrollChanged(float value) => onScroll?.Invoke(value, Orientation.Horizontal);
-        
-        [Obsolete] private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, Data data): base(data)
-        {
-            this.content = content;
-            this.mode = mode;
-            this.onScroll = onScroll;
-        }
         
         private Scroll([NotNull] IComponent content, ScrollViewMode mode, Action<float, Orientation> onScroll, IManipulator[] manipulators): base(manipulators)
         {

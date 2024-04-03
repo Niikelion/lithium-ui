@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using CU = UI.Li.Utils.CompositionUtils;
 
+using static UI.Li.Common.Layout.Layout;
+using static UI.Li.Common.Common;
+
 namespace UI.Li.Common
 {
     [PublicAPI]
@@ -18,7 +21,7 @@ namespace UI.Li.Common
         {
             label ??= DefaultLabel;
             
-            return CU.Flex(direction: FlexDirection.Row, content: labels.Select(Label)).WithStyle(tabListStyle);
+            return Row(labels.Select(Label)).WithStyle(tabListStyle);
             
             IComponent Label(IComponent text, int i) => label(text, () => onSelect(i), selected == i);
         }
@@ -30,17 +33,17 @@ namespace UI.Li.Common
                 var cachedTabs = tabs.ToArray();
                 
                 var selected = ctx.Remember(0);
-                
-                return CU.Flex(direction: FlexDirection.Column, content: IComponent.Seq(
+
+                return Col(
                     List(cachedTabs.Select(t => t.Label), i => selected.Value = i, selected.Value, label),
                     CU.WithId(selected.Value, cachedTabs[selected.Value].Content())
-                ));
+                );
             }, isStatic: true);
 
         [NotNull]
         public static IComponent V(params (IComponent Lable, Func<IComponent> Content)[] tabs) => V(null, tabs);
 
-        private static IComponent DefaultLabel(IComponent content, Action onSelect, bool selected) => CU.Button(onSelect, content).WithConditionalStyle(selected, selectedLabelStyle);
+        private static IComponent DefaultLabel(IComponent content, Action onSelect, bool selected) => Button(onSelect, content).WithConditionalStyle(selected, selectedLabelStyle);
 
         private static readonly Style tabListStyle = new(alignContent: Align.FlexStart);
 

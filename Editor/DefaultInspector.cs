@@ -1,4 +1,3 @@
-using System;
 using JetBrains.Annotations;
 using UI.Li.Common;
 using UnityEditor.UIElements;
@@ -10,10 +9,6 @@ namespace UI.Li.Editor
     public class DefaultInspector: Element
     {
         [NotNull] private readonly UnityEditor.Editor editor;
-        
-        [NotNull] [Obsolete]
-        public static DefaultInspector V([NotNull] UnityEditor.Editor editor, Data data) =>
-            new (editor, data);
 
         [NotNull]
         public static DefaultInspector V([NotNull] UnityEditor.Editor editor, params IManipulator[] manipulators) =>
@@ -27,8 +22,6 @@ namespace UI.Li.Editor
             
             return element;
         }
-        
-        [Obsolete] private DefaultInspector([NotNull] UnityEditor.Editor editor, Data data): base(data) => this.editor = editor;
 
         private DefaultInspector([NotNull] UnityEditor.Editor editor, IManipulator[] manipulators): base(manipulators) => this.editor = editor;
     }

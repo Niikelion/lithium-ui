@@ -17,25 +17,7 @@ namespace UI.Li.Common
         private readonly Action<string> onValueChanged;
         
         private WeakReference<CompositionContext> ctxRef;
-
-        /// <summary>
-        /// Constructs <see cref="TextField"/> instance.
-        /// </summary>
-        /// <param name="onValueChanged">callback invoked every time value is changed</param>
-        /// <param name="value">initial value</param>
-        /// <param name="tooltip">tooltip</param>
-        /// <param name="focused">indicates whether or not element should be focused after render, currently does nothing</param>
-        /// <param name="data">additional data <seealso cref="Element.Data"/></param>
-        /// <returns></returns>
-        [NotNull] [Obsolete]
-        public static TextField V(
-            [NotNull] Action<string> onValueChanged,
-            [NotNull] string value,
-            [NotNull] string tooltip,
-            bool focused,
-            Data data
-        ) => new(onValueChanged, value, tooltip, focused, data);
-
+        
         /// <summary>
         /// Constructs <see cref="TextField"/> instance.
         /// </summary>
@@ -114,16 +96,6 @@ namespace UI.Li.Common
             
             currentValue.Value = v;
             onValueChanged?.Invoke(v);
-        }
-        
-        [Obsolete] private TextField(Action<string> onValueChanged, string value, string tooltip, bool focused, Data data): base(data)
-        {
-            this.onValueChanged = onValueChanged;
-            
-            initialValue = value;
-
-            this.tooltip = tooltip;
-            this.focused = focused;
         }
         
         private TextField(Action<string> onValueChanged, string value, string tooltip, bool focused, IManipulator[] manipulators): base(manipulators)

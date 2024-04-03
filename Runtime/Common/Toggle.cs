@@ -9,10 +9,6 @@ namespace UI.Li.Common
         [NotNull] private readonly Action<bool> onValueChanged;
         private readonly bool initialValue;
 
-        [NotNull] [Obsolete]
-        public static Toggle V([NotNull] Action<bool> onValueChanged, bool initialValue, Data data) =>
-            new (onValueChanged, initialValue, data);
-        
         [NotNull]
         public static Toggle V([NotNull] Action<bool> onValueChanged, bool initialValue = false, params IManipulator[] manipulators) =>
             new (onValueChanged, initialValue, manipulators);
@@ -41,12 +37,6 @@ namespace UI.Li.Common
         }
 
         private void OnValueChanged(ChangeEvent<bool> evt) => onValueChanged(evt.newValue);
-        
-        [Obsolete] private Toggle([NotNull] Action<bool> onValueChanged, bool initialValue, Data data): base(data)
-        {
-            this.onValueChanged = onValueChanged;
-            this.initialValue = initialValue;
-        }
         
         private Toggle([NotNull] Action<bool> onValueChanged, bool initialValue, IManipulator[] manipulators): base(manipulators)
         {
