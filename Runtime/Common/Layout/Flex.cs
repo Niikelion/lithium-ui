@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
-namespace UI.Li.Common
+namespace UI.Li.Common.Layout
 {
     using RecompositionStrategy = CompositionContext.RecompositionStrategy;
     
@@ -17,15 +16,6 @@ namespace UI.Li.Common
     {
         [NotNull] private readonly IComponent[] content;
         private readonly FlexDirection direction;
-
-        /// <summary>
-        /// Constructs <see cref="Flex"/> instance.
-        /// </summary>
-        /// <param name="content">content of container</param>
-        /// <param name="direction">direction of children</param>
-        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
-        /// <returns></returns>
-        [NotNull] [Obsolete] public static Flex V([NotNull] IEnumerable<IComponent> content, FlexDirection direction, Data data) => new(direction, content, data);
 
         /// <summary>
         /// Constructs <see cref="Flex"/> instance.
@@ -61,17 +51,18 @@ namespace UI.Li.Common
             var ret = base.PrepareElement(target);
 
             ret.style.flexDirection = direction;
-
+            ret.Clear();
+            
             foreach (var child in content)
-                ret.Add(child.Render());
+            {
+                var childElement = child.Render();
+                if (childElement == null)
+                    continue;
+                
+                ret.Add(childElement);
+            }
             
             return ret;
-        }
-        
-        [Obsolete] private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, Data data): base(data)
-        {
-            this.direction = direction;
-            this.content = content.ToArray();
         }
         
         private Flex(FlexDirection direction, [NotNull] IEnumerable<IComponent> content, IManipulator[] manipulators): base(manipulators)

@@ -17,7 +17,7 @@ namespace UI.Li
         /// Renders given component. Consecutive returned values should be treated as new versions of the same component.
         /// </summary>
         /// <returns>VisualElement representing given component</returns>
-        [NotNull] public VisualElement Render();
+        public VisualElement Render();
 
         /// <summary>
         /// <para>Recomposes given component.</para>

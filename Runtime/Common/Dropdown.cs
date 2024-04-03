@@ -10,7 +10,7 @@ namespace UI.Li.Common
     /// Component representing <see cref="DropdownField"/>.
     /// </summary>
     [PublicAPI]
-    public sealed class Dropdown: Element
+    public sealed class Dropdown: Element<DropdownField>
     {
         private readonly int initialValue;
         private readonly List<string> options;
@@ -18,41 +18,6 @@ namespace UI.Li.Common
         private MutableValue<int> currentValue;
         
         private WeakReference<CompositionContext> ctxRef;
-
-        /// <summary>
-        /// Creates <see cref="Dropdown"/> instance using list of options.
-        /// </summary>
-        /// <param name="initialValue">default selected option</param>
-        /// <param name="onSelectionChanged">callback invoked every time selected option changes</param>
-        /// <param name="options">available options for dropdown</param>
-        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
-        /// <returns></returns>
-        [NotNull] [Obsolete]
-        public static Dropdown V(
-            int initialValue,
-            [NotNull] Action<int> onSelectionChanged,
-            [NotNull] List<string> options,
-            Data data
-        ) => new(initialValue, onSelectionChanged, options, data);
-
-        /// <summary>
-        /// Creates <see cref="Dropdown"/> instance using enum.
-        /// </summary>
-        /// <param name="initialValue">default selected option</param>
-        /// <param name="onSelectionChanged">callback invoked every time selected option changes</param>
-        /// <param name="data">additional element data <seealso cref="Element.Data"/></param>
-        /// <typeparam name="T">enum to be displayed in dropdown</typeparam>
-        /// <returns></returns>
-        [NotNull] [Obsolete]
-        public static Dropdown V<T>(
-            T initialValue,
-            [NotNull] Action<T> onSelectionChanged,
-            Data data
-        ) where T : Enum
-        {
-            var options = Enum.GetValues(typeof(T)).Cast<T>().ToList();
-            return new(options.IndexOf(initialValue), v => onSelectionChanged(options[v]), options.Select(o => o.ToString()).ToList(), data);
-        }
         
         /// <summary>
         /// Creates <see cref="Dropdown"/> instance using list of options.
@@ -101,13 +66,6 @@ namespace UI.Li.Common
 
         public override bool StateLayoutEquals(IComponent other) =>
             other is Dropdown dropdown && options.SequenceEqual(dropdown.options);
-
-        [Obsolete] private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, Data data) : base(data)
-        {
-            this.initialValue = initialValue;
-            this.onSelectionChanged = onSelectionChanged;
-            this.options = options;
-        }
         
         private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, IManipulator[] manipulators) : base(manipulators)
         {
@@ -122,31 +80,21 @@ namespace UI.Li.Common
             currentValue = context.Remember(initialValue);
         }
 
-        protected override VisualElement GetElement(VisualElement source)
+        protected override DropdownField PrepareElement(DropdownField element)
         {
-            var field = Use<DropdownField>(source);
-
-            field.choices = options;
-
-            int index = currentValue?.Value ?? 0;
-
-            field.index = index >= 0 && index < options.Count ? index : 0;
-
-            field.RegisterValueChangedCallback(OnSelectionChanged);
             
-            AddCleanup(field, () => field.UnregisterValueChangedCallback(OnSelectionChanged));
-            
-            return field;
-        }
-
-        protected override VisualElement PrepareElement(VisualElement target)
-        {
-            var element = base.PrepareElement(target);
-
             element.AddToClassList(DropdownField.ussClassName);
             element.AddToClassList(PopupField<string>.ussClassName);
             element.AddToClassList(BasePopupField<string, string>.ussClassName);
             element.AddToClassList(BaseField<string>.ussClassName);
+            
+            int index = currentValue?.Value ?? 0;
+            
+            element.choices = options;
+            element.index = index >= 0 && index < options.Count ? index : 0;
+
+            element.RegisterValueChangedCallback(OnSelectionChanged);
+            AddCleanup(element, () => element.UnregisterValueChangedCallback(OnSelectionChanged));
             
             return element;
         }

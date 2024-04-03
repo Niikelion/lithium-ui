@@ -10,7 +10,7 @@ namespace UI.Li.Common.UIElements
     [PublicAPI]
     internal class TwoPaneSplitView : VisualElement
     {
-        private const string ussClassName = "unity-two-pane-split-view";
+        public const string ussClassName = "unity-two-pane-split-view";
         private const string contentContainerClassName = "unity-two-pane-split-view__content-container";
         private const string handleDragLineClassName = "unity-two-pane-split-view__dragline";
         private const string handleDragLineVerticalClassName = handleDragLineClassName + "--vertical";
