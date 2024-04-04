@@ -10,7 +10,7 @@ using CU = UI.Li.Utils.CompositionUtils;
 
 using static UI.Li.Common.Layout.Layout;
 
-namespace UI.Li.Common
+namespace UI.Li.Common.Layout
 {
     //TODO: implement list
     /// <summary>

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Linq;
-using Foldout = UI.Li.Common.Foldout;
+
 using TextField = UI.Li.Common.TextField;
 using Toggle = UI.Li.Common.Toggle;
 
@@ -120,7 +120,7 @@ namespace UI.Li.Utils
             Switch(choice ? 1 : 0, onFalse, onTrue);
         
         /// <summary>
-        /// Creates text field component, see <see cref="Common.TextField.V(Action{string}, string, string, bool, IManipulator[])"/>.
+        /// Creates text field component, see <see cref="Li.Common.TextField.V(Action{string}, string, string, bool, IManipulator[])"/>.
         /// </summary>
         /// <param name="onValueChanged">called when field content changes</param>
         /// <param name="initialValue">initial text</param>
@@ -138,7 +138,7 @@ namespace UI.Li.Utils
         ) => Common.TextField.V(onValueChanged, initialValue, tooltip, focused, manipulators);
         
         /// <summary>
-        /// Creates dropdown field component, see <see cref="Common.Dropdown.V(int, Action{int}, List{string}, IManipulator[])"/>.
+        /// Creates dropdown field component, see <see cref="Li.Common.Dropdown.V(int, Action{int}, List{string}, IManipulator[])"/>.
         /// </summary>
         /// <param name="initialValue">number of initially selected option starting from 0</param>
         /// <param name="onSelectionChanged">selection changed callback</param>
@@ -154,7 +154,7 @@ namespace UI.Li.Utils
         ) => Common.Dropdown.V(initialValue, onSelectionChanged, options, manipulators);
         
         /// <summary>
-        /// Creates dropdown field component, see <see cref="Common.Dropdown.V{T}(T, Action{T}, IManipulator[])"/>.
+        /// Creates dropdown field component, see <see cref="Li.Common.Dropdown.V{T}(T, Action{T}, IManipulator[])"/>.
         /// </summary>
         /// <param name="initialValue">enum option selected by default</param>
         /// <param name="onSelectionChanged">on selection changed callback</param>
@@ -167,50 +167,6 @@ namespace UI.Li.Utils
             [NotNull] Action<T> onSelectionChanged,
             params IManipulator[] manipulators
         ) where T : Enum => Common.Dropdown.V(initialValue, onSelectionChanged, manipulators);
-        
-        /// <summary>
-        /// Creates foldout component, see <see cref="Common.Foldout.V(IComponent, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Func{bool, Action, IComponent}, IManipulator[])"/>.
-        /// </summary>
-        /// <param name="header">header of the foldout</param>
-        /// <param name="content">content of the foldout</param>
-        /// <param name="initiallyOpen">should be open by default</param>
-        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, use whole header otherwise</param>
-        /// <param name="headerContainer">container used to render header</param>
-        /// <param name="contentContainer">container used to render content</param>
-        /// <param name="manipulators">manipulators</param>
-        /// <returns></returns>
-        [NotNull]
-        public static IComponent Foldout(
-            [NotNull] IComponent header,
-            [NotNull] IComponent content,
-            bool initiallyOpen = false,
-            bool nobToggleOnly = false,
-            Foldout.HeaderContainer headerContainer = null,
-            Foldout.ContentContainer contentContainer = null,
-            params IManipulator[] manipulators
-        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
-        
-        /// <summary>
-        /// Creates foldout component, see <see cref="Common.Foldout.V(string, IComponent, bool, bool, Common.Foldout.HeaderContainer, Common.Foldout.ContentContainer, Func{bool, Action, IComponent}, IManipulator[])"/>.
-        /// </summary>
-        /// <param name="header">header text</param>
-        /// <param name="content">content of the foldout</param>
-        /// <param name="initiallyOpen">should be open by default</param>
-        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, us whole header otherwise</param>
-        /// <param name="headerContainer">container used to render header</param>
-        /// <param name="contentContainer">container used to render content</param>
-        /// <param name="manipulators">manipulators</param>
-        /// <returns></returns>
-        [NotNull]
-        public static IComponent Foldout(
-            [NotNull] string header,
-            [NotNull] IComponent content,
-            bool initiallyOpen = false,
-            bool nobToggleOnly = false,
-            Foldout.HeaderContainer headerContainer = null,
-            Foldout.ContentContainer contentContainer = null,
-            params IManipulator[] manipulators
-        ) => Common.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
         
         [NotNull]
         public static Toggle Toggle(

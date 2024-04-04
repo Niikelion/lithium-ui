@@ -49,7 +49,52 @@ namespace UI.Li.Common.Layout
         [NotNull]
         public static Box Box(IComponent content = null, params IManipulator[] manipulators) =>
             Li.Common.Layout.Box.V(content, manipulators);
-
+        
+        /// <summary>
+        /// Creates foldout component, see <see cref="Li.Common.Layout.Foldout.V(IComponent, IComponent, bool, bool, Li.Common.Layout.Foldout.HeaderContainer, Li.Common.Layout.Foldout.ContentContainer, Func{bool, Action, IComponent}, IManipulator[])"/>.
+        /// </summary>
+        /// <param name="header">header of the foldout</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, use whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static IComponent Foldout(
+            [NotNull] IComponent header,
+            [NotNull] IComponent content,
+            bool initiallyOpen = false,
+            bool nobToggleOnly = false,
+            Foldout.HeaderContainer headerContainer = null,
+            Foldout.ContentContainer contentContainer = null,
+            params IManipulator[] manipulators
+        ) => Li.Common.Layout.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
+        
+        /// <summary>
+        /// Creates foldout component, see <see cref="Li.Common.Layout.Foldout.V(string, IComponent, bool, bool, Li.Common.Layout.Foldout.HeaderContainer, Li.Common.Layout.Foldout.ContentContainer, Func{bool, Action, IComponent}, IManipulator[])"/>.
+        /// </summary>
+        /// <param name="header">header text</param>
+        /// <param name="content">content of the foldout</param>
+        /// <param name="initiallyOpen">should be open by default</param>
+        /// <param name="nobToggleOnly">if true only toggle when clicking the nob, us whole header otherwise</param>
+        /// <param name="headerContainer">container used to render header</param>
+        /// <param name="contentContainer">container used to render content</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static IComponent Foldout(
+            [NotNull] string header,
+            [NotNull] IComponent content,
+            bool initiallyOpen = false,
+            bool nobToggleOnly = false,
+            Foldout.HeaderContainer headerContainer = null,
+            Foldout.ContentContainer contentContainer = null,
+            params IManipulator[] manipulators
+        ) => Li.Common.Layout.Foldout.V(header, content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, null, manipulators);
+        
+        
         /// <summary>
         /// Creates split area component, see <see cref="Li.Common.Layout.SplitArea.V(IComponent, IComponent, TwoPaneSplitViewOrientation, float, bool, IManipulator[])"/>.
         /// </summary>

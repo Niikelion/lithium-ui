@@ -10,7 +10,7 @@ using CU = UI.Li.Utils.CompositionUtils;
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
 
-namespace UI.Li.Common
+namespace UI.Li.Common.Layout
 {
     /// <summary>
     /// Component simulating <see cref="UnityEngine.UIElements.Foldout"/>.

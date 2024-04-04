@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace UI.Li.Common
 {
+    // TODO: rewrite dropdown using custom PopupField implementation
     /// <summary>
     /// Component representing <see cref="DropdownField"/>.
     /// </summary>

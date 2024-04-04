@@ -143,7 +143,7 @@ namespace UI.Li.Editor.Debugging
 
                 var content = children.Select(child => RenderNode(child, ctx, level + 1));
 
-                return CU.Foldout(
+                return Foldout(
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
