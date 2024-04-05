@@ -1,12 +1,8 @@
 {
-    "name": "niikelion.ui.lithium.Editor",
-    "rootNamespace": "UI.Li.Editor",
-    "references": [
-        "niikelion.ui.lithium"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "name": "com.niikelion.ui.lithium",
+    "rootNamespace": "UI.Li",
+    "references": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

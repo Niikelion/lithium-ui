@@ -9,8 +9,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using CU = UI.Li.Utils.CompositionUtils;
 
-using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
+using static UI.Li.Common.Layout.Layout;
+using static UI.Li.Utils.Utils;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -63,32 +64,28 @@ namespace UI.Li.Editor.Debugging
             
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
 
-            return Col(
-                Toolbar(),
-                Content()
+            var toolbar = Row(
+                CU.Dropdown(
+                    initialValue: instances.Value.IndexOf(selectedContext.Value) + 1,
+                    options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
+                    onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
+                ).WithStyle(toolbarDropdownStyle)
+            ).WithStyle(centerItemsStyle);
+            
+            var content = SplitArea(
+                Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
+                Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
+                orientation: TwoPaneSplitViewOrientation.Horizontal,
+                initialSize: 200,
+                reverse: true
             ).WithStyle(fillStyle);
+            
+            return Col(toolbar, content).WithStyle(fillStyle);
 
             List<CompositionContext> GetInstances() =>
                 CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
 
-            IComponent Toolbar() =>
-                Row(IComponent.Seq(CU.Dropdown(
-                        initialValue: instances.Value.IndexOf(selectedContext.Value) + 1,
-                        options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
-                        onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
-                    ).WithStyle(toolbarDropdownStyle)
-                )).WithStyle(centerItemsStyle);
-
             IComponent DisplayHierarchy() => Hierarchy(hierarchy);
-
-            IComponent Content() =>
-                SplitArea(
-                    CU.Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
-                    CU.Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
-                    orientation: TwoPaneSplitViewOrientation.Horizontal,
-                    initialSize: 200,
-                    reverse: true
-                ).WithStyle(fillStyle);
 
             IComponent Value(IMutableValue value, int i) => Text($"{i}: {value}");
             
@@ -96,10 +93,7 @@ namespace UI.Li.Editor.Debugging
             {
                 var values = selectedNode.Value.Node?.Values?.Select(Value);
                 
-                return CU.Switch(values != null,
-                    () => Col(CU.Seq(values)),
-                    () => null
-                );
+                return Switch(values != null, () => Col(values), null);
             }
         }, isStatic: true);
         
@@ -110,9 +104,7 @@ namespace UI.Li.Editor.Debugging
         private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
         {
             return CU.Scroll(
-                Col(
-                    roots.Select(root => RenderNode(root, ctx))
-                )
+                Col(roots.Select(root => RenderNode(root, ctx)))
             );
         }, isStatic: true);
         

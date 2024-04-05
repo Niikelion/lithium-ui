@@ -26,62 +26,6 @@ namespace UI.Li.Utils
             protected override void BeforeInnerRecompose(CompositionContext context) => context.SetNextEntryId(id);
         }
         
-        public class SwitchWrapper: IComponent
-        {
-            private readonly IComponent content;
-            private readonly int choice;
-
-            [NotNull]
-            public static SwitchWrapper V(IComponent content, int choice) => new(content, choice);
-            
-            public void Dispose() => content?.Dispose();
-
-            public event Action<VisualElement> OnRender;
-            public VisualElement Render()
-            {
-                var element = content?.Render() ?? new VisualElement();
-
-                OnRender?.Invoke(element);
-                
-                return element;
-            }
-
-            public void Recompose(CompositionContext context)
-            {
-                context.StartFrame(this);
-                
-                if (content != null)
-                {
-                    context.SetNextEntryId(choice + 1);
-                    content.Recompose(context);
-                }
-
-                context.EndFrame();
-            }
-
-            public override string ToString() => $"Switch[{choice}]";
-
-            public bool StateLayoutEquals(IComponent other)
-            {
-                if (other is not SwitchWrapper wrapper)
-                    return false;
-
-                if (choice != wrapper.choice)
-                    return false;
-
-                if (content == null || wrapper.content == null)
-                    return content == wrapper.content;
-                
-                return content.StateLayoutEquals(wrapper.content);
-            }
-
-            private SwitchWrapper(IComponent content, int choice)
-            {
-                this.content = content;
-                this.choice = choice;
-            }
-        }
-
         public static StyleFunc Styled(Style style) => component => StyleWrapper.V(component, style);
         public static IComponent WithStyle(Style style, [NotNull] IComponent component) => StyleWrapper.V(component, style);
 
@@ -95,30 +39,6 @@ namespace UI.Li.Utils
         [NotNull]
         public static IComponent WithId(int id, [NotNull] IComponent component) => IdWrapper.V(component, id);
 
-        /// <summary>
-        /// Utility for switching between static compositions.
-        /// </summary>
-        /// <remarks>Gives each component unique id based on its number in the list.</remarks>
-        /// <param name="choice">number of currently selected component</param>
-        /// <param name="compositions">available compositions to choose from</param>
-        /// <returns></returns>
-        [NotNull]
-        public static IComponent Switch(int choice, [NotNull] params Func<IComponent>[] compositions) =>
-            SwitchWrapper.V(compositions[choice](), choice);
-
-        /// <summary>
-        /// Utility for switching between two static compositions.
-        /// </summary>
-        /// <remarks>Gives each component unique id based.</remarks>
-        /// <param name="choice">chooses from two compositions</param>
-        /// <param name="onTrue">component chosen when choice is <c>true</c></param>
-        /// <param name="onFalse">component chosen when choice is <c>false</c></param>
-        /// <returns></returns>
-        [NotNull]
-        public static IComponent Switch(bool choice, [NotNull] Func<IComponent> onTrue,
-            [NotNull] Func<IComponent> onFalse) =>
-            Switch(choice ? 1 : 0, onFalse, onTrue);
-        
         /// <summary>
         /// Creates text field component, see <see cref="Li.Common.TextField.V(Action{string}, string, string, bool, IManipulator[])"/>.
         /// </summary>
