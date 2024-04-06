@@ -1,9 +1,10 @@
 ﻿using JetBrains.Annotations;
 using System;
+using UI.Li.Common;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace UI.Li.Common
+namespace UI.Li.Editor
 {
     [PublicAPI]
     public sealed class ObjectField<T>: Element where T: UnityEngine.Object

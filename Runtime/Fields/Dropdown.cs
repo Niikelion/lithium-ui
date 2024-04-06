@@ -3,8 +3,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using UI.Li.Common;
 
-namespace UI.Li.Common
+namespace UI.Li.Fields
 {
     // TODO: rewrite dropdown using custom PopupField implementation
     /// <summary>

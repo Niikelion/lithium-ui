@@ -1,8 +1,9 @@
 ﻿using JetBrains.Annotations;
 using System;
+using UI.Li.Common;
 using UnityEngine.UIElements;
 
-namespace UI.Li.Common
+namespace UI.Li.Fields
 {
     [PublicAPI] public sealed class Toggle: Element
     {

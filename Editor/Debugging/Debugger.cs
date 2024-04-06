@@ -7,11 +7,11 @@ using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using CU = UI.Li.Utils.CompositionUtils;
 
 using static UI.Li.Common.Common;
-using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Utils.Utils;
+using static UI.Li.Common.Layout.Layout;
+using static UI.Li.Fields.Fields;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -65,7 +65,7 @@ namespace UI.Li.Editor.Debugging
             var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
 
             var toolbar = Row(
-                CU.Dropdown(
+                Dropdown(
                     initialValue: instances.Value.IndexOf(selectedContext.Value) + 1,
                     options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
                     onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
@@ -85,28 +85,23 @@ namespace UI.Li.Editor.Debugging
             List<CompositionContext> GetInstances() =>
                 CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
 
-            IComponent DisplayHierarchy() => Hierarchy(hierarchy);
+            IComponent DisplayHierarchy() =>
+                Hierarchy(hierarchy);
 
-            IComponent Value(IMutableValue value, int i) => Text($"{i}: {value}");
+            IComponent Value(IMutableValue value, int i) =>
+                Text($"{i}: {value}");
             
-            IComponent DetailPanel()
-            {
-                var values = selectedNode.Value.Node?.Values?.Select(Value);
-                
-                return Switch(values != null, () => Col(values), null);
-            }
+            IComponent DetailPanel() =>
+                Col(selectedNode.Value.Node?.Values?.Select(Value) ?? Enumerable.Empty<IComponent>());
         }, isStatic: true);
         
         private static IComponent RenderNoPanel() => Text("No panel selected.");
 
         private static IComponent RenderNoDetails() => null;
-        
-        private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => new Component(ctx =>
-        {
-            return CU.Scroll(
-                Col(roots.Select(root => RenderNode(root, ctx)))
-            );
-        }, isStatic: true);
+
+        private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => WithState(ctx =>
+            Scroll(Col(roots.Select(root => RenderNode(root, ctx)))
+        ), isStatic: true);
         
         private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx, int level = 0)
         {

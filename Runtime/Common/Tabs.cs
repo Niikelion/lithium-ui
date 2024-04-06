@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using UI.Li.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 using CU = UI.Li.Utils.CompositionUtils;
@@ -36,7 +37,7 @@ namespace UI.Li.Common
 
                 return Col(
                     List(cachedTabs.Select(t => t.Label), i => selected.Value = i, selected.Value, label),
-                    CU.WithId(selected.Value, cachedTabs[selected.Value].Content())
+                    cachedTabs[selected.Value].Content().Id(selected.Value)
                 );
             }, isStatic: true);
 

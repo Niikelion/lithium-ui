@@ -4,7 +4,6 @@ using UnityEngine.UIElements;
 
 namespace UI.Li.Utils
 {
-    [PublicAPI]
     public sealed class StyleWrapper: Wrapper //TODO: add option to combine Wrappers to reduce instance count(possibly, by copying StyleWrapper properties when wrapping StyleWrapper with StyleWrapper)
     {
         private readonly Style style;

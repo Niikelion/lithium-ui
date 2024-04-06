@@ -1,8 +1,9 @@
 ﻿using System;
 using JetBrains.Annotations;
+using UI.Li.Common;
 using UnityEngine.UIElements;
 
-namespace UI.Li.Common
+namespace UI.Li.Fields
 {
     /// <summary>
     /// Component representing <see cref="UnityEngine.UIElements.TextField"/>.
@@ -58,7 +59,8 @@ namespace UI.Li.Common
         {
             var field = Use<UnityEngine.UIElements.TextField>(source);
 
-            field.tooltip = tooltip;
+            //TODO: implement proper tooltip
+            //field.tooltip = tooltip;
             field.value = currentValue;
 
             field.RegisterValueChangedCallback(OnValueChanged);

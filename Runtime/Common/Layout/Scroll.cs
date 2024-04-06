@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UI.Li.Utils.Continuations;
 using UnityEngine.UIElements;
 
-namespace UI.Li.Common
+namespace UI.Li.Common.Layout
 {
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.ScrollView"/>
