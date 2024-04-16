@@ -11,14 +11,14 @@ namespace UI.Li
         /// <summary>
         /// Event called every time value changes.
         /// </summary>
-        [PublicAPI] event Action OnValueChanged;
+        public event Action OnValueChanged;
     }
     
     /// <summary>
     /// Simple implementation that notifies observers every time <see cref="Value"/> is reassigned.
     /// </summary>
     /// <typeparam name="T">type of stored value</typeparam>
-    public class MutableValue<T>: IMutableValue
+    [PublicAPI] public class MutableValue<T>: IMutableValue
     {
         public event Action OnValueChanged;
 
@@ -26,7 +26,6 @@ namespace UI.Li
         /// Stored value.
         /// </summary>
         /// <remarks>Calling setter invokes <see cref="OnValueChanged"/>.</remarks>
-        [PublicAPI]
         public virtual T Value
         {
             get => value;
@@ -43,7 +42,6 @@ namespace UI.Li
         /// Constructs <see cref="MutableValue{T}"/> using given <see cref="value"/>.
         /// </summary>
         /// <param name="value">initial value</param>
-        [PublicAPI]
         public MutableValue(T value)
         {
             this.value = value;
@@ -56,17 +54,16 @@ namespace UI.Li
         public override string ToString() => value?.ToString();
     }
 
-    public class ValueReference<T> : IMutableValue
+    [PublicAPI] public class ValueReference<T> : IMutableValue
     {
         public event Action OnValueChanged;
 
-        [PublicAPI]
         public T Value;
 
-        [PublicAPI]
         public ValueReference(T value) => Value = value;
 
-        [PublicAPI]
+        public static implicit operator T(ValueReference<T> v) => v.Value;
+        
         public void NotifyChanged() => OnValueChanged?.Invoke();
         
         public void Dispose() => OnValueChanged = null;

@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using UI.Li.Utils.Continuations;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Common.Layout
@@ -60,9 +59,7 @@ namespace UI.Li.Common.Layout
         {
             var ret = base.PrepareElement(target);
 
-            ret.AddToClassList(ScrollView.ussClassName);
-
-            content.Run(c => ret.Add(c.Render()));
+            ret.Add(content.Render());
             
             return ret;
         }

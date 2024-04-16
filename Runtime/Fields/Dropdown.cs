@@ -84,12 +84,6 @@ namespace UI.Li.Fields
 
         protected override DropdownField PrepareElement(DropdownField element)
         {
-            
-            element.AddToClassList(DropdownField.ussClassName);
-            element.AddToClassList(PopupField<string>.ussClassName);
-            element.AddToClassList(BasePopupField<string, string>.ussClassName);
-            element.AddToClassList(BaseField<string>.ussClassName);
-            
             int index = currentValue?.Value ?? 0;
             
             element.choices = options;

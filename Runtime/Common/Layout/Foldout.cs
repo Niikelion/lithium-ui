@@ -49,7 +49,7 @@ namespace UI.Li.Common.Layout
 
             var nobFunc = nob ?? FoldoutNob;
 
-            return Row(
+            return Col(
                 content: IComponent.Seq(
                     (headerContainer ?? DefaultHeaderContainer).Invoke(
                         IComponent.Seq(nobFunc(state, nobToggleOnly ? ToggleFoldout : null), header),

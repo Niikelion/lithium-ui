@@ -37,29 +37,53 @@ namespace UI.Li.Fields
             [NotNull] Action<T> onSelectionChanged,
             params IManipulator[] manipulators
         ) where T : Enum => Li.Fields.Dropdown.V(initialValue, onSelectionChanged, manipulators);
+
+        /// <summary>
+        /// Creates float field component, see <see cref="Li.Fields.FloatField.V(Action{float}, float, string, bool, IManipulator[])"/>
+        /// </summary>
+        /// <param name="onValueChanged">called when the field content changes</param>
+        /// <param name="initialValue">initial value</param>
+        /// <param name="placeholder">placeholder</param>
+        /// <param name="focused">indicates whether the element should be focused after the render or not</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static FloatField FloatField(
+            [NotNull] Action<float> onValueChanged,
+            float initialValue = 0f,
+            [NotNull] string placeholder = "",
+            bool focused = false,
+            params IManipulator[] manipulators
+        ) => Li.Fields.FloatField.V(onValueChanged, initialValue, placeholder, focused, manipulators);
+        
+        //TODO: IntField
+        
+        //TODO: IntSlider
+        
+        //TODO: Slider
         
         /// <summary>
         /// Creates text field component, see <see cref="Li.Fields.TextField.V(Action{string}, string, string, bool, IManipulator[])"/>.
         /// </summary>
-        /// <param name="onValueChanged">called when field content changes</param>
+        /// <param name="onValueChanged">called when the field content changes</param>
         /// <param name="initialValue">initial text</param>
-        /// <param name="tooltip">tooltip</param>
-        /// <param name="focused">indices whether element should be focused after render or not</param>
+        /// <param name="placeholder">placeholder</param>
+        /// <param name="focused">indicates whether the element should be focused after the render or not</param>
         /// <param name="manipulators">manipulators</param>
         /// <returns></returns>
         [NotNull]
         public static TextField TextField(
             [NotNull] Action<string> onValueChanged,
             [NotNull] string initialValue = "",
-            [NotNull] string tooltip = "",
+            [NotNull] string placeholder = "",
             bool focused = false,
             params IManipulator[] manipulators
-        ) => Li.Fields.TextField.V(onValueChanged, initialValue, tooltip, focused, manipulators);
+        ) => Li.Fields.TextField.V(onValueChanged, initialValue, placeholder, focused, manipulators);
         
         /// <summary>
         /// Creates toggle field component, see <see cref="Li.Fields.Toggle.V(Action{bool}, bool, IManipulator[])"/>
         /// </summary>
-        /// <param name="onValueChanged">called when field state changes</param>
+        /// <param name="onValueChanged">called when the field state changes</param>
         /// <param name="initialValue">initial value</param>
         /// <param name="manipulators">manipulators</param>
         /// <returns></returns>

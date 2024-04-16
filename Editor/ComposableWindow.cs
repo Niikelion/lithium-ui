@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UI.Li.Editor
 {
     /// <summary>
-    /// Base class for <see cref="EditorWindow"/>s using composables system.
+    /// Base class for <see cref="EditorWindow"/>s using components system.
     /// </summary>
     public abstract class ComposableWindow: EditorWindow
     {

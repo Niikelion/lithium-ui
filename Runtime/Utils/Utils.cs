@@ -12,7 +12,7 @@ namespace UI.Li.Utils
         /// <param name="choice">number of currently selected component</param>
         /// <param name="compositions">available compositions to choose from</param>
         /// <returns></returns>
-        public static IComponent Switch(int choice, [NotNull] params Func<IComponent>[] compositions) =>
+        public static SwitchWrapper Switch(int choice, [NotNull] params Func<IComponent>[] compositions) =>
             SwitchWrapper.V(compositions[choice]?.Invoke(), choice);
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace UI.Li.Utils
         /// <param name="onTrue">component chosen when choice is <c>true</c></param>
         /// <param name="onFalse">component chosen when choice is <c>false</c></param>
         /// <returns></returns>
-        public static IComponent Switch(bool choice, Func<IComponent> onTrue,
+        public static SwitchWrapper Switch(bool choice, Func<IComponent> onTrue,
             Func<IComponent> onFalse) =>
             Switch(choice ? 1 : 0, onFalse, onTrue);
 
@@ -33,7 +33,7 @@ namespace UI.Li.Utils
         /// <param name="condition">condition that determines whether the component is added or not</param>
         /// <param name="onTrue">component to be added</param>
         /// <returns></returns>
-        public static IComponent If(bool condition, [NotNull] Func<IComponent> onTrue) =>
+        public static SwitchWrapper If(bool condition, [NotNull] Func<IComponent> onTrue) =>
             Switch(condition, onTrue, null);
         
         /// <summary>
@@ -44,7 +44,7 @@ namespace UI.Li.Utils
         /// <param name="component">component to add id to</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent WithId(int id, [NotNull] IComponent component) => IdWrapper.V(component, id);
+        public static IdWrapper WithId(int id, [NotNull] IComponent component) => IdWrapper.V(component, id);
         
         /// <summary>
         /// Sets id for element.
@@ -54,7 +54,7 @@ namespace UI.Li.Utils
         /// <param name="id">id</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent Id([NotNull] this IComponent obj, int id) => WithId(id, obj);
+        public static IdWrapper Id([NotNull] this IComponent obj, int id) => WithId(id, obj);
 
         /// <summary>
         /// Provides state context to composer function.
@@ -63,7 +63,7 @@ namespace UI.Li.Utils
         /// <param name="isStatic">enables aggressive state preservation</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent WithState([NotNull] Component.StatefulComponent composer, bool isStatic = false) =>
-            new Component(composer, isStatic);
+        public static Component WithState([NotNull] Component.StatefulComponent composer, bool isStatic = false) =>
+            new (composer, isStatic);
     }
 }

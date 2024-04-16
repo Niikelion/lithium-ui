@@ -14,6 +14,7 @@ namespace UI.Li.Common
     [PublicAPI] public class Button: Element<UIButton>
     {
         [NotNull] private readonly IComponent content;
+        [NotNull] private readonly Action onClick;
 
         /// <summary>
         /// Creates <see cref="Button"/> instance with given content.
@@ -37,24 +38,24 @@ namespace UI.Li.Common
 
         public override bool StateLayoutEquals(IComponent other) => other is Button;
 
-        private Button([NotNull] Action onClick, [NotNull] IComponent content, IEnumerable<IManipulator> manipulators) : base(new Clickable(onClick).PrependTo(manipulators))
+        private Button([NotNull] Action onClick, [NotNull] IComponent content, IEnumerable<IManipulator> manipulators) : base(manipulators)
         {
             this.content = content;
+            this.onClick = onClick;
         }
 
         protected override UIButton PrepareElement(UIButton button)
         {
             var contentElement = content.Render();
 
-            if (button.childCount != 1 || button[0] != contentElement)
-            {
-                button.Clear();
-                button.Add(content.Render());
-            }
-
-            button.AddToClassList(UIButton.ussClassName);
-            button.AddToClassList(TextElement.ussClassName);
+            button.clicked += onClick;
+            CompositionContext.ElementUserData.AppendCleanupAction(button, () => button.clicked -= onClick);
             
+            if (button.childCount == 1 && button[0] == contentElement) return button;
+            
+            button.Clear();
+            button.Add(content.Render());
+
             return button;
         }
 

@@ -40,7 +40,7 @@ namespace UI.Li.Common.Layout
         /// <param name="manipulators">manipulators</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent Row(
+        public static Flex Row(
             [NotNull] IEnumerable<IComponent> content,
             bool reverse = false,
             params IManipulator[] manipulators
@@ -52,7 +52,7 @@ namespace UI.Li.Common.Layout
         /// <param name="content">content of the flex row</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent Row(params IComponent[] content) =>
+        public static Flex Row(params IComponent[] content) =>
             Li.Common.Layout.Flex.V(content, FlexDirection.Row);
         
         /// <summary>
@@ -63,7 +63,7 @@ namespace UI.Li.Common.Layout
         /// <param name="manipulators">manipulators</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent Col(
+        public static Flex Col(
             [NotNull] IEnumerable<IComponent> content,
             bool reverse = false,
             IEnumerable<IManipulator> manipulators = null
@@ -75,7 +75,7 @@ namespace UI.Li.Common.Layout
         /// <param name="content">content of the flex column</param>
         /// <returns></returns>
         [NotNull]
-        public static IComponent Col(params IComponent[] content) => Li.Common.Layout.Flex.V(content);
+        public static Flex Col(params IComponent[] content) => Li.Common.Layout.Flex.V(content);
         
         /// <summary>
         /// Creates foldout component, see <see cref="Li.Common.Layout.Foldout.V(IComponent, IComponent, bool, bool, Li.Common.Layout.Foldout.HeaderContainer, Li.Common.Layout.Foldout.ContentContainer, Func{bool, Action, IComponent}, IManipulator[])"/>.

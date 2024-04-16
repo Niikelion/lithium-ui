@@ -143,7 +143,7 @@ namespace UI.Li.Common
         protected sealed override VisualElement PrepareElement(VisualElement target)
         {
             // cast is fine, since we have full control over type returned by GetElement
-            var ret = target as T;
+            var ret = base.PrepareElement(target) as T;
             Debug.Assert(ret != null);
             return PrepareElement(ret);
         }

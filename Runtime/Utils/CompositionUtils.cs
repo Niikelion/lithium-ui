@@ -10,7 +10,7 @@ namespace UI.Li.Utils
     /// </summary>
     /// <remarks>Yeah, I know it's not pretty but we don't have functions outside classes soo...</remarks>
     [PublicAPI]
-    public static class CompositionUtils
+    public static class CompositionUtils //TODO: move to utils
     {
         public static StyleFunc Styled(Style style) => component => StyleWrapper.V(component, style);
         public static IComponent WithStyle(Style style, [NotNull] IComponent component) => StyleWrapper.V(component, style);

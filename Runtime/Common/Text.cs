@@ -62,9 +62,6 @@ namespace UI.Li.Common
         {
             target.text = text;
             
-            target.AddToClassList(Label.ussClassName);
-            target.AddToClassList(TextElement.ussClassName);
-            
             return target;
         }
     }
