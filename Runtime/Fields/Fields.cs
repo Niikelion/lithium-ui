@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Fields
@@ -60,6 +61,10 @@ namespace UI.Li.Fields
         
         //TODO: IntSlider
         
+        //TODO: MinMaxSlider
+        
+        //TODO: RectField
+        
         //TODO: Slider
         
         /// <summary>
@@ -93,5 +98,47 @@ namespace UI.Li.Fields
             bool initialValue = false,
             params IManipulator[] manipulators
         ) => Li.Fields.Toggle.V(onValueChanged, initialValue, manipulators);
+
+        /// <summary>
+        /// Creates Vector2 field component, see <see cref="Li.Fields.Vector2Field.V(Action{Vector2}, Vector2, IManipulator[])"/>
+        /// </summary>
+        /// <param name="onValueChanged">called when the value changes</param>
+        /// <param name="initialValue">initial value</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Vector2Field Vector2Field(
+            [NotNull] Action<Vector2> onValueChanged,
+            Vector2 initialValue = default,
+            params IManipulator[] manipulators
+        ) => Li.Fields.Vector2Field.V(onValueChanged, initialValue, manipulators);
+
+        /// <summary>
+        /// Creates Vector3 field component, see <see cref="Li.Fields.Vector3Field.V(Action{Vector3}, Vector3, IManipulator[])"/>
+        /// </summary>
+        /// <param name="onValueChanged">called when the value changes</param>
+        /// <param name="initialValue">initial value</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Vector3Field Vector3Field(
+            [NotNull] Action<Vector3> onValueChanged,
+            Vector3 initialValue = default,
+            params IManipulator[] manipulators
+        ) => Li.Fields.Vector3Field.V(onValueChanged, initialValue, manipulators);
+        
+        /// <summary>
+        /// Creates Vector3 field component, see <see cref="Li.Fields.Vector4Field.V(Action{Vector4}, Vector4, IManipulator[])"/>
+        /// </summary>
+        /// <param name="onValueChanged">called when the value changes</param>
+        /// <param name="initialValue">initial value</param>
+        /// <param name="manipulators">manipulators</param>
+        /// <returns></returns>
+        [NotNull]
+        public static Vector4Field Vector4Field(
+            [NotNull] Action<Vector4> onValueChanged,
+            Vector3 initialValue = default,
+            params IManipulator[] manipulators
+        ) => Li.Fields.Vector4Field.V(onValueChanged, initialValue, manipulators);
     }
 }

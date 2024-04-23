@@ -74,20 +74,24 @@ Ready to learn more? Quick start guide is available [here](Documentation~/bootst
 
 ## Roadmap
 
-Currently planned features in no particular order:
+V1 roadmap:
 
-- [ ] fully-featured layout debugger with support for viewing state and contexts,
-- [x] styling system
-- [ ] optimization of styling system,
-- [ ] list component,
-- [ ] port of every component available in UI Elements Builder,
-- [x] port of every style available in UI Elements Builder,
-- [ ] support for named variables,
-- [ ] pooling of `VisualElement` for performance boost.
 - [X] support for manipulators.
-- [ ] remove `Element.Data` object, replace it with style system and `IManipulator` list
+- [X] remove `Element.Data` object, replace it with style system and `IManipulator` list
 - [X] ui portals
-- [ ] remove events from `IComponent`
+- [X] remove OnUpdate event from `IComponent`
+- [x] styling system
+- [x] port of every style available in UI Elements Builder
+- [x] port of most of the components available in UI Elements Builder
+- [ ] list component
+- [ ] fully-featured layout debugger with support for viewing state and contexts
+
+Future releases:
+
+- [ ] optimization of styling system
+- [ ] support for named variables
+- [ ] pooling of `VisualElement` for performance boost
+- [ ] remove OnRender event from `IComponent`
 
 ## UI Elements interoperability
 
