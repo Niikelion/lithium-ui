@@ -83,7 +83,7 @@ V1 roadmap:
 - [x] styling system
 - [x] port of every style available in UI Elements Builder
 - [x] port of most of the components available in UI Elements Builder
-- [ ] list component
+- [x] list component
 - [ ] fully-featured layout debugger with support for viewing state and contexts
 
 Future releases:

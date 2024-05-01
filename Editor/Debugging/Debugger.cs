@@ -1,31 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UI.Li.Common;
-using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-using static UI.Li.Common.Common;
+
 using static UI.Li.Utils.Utils;
-using static UI.Li.Common.Layout.Layout;
+using static UI.Li.Common.Common;
 using static UI.Li.Fields.Fields;
+using static UI.Li.Common.Layout.Layout;
 
 namespace UI.Li.Editor.Debugging
 {
     public class DebuggerWindow: ComposableWindow
     {
-        private struct SelectedNodeCtx
+        private class SelectionContext
         {
-            public int Id;
-            public Action<CompositionContext.CompositionNode, int> OnSelect;
-        }
+            private CompositionContext.CompositionNode currentNode;
+            private Action<CompositionContext.CompositionNode> setNode;
+            private Action clearOldSelection;
 
-        private class NodeIdCtx
-        {
-            public int Id;
+            public void SetNode(CompositionContext.CompositionNode node)
+            {
+                if (node == currentNode)
+                    return;
+
+                currentNode = node;
+                setNode?.Invoke(node);
+                clearOldSelection?.Invoke();
+            }
+
+            public void SetOnNodeChanged(Action<CompositionContext.CompositionNode> onNodeChanged) =>
+                setNode = onNodeChanged;
+
+            public void SetOnOldSelectionCleared(Action onOldSelectionCleared) =>
+                clearOldSelection = onOldSelectionCleared;
         }
         
         [MenuItem("Lithium/Debugger")]
@@ -37,15 +50,10 @@ namespace UI.Li.Editor.Debugging
             var selectedContext = ctx.Remember<CompositionContext>(null);
 
             var instances = ctx.RememberF(GetInstances);
-            var selectedNode = ctx.Remember<(CompositionContext.CompositionNode Node, int Id)>((null, -1));
 
-            void OnSelect(CompositionContext.CompositionNode node, int id) => selectedNode.Value = (node, id);
-
-            ctx.ProvideContext(new SelectedNodeCtx {
-                Id = selectedNode.Value.Id,
-                OnSelect = OnSelect
-            });
-            ctx.ProvideContext(new NodeIdCtx { Id = 1 });
+            var selectionContext = new SelectionContext();
+            
+            ctx.ProvideContext(selectionContext);
 
             ctx.OnInit(() =>
             {
@@ -59,10 +67,8 @@ namespace UI.Li.Editor.Debugging
                 };
 
                 void AttachCallback() => instances.Value = GetInstances();
-                void ResetSelection() => selectedNode.Value = (null, -1);
+                void ResetSelection() => selectionContext.SetNode(null);
             });
-            
-            var hierarchy = selectedContext.Value?.InspectHierarchy()?.ToArray() ?? Array.Empty<CompositionContext.CompositionNode>();
 
             var toolbar = Row(
                 Dropdown(
@@ -73,87 +79,99 @@ namespace UI.Li.Editor.Debugging
             ).WithStyle(centerItemsStyle);
             
             var content = SplitArea(
-                Switch(selectedContext.Value == null, RenderNoDetails, DetailPanel),
-                Switch(selectedContext.Value == null, RenderNoPanel, DisplayHierarchy),
+                Switch(selectedContext.Value == null, null, DetailPanel),
+                Hierarchy(selectedContext.Value),
                 orientation: TwoPaneSplitViewOrientation.Horizontal,
                 initialSize: 200,
                 reverse: true
             ).WithStyle(fillStyle);
             
-            return Col(toolbar, content).WithStyle(fillStyle);
-
-            List<CompositionContext> GetInstances() =>
-                CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
-
-            IComponent DisplayHierarchy() =>
-                Hierarchy(hierarchy);
-
-            IComponent Value(IMutableValue value, int i) =>
-                Text($"{i}: {value}");
-            
-            IComponent DetailPanel() =>
-                Col(selectedNode.Value.Node?.Values?.Select(Value) ?? Enumerable.Empty<IComponent>());
+            return Col(toolbar, Box().WithStyle(topDividerStyle), content).WithStyle(fillStyle).Id(selectedContext.Value?.GetHashCode() ?? 1);
         }, isStatic: true);
-        
-        private static IComponent RenderNoPanel() => Text("No panel selected.");
 
-        private static IComponent RenderNoDetails() => null;
-
-        private static IComponent Hierarchy(CompositionContext.CompositionNode[] roots) => WithState(ctx =>
-            Scroll(Col(roots.Select(root => RenderNode(root, ctx)))
-        ), isStatic: true);
-        
-        private static IComponent RenderNode(CompositionContext.CompositionNode node, ComponentState ctx, int level = 0)
+        private static IComponent Hierarchy([CanBeNull] CompositionContext context)
         {
-            var idCtx = ctx.UseContext<NodeIdCtx>();
-            var selCtx = ctx.UseContext<SelectedNodeCtx>();
-            bool selected = selCtx.Id == idCtx.Id;
+            var roots = context?.InspectHierarchy()?.ToArray();
+
+            return Scroll(Let(roots, WithContent, WithoutContent).WithStyle(componentPanelStyle));
+
+            IComponent WithContent(CompositionContext.CompositionNode[] r) =>
+                Col(r.Select((root, i) => RenderNode(root).Id(i+1)));
             
-            int currentId = idCtx.Id++;
+            IComponent WithoutContent() => Text("No panel selected");
+        }
+
+        private static IComponent DetailPanel() => Comp(ctx =>
+        {
+            var node = ctx.Remember<CompositionContext.CompositionNode>(null);
+
+            var selectionContext = ctx.UseContext<SelectionContext>();
+            selectionContext.SetOnNodeChanged(newNode => node.Value = newNode);
             
+            return Scroll(Let(node.Value, n => Col(n.Values.Select(Value)), () =>  Text("No component selected").WithStyle(new (padding: 4))));
+            
+            IComponent Value(IMutableValue value, int i) => Text($"{i}: {value}");
+        });
+
+        private static IComponent RenderNode(CompositionContext.CompositionNode node, int level = 0) => Comp(ctx =>
+        {
+            var selected = ctx.Remember(false);
+            var selectionContext = ctx.UseContext<SelectionContext>();
+
+            if (selected.Value)
+                selectionContext.SetOnOldSelectionCleared(() => selected.Value = false);
+
             int offset = 13 * level;
 
-            return Box(RenderNodeContent()).Id(currentId);
-            
-            IComponent RenderNodeContent()
+            string name = $"{node.Name}{(node.Id > 0 ? $" #{node.Id}" : "")}";
+
+            var children = node.Children;
+
+            return Switch(children.Count == 0, () =>
+                Text(name, manipulators: new Clickable(OnSelected))
+                    .WithStyle(new(flexGrow: 1, padding: new(left: offset)))
+                    .WithStyle(textStyle)
+                    .WithConditionalStyle(selected, selectedStyle), () =>
             {
-                string name = $"{node.Name}{(node.Id > 0 ? $" #{node.Id}" : "")}";
-
-                var children = node.Children;
-                if (children.Count == 0)
-                {
-                    return Text(name, manipulators: new Clickable(OnSelected))
-                        .WithStyle(new (flexGrow: 1, padding: new (left: offset)))
-                        .WithStyle(textStyle)
-                        .WithConditionalStyle(selected, selectedStyle).Id(1);
-                }
-
-                var content = children.Select(child => RenderNode(child, ctx, level + 1));
+                var content = children.Select((child, i) => RenderNode(child, level + 1).Id(i+1));
 
                 return Foldout(
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    header: Text(name, manipulators: new Clickable(OnSelected))
-                        .WithStyle(textStyle),
+                    header: Text(name, manipulators: new Clickable(OnSelected)).WithStyle(textStyle),
                     content: Col(content).WithStyle(fillStyle)
-                ).WithStyle(fillStyle).Id(2);
+                ).WithStyle(fillStyle);
+            });
+            
+            void OnSelected()
+            {
+                if (selected.Value)
+                    return;
+
+                using var _ = ctx.BatchOperations();
+                
+                selected.Value = true;
+                selectionContext.SetNode(node);
             }
 
-            void OnSelected() => selCtx.OnSelect?.Invoke(node, currentId);
-            
             IComponent HeaderContainer(IEnumerable<IComponent> content, Action onClick) => Row(
-                content: content,
-                manipulators: onClick?.Let(c => new Clickable(c))
-            ).WithStyle(new (padding: new (left: offset), flexGrow: 1))
+                    content: content,
+                    manipulators: onClick?.Let(c => new Clickable(c))
+                ).WithStyle(new(padding: new(left: offset), flexGrow: 1))
                 .WithConditionalStyle(selected, selectedStyle);
-            
-            static IComponent ContentContainer(IComponent content, bool visible) =>
-                content.WithStyle(new (display: visible ? DisplayStyle.Flex : DisplayStyle.None));
-        }
 
+            static IComponent ContentContainer(IComponent content, bool visible) =>
+                content.WithStyle(new(display: visible ? DisplayStyle.Flex : DisplayStyle.None));
+        });
+        
+        private List<CompositionContext> GetInstances() =>
+            CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
+        
         private static readonly Style fillStyle = new(flexGrow: 1);
-        private static readonly Style toolbarDropdownStyle = new(minWidth: 240);
+        private static readonly Style toolbarDropdownStyle = new(width: 240);
+        private static readonly Style topDividerStyle = new(height: 1, backgroundColor: new Color(0.16f, 0.16f, 0.16f));
+        private static readonly Style componentPanelStyle = new(padding: 4);
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
         private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
         private static readonly Style textStyle = new(color: Color.white);

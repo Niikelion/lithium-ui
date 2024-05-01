@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 
@@ -59,6 +60,6 @@ namespace UI.Li
         public bool StateLayoutEquals(IComponent other) =>
             other is Component component &&
             isStatic == component.isStatic &&
-            composer == component.composer;
+            composer.GetMethodInfo() == component.composer.GetMethodInfo();
     }
 }

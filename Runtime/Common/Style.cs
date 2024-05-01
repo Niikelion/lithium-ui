@@ -15,19 +15,9 @@ namespace UI.Li.Common
         public static IComponent WithStyle(this IComponent obj, Style style) => new StyleWrapper(obj, style);
 
         public static IComponent WithConditionalStyle(this IComponent obj, bool condition, Style style) =>
-            condition ? obj.WithStyle(style) : obj;
+            condition ? obj.WithStyle(style) : new StyleWrapper(obj);
         public static IComponent S(this IComponent obj, StyleFunc style) => style(obj);
         public static IComponent Cs(this IComponent obj, bool condition, StyleFunc style) => obj.When(condition, style);
-        
-        public static Func<IComponent> S<TC>(this StyleFunc style, Func<TC> cmp) where TC: IComponent => () => style(cmp());
-        public static Func<T1, IComponent> S<TC, T1>(this StyleFunc style, Func<T1, TC> cmp) where TC: IComponent => arg1 => style(cmp(arg1));
-        public static Func<T1, T2, IComponent> S<TC, T1, T2>(this StyleFunc style, Func<T1, T2, TC> cmp) where TC: IComponent => (arg1, arg2) => style(cmp(arg1, arg2));
-        public static Func<T1, T2, T3, IComponent> S<TC, T1, T2, T3>(this StyleFunc style, Func<T1, T2, T3, TC> cmp) where TC: IComponent => (arg1, arg2, arg3) => style(cmp(arg1, arg2, arg3));
-        public static Func<T1, T2, T3, T4, IComponent> S<TC, T1, T2, T3, T4>(this StyleFunc style, Func<T1, T2, T3, T4, TC> cmp) where TC: IComponent => (arg1, arg2, arg3, arg4) => style(cmp(arg1, arg2, arg3, arg4));
-        public static Func<T1, T2, T3, T4, T5, IComponent> S<TC, T1, T2, T3, T4, T5>(this StyleFunc style, Func<T1, T2, T3, T4, T5, TC> cmp) where TC: IComponent => (arg1, arg2, arg3, arg4, arg5) => style(cmp(arg1, arg2, arg3, arg4, arg5));
-        public static Func<T1, T2, T3, T4, T5, T6, IComponent> S<TC, T1, T2, T3, T4, T5, T6>(this StyleFunc style, Func<T1, T2, T3, T4, T5, T6, TC> cmp) where TC: IComponent => (arg1, arg2, arg3, arg4, arg5, arg6) => style(cmp(arg1, arg2, arg3, arg4, arg5, arg6));
-        public static Func<T1, T2, T3, T4, T5, T6, T7, IComponent> S<TC, T1, T2, T3, T4, T5, T6, T7>(this StyleFunc style, Func<T1, T2, T3, T4, T5, T6, T7, TC> cmp) where TC: IComponent => (arg1, arg2, arg3, arg4, arg5, arg6, arg7) => style(cmp(arg1, arg2, arg3, arg4, arg5, arg6, arg7));
-        public static Func<T1, T2, T3, T4, T5, T6, T7, T8, IComponent> S<TC, T1, T2, T3, T4, T5, T6, T7, T8>(this StyleFunc style, Func<T1, T2, T3, T4, T5, T6, T7, T8, TC> cmp) where TC: IComponent => (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) => style(cmp(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
     }
     
     [PublicAPI]

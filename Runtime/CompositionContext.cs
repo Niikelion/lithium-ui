@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using Unity.Profiling;
 
 #if UNITY_EDITOR // for reference listing
 using System.Collections.ObjectModel;
@@ -91,6 +92,9 @@ namespace UI.Li
             
             public static VisualElement CleanUp(VisualElement element)
             {
+                if (element == null)
+                    return null;
+                
                 if (element.userData is not ElementUserData data)
                     return element;
 
@@ -285,6 +289,8 @@ namespace UI.Li
         private static readonly ConcurrentQueue<Action> syncQueue = new();
 #endif
         
+        static readonly ProfilerMarker updateProfileMarker = new ("Lithium.CompositionContext.Update");
+        
         [NotNull] [PublicAPI] public readonly string Name;
 
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
@@ -362,7 +368,7 @@ namespace UI.Li
         /// <summary>
         /// Sets component entry id for next recomposition. 
         /// </summary>
-        /// <remarks>Difficult to use outside custom component implementation. To give id to component use <see cref="CompositionUtils.WithId"/></remarks>
+        /// <remarks>Difficult to use outside custom component implementation. To give id to component use <see cref="Li.Utils.Utils.Id"/></remarks>
         /// <param name="entryId">Id for next component</param>
         [PublicAPI] public void SetNextEntryId(int entryId = 0) => nextEntryId = entryId;
 
@@ -662,6 +668,8 @@ namespace UI.Li
         [PublicAPI]
         public void Update()
         {
+            updateProfileMarker.Begin();
+            
             framePointer = 0;
             for (int i = 0; i < frames.Count; ++i)
             {
@@ -688,7 +696,7 @@ namespace UI.Li
                 SetNextEntryId(entry.Id);
                 entry.Component.Recompose(this);
                 nextEntryPreventOverride = false;
-                i = framePointer;
+                i = framePointer - 1;
                 
                 var newRender = entry.Component.Render();
                 
@@ -699,6 +707,8 @@ namespace UI.Li
                 PushFrameEntry(entry);
             }
             ClearFrameStack();
+            
+            updateProfileMarker.End();
         }
         
         public void Dispose()

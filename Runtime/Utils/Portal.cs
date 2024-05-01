@@ -10,11 +10,18 @@ namespace UI.Li.Utils
         {
             private VisualElement content, container;
 
+            public Link() { }
+
+            public Link(VisualElement container) => Container = container;
+
             public VisualElement Content
             {
                 set
                 {
-                    if (container != null && content != null) container.Remove(content);
+                    if (content == value)
+                        return;
+                    
+                    if (container != null && content != null && content.parent == container) container.Remove(content);
                     content = value;
                     if (container != null && content != null) container.Add(content);
                 }
@@ -24,7 +31,10 @@ namespace UI.Li.Utils
             {
                 set
                 {
-                    if (container != null && content != null) container.Remove(content);
+                    if (container == value)
+                        return;
+                    
+                    if (container != null && content != null && content.parent == container) container.Remove(content);
                     container = value;
                     if (container != null && content != null) container.Add(content);
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace UI.Li.Utils
 {
@@ -35,6 +36,23 @@ namespace UI.Li.Utils
         /// <returns></returns>
         public static SwitchWrapper If(bool condition, [NotNull] Func<IComponent> onTrue) =>
             Switch(condition, onTrue, null);
+
+        /// <summary>
+        /// Utility for enabling part of the layout when value is not null.
+        /// </summary>
+        /// <param name="value">value than will bi transformed into a component</param>
+        /// <param name="onNotNull">function that creates component from value, assuming value is not null</param>
+        /// <param name="onNull">function that creates component assuming value is null</param>
+        /// <returns></returns>
+        public static SwitchWrapper Let<T>(T value, [CanBeNull] NonNullableTransformer<T> onNotNull, [CanBeNull] Func<IComponent> onNull = null) where T: class =>
+            Switch(value != null, () =>
+            {
+                Debug.Assert(value != null);
+                
+                return onNotNull?.Invoke(value);
+            }, onNull);
+        
+        public delegate IComponent NonNullableTransformer<in T>([NotNull] T value);
         
         /// <summary>
         /// Returns given composition with set id.

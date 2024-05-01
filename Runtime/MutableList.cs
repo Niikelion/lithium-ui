@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace UI.Li
 {
-    [PublicAPI] public class MutableList<T> : IMutableValue, IList<T>
+    [PublicAPI] public class MutableList<T> : IMutableValue, IList<T>, IList
     {
         public int Count => values.Count;
         public bool IsReadOnly => false;
@@ -18,6 +18,10 @@ namespace UI.Li
                     yield return (item.id, item.value);
             }
         }
+
+        bool IList.IsFixedSize => false;
+        bool ICollection.IsSynchronized => false;
+        object ICollection.SyncRoot => this;
 
         private readonly List<(ulong id, T value, IMutableValue mutable)> values = new();
         private ulong nextId;
@@ -50,16 +54,47 @@ namespace UI.Li
             get => values[index].value;
             set
             {
-                if (EqualityComparer<T>.Default.Equals(values[index].value, value))
+                if (!SetWithoutNotify(index, value))
                     return;
-
-                if (values[index].mutable != null)
-                    values[index].mutable.OnValueChanged -= BroadcastUpdate;
-                
-                values[index] = CreateEntry(value);
 
                 BroadcastUpdate();
             }
+        }
+
+        public bool SetWithoutNotify(int index, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(values[index].value, value))
+                return false;
+            
+            if (values[index].mutable != null)
+                values[index].mutable.OnValueChanged -= BroadcastUpdate;
+            
+            values[index] = CreateEntry(value);
+            return true;
+        }
+
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => this[index] = (T)value;
+        }
+
+        int IList.Add(object value)
+        {
+            Add((T)value);
+            return Count - 1;
+        }
+        void IList.Insert(int i, object value) => Insert(i, (T)value);
+        void IList.Remove(object value) => Remove((T)value);
+        bool IList.Contains(object value) => Contains((T)value);
+        int IList.IndexOf(object value) => IndexOf((T)value);
+
+        void ICollection.CopyTo(Array array, int arrayIndex)
+        {
+            int end = Math.Min(array.Length, arrayIndex + Count);
+
+            for (int i = arrayIndex; i < end; ++i)
+                array.SetValue(values[i].value, i);
         }
 
         public void Swap(int index1, int index2)

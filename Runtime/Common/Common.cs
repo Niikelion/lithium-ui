@@ -37,5 +37,14 @@ namespace UI.Li.Common
         [NotNull]
         public static Text Text([NotNull] string text, params IManipulator[] manipulators) =>
             Li.Common.Text.V(text, manipulators);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="isStatic"></param>
+        /// <returns></returns>
+        [NotNull]
+        public static Component Comp([NotNull] Component.StatefulComponent component, bool isStatic = false) => new (component, isStatic);
     }
 }
