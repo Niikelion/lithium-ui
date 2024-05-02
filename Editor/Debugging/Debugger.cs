@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using UI.Li.Common;
+using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEditor;
 using UnityEngine;
@@ -18,6 +19,25 @@ namespace UI.Li.Editor.Debugging
 {
     public class DebuggerWindow: ComposableWindow
     {
+        private class ContextExtractor : Wrapper
+        {
+            [NotNull] private readonly Action<CompositionContext> onContextChanged;
+            private CompositionContext currentContext;
+
+            public ContextExtractor(IComponent innerComponent, [NotNull] Action<CompositionContext> onContextChanged) :
+                base(innerComponent) => this.onContextChanged = onContextChanged;
+
+            protected override void BeforeInnerRecompose(CompositionContext context)
+            {
+                base.BeforeInnerRecompose(context);
+                if (context == currentContext)
+                    return;
+
+                currentContext = context;
+                onContextChanged(context);
+            }
+        }
+        
         private class SelectionContext
         {
             private CompositionContext.CompositionNode currentNode;
@@ -45,9 +65,14 @@ namespace UI.Li.Editor.Debugging
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
         protected override string WindowName => "Component Debugger";
 
-        protected override IComponent Layout() => new Component(ctx =>
+        private CompositionContext self;
+
+        protected override IComponent Layout() => new ContextExtractor(Root(), context => self = context);
+
+        private IComponent Root() => Comp(ctx =>
         {
             var selectedContext = ctx.Remember<CompositionContext>(null);
+            var updater = ctx.RememberRef(true);
 
             var instances = ctx.RememberF(GetInstances);
 
@@ -57,17 +82,35 @@ namespace UI.Li.Editor.Debugging
 
             ctx.OnInit(() =>
             {
-                CompositionContext.OnInstanceListChanged += AttachCallback;
-                selectedContext.OnValueChanged += ResetSelection;
+                var lastContext = selectedContext.Value;
 
+                if (lastContext != null)
+                    lastContext.OnUpdate += HandleContextUpdate;
+                
+                CompositionContext.OnInstanceListChanged += RefreshList;
+                selectedContext.OnValueChanged += HandleNewContext;
+                
                 return () =>
                 {
-                    selectedContext.OnValueChanged -= ResetSelection;
-                    CompositionContext.OnInstanceListChanged -= AttachCallback;
+                    selectedContext.OnValueChanged -= HandleNewContext;
+                    CompositionContext.OnInstanceListChanged -= RefreshList;
                 };
+                
+                void RefreshList() => instances.Value = GetInstances();
+                void HandleNewContext()
+                {
+                    selectionContext.SetNode(null);
 
-                void AttachCallback() => instances.Value = GetInstances();
-                void ResetSelection() => selectionContext.SetNode(null);
+                    if (lastContext != null)
+                        lastContext.OnUpdate -= HandleContextUpdate;
+                    
+                    lastContext = selectedContext.Value;
+
+                    if (lastContext != null)
+                        lastContext.OnUpdate += HandleContextUpdate;
+                }
+
+                void HandleContextUpdate() => updater.NotifyChanged();
             });
 
             var toolbar = Row(
@@ -166,7 +209,7 @@ namespace UI.Li.Editor.Debugging
         });
         
         private List<CompositionContext> GetInstances() =>
-            CompositionContext.Instances.Where(c => c.Name != WindowName).ToList();
+            CompositionContext.Instances.Where(c => c != self).ToList();
         
         private static readonly Style fillStyle = new(flexGrow: 1);
         private static readonly Style toolbarDropdownStyle = new(width: 240);

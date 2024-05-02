@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-using UI.Li.Utils;
 using UI.Li.Internal;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
@@ -293,6 +292,8 @@ namespace UI.Li
         
         [NotNull] [PublicAPI] public readonly string Name;
 
+        public event Action OnUpdate;
+        
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
 
         private readonly GapBuffer<Frame> frames = new ();
@@ -318,13 +319,10 @@ namespace UI.Li
                     action();
             };
         }
-        
-        ~CompositionContext()
-        {
-            UnregisterInstance(this);
-        }
 #endif
         
+        ~CompositionContext() => Dispose();
+
         public CompositionContext(string name = "Unnamed")
         {
             Name = name;
@@ -709,6 +707,7 @@ namespace UI.Li
             ClearFrameStack();
             
             updateProfileMarker.End();
+            OnUpdate?.Invoke();
         }
         
         public void Dispose()
@@ -719,6 +718,8 @@ namespace UI.Li
                 frame.Dispose();
                 frames.RemoveAt(0);
             }
+
+            OnUpdate = null;
             
 #if UNITY_EDITOR // for reference listing
             UnregisterInstance(this);
