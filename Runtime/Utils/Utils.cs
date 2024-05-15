@@ -73,15 +73,5 @@ namespace UI.Li.Utils
         /// <returns></returns>
         [NotNull]
         public static IdWrapper Id([NotNull] this IComponent obj, int id) => WithId(id, obj);
-
-        /// <summary>
-        /// Provides state context to composer function.
-        /// </summary>
-        /// <param name="composer">function that creates component</param>
-        /// <param name="isStatic">enables aggressive state preservation</param>
-        /// <returns></returns>
-        [NotNull]
-        public static Component WithState([NotNull] Component.StatefulComponent composer, bool isStatic = false) =>
-            new (composer, isStatic);
     }
 }

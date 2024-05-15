@@ -5,10 +5,10 @@ using JetBrains.Annotations;
 using UI.Li.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
-using CU = UI.Li.Utils.CompositionUtils;
 
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
+using static UI.Li.ComponentState;
 
 namespace UI.Li.Common
 {
@@ -29,11 +29,11 @@ namespace UI.Li.Common
 
         [NotNull]
         public static IComponent V(Label label, params (IComponent Label, Func<IComponent> Content)[] tabs) =>
-            new Component(ctx =>
+            WithState(() =>
             {
                 var cachedTabs = tabs.ToArray();
                 
-                var selected = ctx.Remember(0);
+                var selected = Remember(0);
 
                 return Col(
                     List(cachedTabs.Select(t => t.Label), i => selected.Value = i, selected.Value, label),

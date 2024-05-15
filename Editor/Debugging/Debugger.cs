@@ -14,6 +14,7 @@ using static UI.Li.Utils.Utils;
 using static UI.Li.Common.Common;
 using static UI.Li.Fields.Fields;
 using static UI.Li.Common.Layout.Layout;
+using static UI.Li.ComponentState;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -69,18 +70,18 @@ namespace UI.Li.Editor.Debugging
 
         protected override IComponent Layout() => new ContextExtractor(Root(), context => self = context);
 
-        private IComponent Root() => Comp(ctx =>
+        private IComponent Root() => WithState(() =>
         {
-            var selectedContext = ctx.Remember<CompositionContext>(null);
-            var updater = ctx.RememberRef(true);
+            var selectedContext = Remember<CompositionContext>(null);
+            var updater = RememberRef(true);
 
-            var instances = ctx.RememberF(GetInstances);
+            var instances = RememberF(GetInstances);
 
             var selectionContext = new SelectionContext();
             
-            ctx.ProvideContext(selectionContext);
+            ProvideContext(selectionContext);
 
-            ctx.OnInit(() =>
+            OnInit(() =>
             {
                 var lastContext = selectedContext.Value;
 
@@ -144,11 +145,11 @@ namespace UI.Li.Editor.Debugging
             IComponent WithoutContent() => Text("No panel selected");
         }
 
-        private static IComponent DetailPanel() => Comp(ctx =>
+        private static IComponent DetailPanel() => WithState(() =>
         {
-            var node = ctx.Remember<CompositionContext.CompositionNode>(null);
+            var node = Remember<CompositionContext.CompositionNode>(null);
 
-            var selectionContext = ctx.UseContext<SelectionContext>();
+            var selectionContext = UseContext<SelectionContext>();
             selectionContext.SetOnNodeChanged(newNode => node.Value = newNode);
             
             return Scroll(Let(node.Value, n => Col(n.Values.Select(Value)), () =>  Text("No component selected").WithStyle(new (padding: 4))));
@@ -156,11 +157,13 @@ namespace UI.Li.Editor.Debugging
             IComponent Value(IMutableValue value, int i) => Text($"{i}: {value}");
         });
 
-        private static IComponent RenderNode(CompositionContext.CompositionNode node, int level = 0) => Comp(ctx =>
+        private static IComponent RenderNode(CompositionContext.CompositionNode node, int level = 0) => WithState(() =>
         {
-            var selected = ctx.Remember(false);
-            var selectionContext = ctx.UseContext<SelectionContext>();
+            var selected = Remember(false);
+            var selectionContext = UseContext<SelectionContext>();
 
+            var defer = GetDeferrer();
+            
             if (selected.Value)
                 selectionContext.SetOnOldSelectionCleared(() => selected.Value = false);
 
@@ -192,10 +195,11 @@ namespace UI.Li.Editor.Debugging
                 if (selected.Value)
                     return;
 
-                using var _ = ctx.BatchOperations();
-                
-                selected.Value = true;
-                selectionContext.SetNode(node);
+                defer(() =>
+                {
+                    selected.Value = true;
+                    selectionContext.SetNode(node); 
+                });
             }
 
             IComponent HeaderContainer(IEnumerable<IComponent> content, Action onClick) => Row(

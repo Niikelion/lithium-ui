@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using CU = UI.Li.Utils.CompositionUtils;
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
+using static UI.Li.ComponentState;
 
 namespace UI.Li.Common.Layout
 {
@@ -43,9 +44,9 @@ namespace UI.Li.Common.Layout
             ContentContainer contentContainer = null,
             Func<bool, Action, IComponent> nob = null,
             params IManipulator[] manipulators
-        ) => new Component(ctx =>
+        ) => WithState(() =>
         {
-            var state = ctx.Remember(initiallyOpen);
+            var state = Remember(initiallyOpen);
 
             var nobFunc = nob ?? FoldoutNob;
 

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UI.Li.Utils;
 using UnityEngine.UIElements;
 
-using static UI.Li.Common.Common;
+using static UI.Li.ComponentState;
 
 namespace UI.Li.Common.Layout
 {
@@ -71,9 +71,9 @@ namespace UI.Li.Common.Layout
             {
                 var link = new Portal.Link();
 
-                var child = Comp(ctx =>
+                var child = WithState(() =>
                 {
-                    var visible = ctx.Remember(false);
+                    var visible = Remember(false);
 
                     items[i] = visible;
                     

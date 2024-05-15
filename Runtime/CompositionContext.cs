@@ -504,7 +504,7 @@ namespace UI.Li
         /// <summary>
         /// Adds given state value to component state.
         /// </summary>
-        /// <seealso cref="Remember{T}"/>
+        /// <seealso cref="UI.Li.ComponentStateExtensions.Remember{T}"/>
         /// <param name="value">state value to add</param>
         /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
         /// <returns>Returns current state of the value</returns>
@@ -515,7 +515,7 @@ namespace UI.Li
         /// <summary>
         /// Adds given state value to current component state.
         /// </summary>
-        /// <seealso cref="RememberF{T}"/>
+        /// <seealso cref="UI.Li.ComponentStateExtensions.RememberF{T}"/>
         /// <param name="factory">factory of state value to add</param>
         /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
         /// <returns>Returns current state of the value</returns>
@@ -553,64 +553,6 @@ namespace UI.Li
 
             return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
         }
-
-        /// <summary>
-        /// Remembers given value in current component state.
-        /// </summary>
-        /// <remarks>Argument is ignored when value can be found in component state.</remarks>
-        /// <param name="value">initial value</param>
-        /// <typeparam name="T">type of remembered value</typeparam>
-        /// <returns>Current state of the value</returns>
-        /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        [PublicAPI]
-        [NotNull]
-        public MutableValue<T> Remember<T>(T value) => Use(isFirstRender ? new ContextMutableValue<T>(value, this) : null);
-
-        /// <summary>
-        /// Remembers given value in current component state.
-        /// </summary>
-        /// <remarks>Factory is only used when value cannot be found in component state.</remarks>
-        /// <param name="factory">factory used to create initial value</param>
-        /// <typeparam name="T">type of remembered value</typeparam>
-        /// <returns>Current state of the value</returns>
-        /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        [PublicAPI]
-        [NotNull]
-        public MutableValue<T> RememberF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ContextMutableValue<T>(factory(), this));
-
-        [PublicAPI]
-        [NotNull]
-        public ValueReference<T> RememberRef<T>(T value) => Use(isFirstRender ? new ValueReference<T>(value) : null);
-
-        [PublicAPI]
-        [NotNull]
-        public ValueReference<T> RememberRefF<T>([NotNull] FactoryDelegate<T> factory) => Use(() => new ValueReference<T>(factory()));
-
-        [PublicAPI]
-        [NotNull]
-        public MutableList<T> RememberList<T>(IEnumerable<T> collection = null) =>
-            Use(() => new MutableList<T>(collection ?? Array.Empty<T>()));
-
-        [PublicAPI]
-        [NotNull]
-        public MutableList<T> RememberList<T>([NotNull] FactoryDelegate<IEnumerable<T>> factory) =>
-            Use(() => new MutableList<T>(factory()));
-
-        [PublicAPI]
-        [NotNull]
-        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
-            IDictionary<TKey, TValue> dictionary = null) => Use(() =>
-            new MutableDictionary<TKey, TValue>(dictionary ?? new Dictionary<TKey, TValue>()));
-
-        [PublicAPI]
-        [NotNull]
-        public MutableDictionary<TKey, TValue> RememberDictionary<TKey, TValue>(
-            [NotNull] FactoryDelegate<IDictionary<TKey, TValue>> factory) =>
-            Use(() => new MutableDictionary<TKey, TValue>(factory()));
-        
-        [PublicAPI]
-        [NotNull]
-        public ValueReference<T> RememberRefF<T>([NotNull] Func<T> factory) => Use(() => new ValueReference<T>(factory()));
 
         [PublicAPI]
         public void ProvideContext<T>(T context)

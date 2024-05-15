@@ -10,21 +10,34 @@ namespace UI.Li
     /// </summary>
     [PublicAPI] public sealed class Component: IComponent
     {
-        public delegate IComponent StatefulComponent(ComponentState state);
+        public delegate IComponent OldStatefulComponent(ComponentState state);
+        public delegate IComponent StatefulComponent();
         
         public event Action<VisualElement> OnRender;
         
         [NotNull] private readonly StatefulComponent composer;
         private readonly bool isStatic;
         private IComponent innerComponent;
-
+        
         /// <summary>
         /// Creates Component using given function.
         /// </summary>
         /// <param name="composer">composer function used to create component.</param>
         /// <param name="isStatic">indicates whether or not structure of given component will change over time(some data or parameters can change, just not component structure).</param>
         /// <remarks><see cref="isStatic"/>only constraints returned element and not its children. For example, if you declare your component static and on first render you returned <see cref="Common.Text"/>, you must return <see cref="Common.Text"/> every time.</remarks>
-        [PublicAPI] public Component([NotNull] StatefulComponent composer, bool isStatic = false)
+        [Obsolete("Use variant with argument-less composer")] public Component([NotNull] OldStatefulComponent composer, bool isStatic = false)
+        {
+            this.composer = () => composer(new());
+            this.isStatic = isStatic;
+        }
+        
+        /// <summary>
+        /// Creates Component using given function.
+        /// </summary>
+        /// <param name="composer">composer function used to create component.</param>
+        /// <param name="isStatic">indicates whether or not structure of given component will change over time(some data or parameters can change, just not component structure).</param>
+        /// <remarks><see cref="isStatic"/>only constraints returned element and not its children. For example, if you declare your component static and on first render you returned <see cref="Common.Text"/>, you must return <see cref="Common.Text"/> every time.</remarks>
+        public Component([NotNull] StatefulComponent composer, bool isStatic = false)
         {
             this.composer = composer;
             this.isStatic = isStatic;
@@ -41,12 +54,14 @@ namespace UI.Li
 
         public void Recompose(CompositionContext context)
         {
+            ComponentState.ProvideInternalContext(context);
             context.StartFrame(this);
-            innerComponent = composer(new ComponentState(context));
+            innerComponent = composer();
             if (isStatic)
                 context.PreventNextEntryOverride();
             innerComponent.Recompose(context);
             context.EndFrame();
+            ComponentState.ProvideInternalContext(null);
         }
 
         public void Dispose()
