@@ -49,6 +49,9 @@ namespace UI.Li.Common.Layout
             target.destroyItem = DestroyItem;
             target.bindItem = BindItem;
             target.unbindItem = UnbindItem;
+            
+            target.reorderable = false;
+            target.selectionType = SelectionType.None;
 
             target.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             

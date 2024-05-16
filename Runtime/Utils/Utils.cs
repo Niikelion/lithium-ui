@@ -83,5 +83,14 @@ namespace UI.Li.Utils
         [NotNull]
         public static Component WithState([NotNull] Component.StatefulComponent composer, bool isStatic = false) =>
             new (composer, isStatic);
+        
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="classes"></param>
+        /// <returns></returns>
+        public static ClassWrapper Class([NotNull] IComponent component, params string[] classes) =>
+            new(component, classes);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UI.Li.Utils
 {
-    public sealed class StyleWrapper: Wrapper //TODO: add option to combine Wrappers to reduce instance count(possibly, by copying StyleWrapper properties when wrapping StyleWrapper with StyleWrapper)
+    public sealed class StyleWrapper: Wrapper
     {
         private readonly Style style;
         private  readonly bool empty;
@@ -12,16 +12,23 @@ namespace UI.Li.Utils
         [NotNull]
         public static StyleWrapper V([System.Diagnostics.CodeAnalysis.NotNull] IComponent component, Style style) => new (component, style);
         
-        public StyleWrapper(IComponent component, Style style) : base(component)
+        public StyleWrapper(IComponent component, Style style) : base(ExtractComponent(component))
         {
-            this.style = style;
+            this.style = component is StyleWrapper { empty: false } wrapper ? style.Extend(wrapper.style) : style;
             empty = false;
         }
 
-        public StyleWrapper(IComponent component) : base(component)
+        public StyleWrapper(IComponent component) : base(ExtractComponent(component))
         {
-            style = new();
-            empty = true;
+            if (component is not StyleWrapper wrapper)
+            {
+                style = new();
+                empty = true;
+                return;
+            }
+
+            style = wrapper.style;
+            empty = wrapper.empty;
         }
 
         public override VisualElement Render()
@@ -42,5 +49,8 @@ namespace UI.Li.Utils
             
             return ret;
         }
+
+        private static IComponent ExtractComponent(IComponent component) =>
+            component is StyleWrapper wrapper ? wrapper.InnerComponent : component;
     }
 }

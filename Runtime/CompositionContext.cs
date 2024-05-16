@@ -280,7 +280,7 @@ namespace UI.Li
             public void AddValue(IMutableValue value) => values.Add(value);
             public void AddChild(TmpNode child) => children.Add(child);
 
-            public CompositionNode GetNode() => new CompositionNode(name, component, id, values, children.Select(n => n.GetNode()).ToList());
+            public CompositionNode GetNode() => new (name, component, id, values, children.Select(n => n.GetNode()).ToList());
         }
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);

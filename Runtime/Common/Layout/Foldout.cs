@@ -116,27 +116,26 @@ namespace UI.Li.Common.Layout
                         float revDist = maxDist / 2;
                         float armOff = revDist * Mathf.Sqrt(3);
 
-                        var mesh = mgc.Allocate(3, 3);
-                        mesh.SetAllIndices(nobIndices);
-
+                        var painter = mgc.painter2D;
+                        
+                        painter.fillColor = color;
+                        painter.BeginPath();
+                        
                         if (open)
                         {
-                            mesh.SetAllVertices(new[]
-                            {
-                                new Vertex { position = center - Vector2.down * maxDist, tint = color },
-                                new Vertex { position = center - new Vector2(armOff, revDist), tint = color },
-                                new Vertex { position = center - new Vector2(-armOff, revDist), tint = color }
-                            });
+                            painter.MoveTo(center - Vector2.down * maxDist);
+                            painter.LineTo(center - new Vector2(armOff, revDist));
+                            painter.LineTo(center - new Vector2(-armOff, revDist));
                         }
                         else
                         {
-                            mesh.SetAllVertices(new[]
-                            {
-                                new Vertex { position = center + Vector2.right * maxDist, tint = color },
-                                new Vertex { position = center + new Vector2(-revDist, armOff), tint = color },
-                                new Vertex { position = center + new Vector2(-revDist, -armOff), tint = color }
-                            });
+                            painter.MoveTo(center + Vector2.right * maxDist);
+                            painter.LineTo(center + new Vector2(-revDist, armOff));
+                            painter.LineTo(center + new Vector2(-revDist, -armOff));
                         }
+                        
+                        painter.ClosePath();
+                        painter.Fill();
                     }
                 ), content: null)),
                 onClick?.Let(c => new Clickable(c))
