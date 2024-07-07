@@ -173,7 +173,8 @@ namespace UI.Li.Editor.Debugging
 
             var children = node.Children;
 
-            return Switch(children.Count == 0, () =>
+            // NOTE: for some reason ui toolkit has a bug where height calculations are incorrect without wrapping element
+            return Box(Switch(children.Count == 0, () =>
                 Text(name, manipulators: new Clickable(OnSelected))
                     .WithStyle(new(flexGrow: 1, padding: new(left: offset)))
                     .WithStyle(textStyle)
@@ -188,7 +189,7 @@ namespace UI.Li.Editor.Debugging
                     header: Text(name, manipulators: new Clickable(OnSelected)).WithStyle(textStyle),
                     content: Col(content).WithStyle(fillStyle)
                 ).WithStyle(fillStyle);
-            });
+            }));
             
             void OnSelected()
             {

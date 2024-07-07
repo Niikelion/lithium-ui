@@ -1,9 +1,11 @@
 ﻿using UI.Li;
+using UI.Li.Common;
 using UI.Li.Editor;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
-using CU = UI.Li.Utils.CompositionUtils;
+
+using static UI.Li.Common.Common;
+using static UI.Li.Common.Layout.Layout;
+using static UI.Li.ComponentState;
 
 public class TestWindow: ComposableWindow
 {
@@ -11,20 +13,19 @@ public class TestWindow: ComposableWindow
     public static void ShowWindow() => GetWindow<TestWindow>();
 
     protected override string WindowName => "Window Test";
-    
-    protected override IComponent Layout() => CU.Flex(
-        direction: FlexDirection.Row,
-        content: new [] { ToggleButton(), ToggleButton() }
+
+    protected override IComponent Layout() => Row(
+        ToggleButton(),
+        ToggleButton()
     );
 
-    private static IComponent ToggleButton() => new(state =>
+    private static IComponent ToggleButton() => WithState(() =>
     {
-        var isOn = state.Remember(false);
+        var isOn = Remember(false);
         
-        return CU.Button(
-            data: new( flexGrow: 1 ),
+        return Button(
             content: isOn ? "On" : "Off",
             onClick: () => isOn.Value = !isOn
-        );
+        ).WithStyle(new (flexGrow: 1));
     });
 }

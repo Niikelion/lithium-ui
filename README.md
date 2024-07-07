@@ -34,7 +34,7 @@ using UI.Li;
 using UI.Li.Editor;
 using UnityEditor;
 using UnityEngine;
-using CU = UI.Li.Utils.CompositionUtils;
+using static UI.Li.Common.Common;
 
 public class HelloWindow: ComposableWindow
 {
@@ -43,7 +43,7 @@ public class HelloWindow: ComposableWindow
 
     protected override string WindowName => "Hello world!";
     
-    protected override IComponent Layout() => CU.Text("Hello world!");
+    protected override IComponent Layout() => Text("Hello world!");
 }
 ```
 
@@ -54,17 +54,17 @@ using UI.Li;
 using UI.Li.Editor;
 using UnityEditor;
 using UnityEngine;
-using CU = UI.Li.Utils.CompositionUtils;
+using static UI.Li.Common.Common;
+using static UI.Li.Common.Layout.Layout;
 
 // Assuming we have MonoBehaviour "TestBehaviour"
 [CustomEditor(typeof(TestBehaviour))]
 public class TestBehaviourEditor: ComposableEditor
 {
-    protected override IComponent Layout() => CU.Flex(new IComponent[]
-    {
+    protected override IComponent Layout() => Col(
         DefaultInspector.V(this),
-        CU.Button(content: "Tick", onClick: () => Debug.Log("Tack"))
-    });
+        Button(content: "Tick", onClick: () => Debug.Log("Tack"))
+    );
 }
 ```
 
@@ -91,7 +91,7 @@ Future releases:
 - [ ] optimization of styling system
 - [ ] support for named variables
 - [ ] pooling of `VisualElement` for performance boost
-- [ ] remove OnRender event from `IComponent`
+- [ ] remove/hide OnRender event from `IComponent`
 
 ## UI Elements interoperability
 

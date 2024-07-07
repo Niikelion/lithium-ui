@@ -14,14 +14,14 @@ Using lithium we can create:
 
 Regardless of your choice, you need to define `IComponent Layout()` method that will by your layout function.
 
-For simplicity we will create a custom window.
+For simplicity, we will create a custom window.
 
 ## Defining window
 
 This is the minimal example showing how to create the custom window:
 
 ```csharp
-using CU = UI.Li.Utils.CompositionUtils;
+using static UI.Li.Common.Common;
 
 public class TestWindow: ComposableWindow
 {
@@ -30,7 +30,7 @@ public class TestWindow: ComposableWindow
     
     protected override string WindowName => "Window Test";
     
-    protected override IComponent Layout() => CU.Text("Hello, world!");
+    protected override IComponent Layout() => Text("Hello, world!");
 }
 ```
 
@@ -46,21 +46,21 @@ Sometimes we need to store some date between renders of our component. That's wh
 It allows us to store some variables in the state object:
 
 ```csharp
-    protected override IComponent Layout() => new Component(state => CU.Text("Hello, world!"), isStatic: true);
+    protected override IComponent Layout() => WithState(() => Text("Hello, world!"));
 ```
 
 Now that we can store some values, we can make something dynamic, for example button that toggles between `On` and `Off` text:
 
 ```csharp
-    protected override IComponent Layout() => new Component(state =>
+    protected override IComponent Layout() => WithState(() =>
     {
-        var isOn = state.Remember(false);
+        var isOn = Remember(false);
         
-        return CU.Button(
+        return Button(
             content: isOn ? "On" : "Off",
             onClick: () => isOn.Value = !isOn
         );
-    }, isStatic: true);
+    });
 ```
 
 ![Button off state](assets/bootstrap_off.png) ![Button off state](assets/bootstrap_on.png)
@@ -69,31 +69,29 @@ Now that we can store some values, we can make something dynamic, for example bu
 
 We have created some text and a button, but how do we control how these elements are placed? `Flex` comes to the resque.
 It is a simple flex-box component that allows us to position our elements the same way we do it in UI Elements.
-For example, if we want to have two buttons side by side, we can simply do this:
+To make the code more verbose, two helper functions `Col` and `Row` are provided as shorthands for columns and row layouts respectively. 
+For example, if we want to have two buttons side by side, we can simply do:
 
 ```csharp
-    protected override IComponent Layout() => CU.Flex(
-        direction: FlexDirection.Row,
-        content: new [] { ToggleButton(), ToggleButton() }
+    protected override IComponent Layout() => Row(
+        ToggleButton(),
+        ToggleButton()
     );
 
-    private static Component ToggleButton() => new (state =>
+    private static Component ToggleButton() => WithState(() =>
     {
-        var isOn = state.Remember(false);
+        var isOn = Remember(false);
         
-        return CU.Button(
+        return Button(
             content: isOn ? "On" : "Off",
             onClick: () => isOn.Value = !isOn
         ).WithStyle(new ( flexGrow: 1 ));
-    }, isStatic: true);
+    });
 ```
 
 ![Two toggle window](assets/bootstrap_on_off.png)
 
-Couple remarks about above example:
-* only set `isStatic` to `true` if you always return the same ui structure,
-* note, that we used `WithStyle` method to attach some styles to the element,
-* `Layout` method no longer returns `Component`(it no longer contains any state, so it is not needed).
+Note, that we used `WithStyle` method to attach some styles to the element.
 
 ## Further reading
 

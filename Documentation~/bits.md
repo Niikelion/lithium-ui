@@ -61,7 +61,7 @@ public class SomeView: VisualElement
 ### Simple value
 
 ```csharp
-var counter = ctx.Remember(0);
+var counter = Remember(0);
 [...]
 counter.Value++;
 ```
@@ -69,13 +69,13 @@ counter.Value++;
 ### Value with factory
 
 ```csharp
-var content = ctx.RememberF(() => someExpensiveFunction(data));
+var content = RememberF(() => someExpensiveFunction(data));
 ```
 
 ### Value reference
 
 ```csharp
-var contentRef = ctx.RememberRef(content);
+var contentRef = RememberRef(content);
 [...]
 contentRef.Value = secondContent; //does not trigger ui render
 ```
@@ -83,13 +83,13 @@ contentRef.Value = secondContent; //does not trigger ui render
 ### Value reference with factory
 
 ```csharp
-var contentRef = ctx.RememberRef(() => someExpensiveFactory(data));
+var contentRef = RememberRef(() => someExpensiveFactory(data));
 ```
 
 ### List
 
 ```csharp
-var list = ctx.RememberList(Enumerable.Empty<int>());
+var list = RememberList<int>();
 [...]
 list.Add(4);
 ```
@@ -97,7 +97,7 @@ list.Add(4);
 ### Dictionary
 
 ```csharp
-var dict = ctx.RememberDictionary(new Dictionary<string, int>());
+var dict = RememberDictionary<string, int>();
 [...]
 dict.Add("test", 6);
 ```
@@ -105,23 +105,23 @@ dict.Add("test", 6);
 ### Context
 
 ```csharp
-ctx.ProvideContext<int>(6);
+ProvideContext<int>(6);
 [...]
-var numberCtx = ctx.UseContext<int>();
+var numberCtx = UseContext<int>();
 ```
 
 ## Lifecycle events
 
 ### Init
 ```csharp
-ctx.OnInit(() => {
+OnInit(() => {
     [...]
 });
 ```
 
 ### Destroy
 ```csharp
-ctx.OnDestroy(() => {
+OnDestroy(() => {
     [...]
 });
 ```
@@ -129,7 +129,7 @@ ctx.OnDestroy(() => {
 ### Init and Destroy combined
 
 ```csharp
-ctx.OnInit(() => {
+OnInit(() => {
     [...]
     return () => {
         [...]
@@ -143,7 +143,7 @@ ctx.OnInit(() => {
 
 ```csharp
 {
-    using var _ = ctx.BatchOperations();
+    using var _ = BatchOperations();
     var1.Value = 5;
     var2.Value = "test";
 }
@@ -152,7 +152,7 @@ ctx.OnInit(() => {
 or
 
 ```csharp
-ctx.BatchOperations(() => {
+BatchOperations(() => {
     var1.Value = 5;
     var2.Value = "test";
 });

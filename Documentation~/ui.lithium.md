@@ -1,6 +1,7 @@
 # Toc
 - [Getting started](#getting-started)
 - [Core concepts](#core-concepts)
+- [Helper functions](#helper-functions)
 - [State](#state)
   - [Variables](#variables)
   - [Callback](#callbacks)
@@ -10,8 +11,6 @@
 - [Hierarchy and state loss](#hierarchy-and-state-loss)
 - [Styling](#styling)
   - [Styling elements](#styling-elements)
-  - [Styling functions](#styling-functions)
-  - [Styling component functions](#styling-component-functions)
 - [Scope functions](#scope-functions)
   - [Let](#let)
   - [Run](#run)
@@ -29,19 +28,43 @@ In lithium, ui hierarchy is built using `components`.
 
 A `component` is any function with return type of `IComponent` or any type implementing this interface. This allows you to create multiple components inside a single class and easily compose them together to create desired hierarchy without unnecessary classes.
 
-## State
+## Helper functions
 
-Because of this approach, state of a component cannot be stored as a field of a class. In order to get around this problem, we need to wrap our component with `Component` object:
-
+Since c# does not allow global functions, Lithium cannot provide functions like `Text` or `WithState` directly.
+Fortunately, it can be achieved by static using statements, so for your convenience, all important helper functions are provided in corresponding static classes.
+To include all functions available, paste this into your code:
 ```csharp
-Component ComponentWithState() => new (state => {
-    //body of the component goes here
-});
+using static UI.Li.Common.Common;
+using static UI.Li.Common.Layout.Layout;
+using static UI.Li.ComponentState;
+using static UI.Li.Fields.Fields;
+using static UI.Li.Utils.Utils;
+using static UI.Li.Async.Async;
 ```
 
-Note, that we can access our state via `state` object of type `ComponentState`.
+What if you do not want to import functions that you will not use?
 
+* `UI.Li.Common.Common` provides most commonly used components, like `Button` and `Text`,
+* `UI.Li.Common.Layout.Layout` provides components used for layouts, like `Row` and `Col`,
+* `UI.Li.ComponentState` provides wrappers for creating components with state,
+* `UI.Li.Fields.Fields` provides basic fields, like `Toggle` and `TextField`,
+* `UI.Li.Utils.Utils` provides utilities for conditional rendering, like `Switch` and `If`,
+* `UI.Li.Async.Async` provides utilities for async execution and loading states.
 
+## State
+
+Because of Lithium architecture, state of a component cannot be stored as a field of a class. In order to get around this problem, we need to wrap our component with `WithState` wrapper:
+
+```csharp
+IComponent Toggle() => WithState(() => {
+    var toggleState = Remember(false);
+    
+    return Button(
+        onClick: () => toggleState.Value = !toggleState,
+        content: toggleState ? "On" : "Off"
+    ); 
+});
+```
 
 What can we store in a state? We have variables, callbacks and contexts.
 
@@ -54,7 +77,7 @@ Variable is an instance of the `IMutableValue` interface. There is a couple of b
 * `MutableList<T>` - triggers update when the list(or any of the elements if they implement `IMutableValue`) changes.
 * `MutableDictionary<TKey, TValue>` - triggers update when the dictionary(or any of the elements if they implement `IMutableValue`) changes.
 
-To make it easier to use, `ComponentState` provides a couple of methods to use state variables:
+To make it easier to use, `ComponentStateExtensions` provides a couple of methods to use state variables:
 
 * `MutableValue<T> Remember<T>(T value)` - remembers value in the state on first render and returns current value of a variable.
 * `MutableValue<T> RememberF<T>(Func<T> factory)` - same as `Remember`, but instead of storing provided value, executes `factory` on the first render and stores result as value in the state.
@@ -75,7 +98,7 @@ Available callback:
 
 ### Contexts
 
-Lithium allows you to provide value of any type as a context that can be retrieved from any point further down in the hierarchy which is very useful for data propagation.
+Lithium allows you to provide a value of any type as a context that can be retrieved from any point further down in the hierarchy which is very useful for data propagation.
 
 * `void ProvideContext<T>(T value)` - provides `value` as context of type `T` and passes it down the hierarchy.
 * `T UseContext<T>()` - retrieves context of type `T` (throws exception if none is visible from this point in hierarchy).
@@ -89,77 +112,56 @@ if (some_condition)
     ctx.Remember(5);
 ```
 
-is not allowed when `some_condition` might change during component instance lifetime, because the `Remember` call may not happen with every render.
+is not allowed when `some_condition` might change during component instance lifetime, because the `Remember` call may not happen for every render.
 This is mainly because variables and callbacks are not named, so order of the calls is used as identification.
-`UseContext` fetches global value so it is not affected by the order of the calls.
+`UseContext` fetches global value, so it is not affected by the order of the calls.
 
 ## Built-in components
 
-To further simplify the process, lithium provides convenient utility class that serves as factory for other components.
-
-Place this using right after imports to write `CU` instead of `CompositionUtils`:
-
-```csharp
-using CU = UI.Lt.Utils.CompositionUtils;
-```
-
-Now, we can reduce:
-
-```csharp
-Component Toggle() => new (state => {
-    var toggleState = state.Remember(false);
-    
-    return UI.Lt.Common.Button.V(
-        onClick: () => toggleState.Value = !toggleState.Value,
-        content: toggleState.Value ? "On" : "Off"
-    ); 
-});
-```
-
-to:
-
-```csharp
-Component Toggle() => new (state => {
-    var toggleState = state.Remember(false);
-    
-    return CU.Button(
-        onClick: () => toggleState.Value = !toggleState.Value,
-        content: toggleState.Value ? "On" : "Off"
-    ); 
-});
-```
-
-`CompositionUtils` provides:
-
-* `WithId(int id, IComposition composition)` - sets `id` for `composition`.
-* `WithStyle`
-* `Switch`
-* `Text`
-* `Button`
-* `Flex`
-* `TextField`
-* `Dropdown`
-* `Box`
-* `Foldout`
-* `SplitArea`
-* `Toggle`
-* `Scroll`
-
-To learn more about how to use them, you can read the documentation for the members of `CompositionUtils` that should be accessible through your idee of choice.
+To further simplify the process, Lithium provides variety of components that you can build your ui from.
+Core library exposes most of the components available in UI Toolkit.
+If you want to browse exposed components, you can look at the documentation for classes mentioned [here](#helper-functions).
 
 ## Hierarchy and state loss
 
 Lithium has two ways of identifying components in the hierarchy - id and place in the children list of the parent component.
 
-Because the latter one is not very reliable, lithium discards the state a component when it is not 100% sure it belongs to it.
+Because components are not classes, and single function may render different layouts based on parameters, Lithium may not be able to deduce the developers intent.
+When its ambiguous, the state is discarded and component re-rendered.
 
 To preserve the state, we can assign id to our elements to make them more distinguishable and better communicate to lithium when the state should be preserved and when discarded. Remember, that there can not be two components with the same id under same direct parent.
 
-If you have a component that does not change its layout, you can mark it as static to further improve the state preservation:
+Furthermore, there are some helper function you can use to make your intent clearer for the framework:
 
+* `Switch` - layout may change between some predefined options based on some variable,
+* `If` - depending on the condition, layout may or may not be rendered,
+* `Let` - you want to render layout based on some nullable value, and provide some fallback option when value is `null`.
+* `Id` - this element is unique and its type/shape will not change.
+
+For example:
 ```csharp
-Component StaticExample() =>
-    new (ctx => CU.Text("Some text"), isStatic: true);
+private IComponent Children(List<int> elements) => Let(
+    elements,
+    elems => Col(elems.Select(Child)),
+    () => Text("No children")
+);
+
+private IComponent Child(int value) => Switch(
+    value == 0
+    () => Text("null"),
+    () => Text(value.ToString())
+);
+
+override protected IComponent Layout() => WithState(() => {
+    var children = Remember<List<int>>(null);
+    
+    void Init() => children.value = new List<int> { 1, 0, 2 };
+    
+    return Col(
+        Children(children),
+        If(children?.Count ?? 0 == 0, () => Button(Init, "initialize list"))
+    );
+});
 ```
 
 ## Styling
@@ -177,62 +179,16 @@ Functions that can be used for styling:
 For example:
 
 ```csharp
-CU.Text("Red text").WithStyle(new (color: Color.red));
+Text("Red text").WithStyle(new (color: Color.red));
 
 bool disabled = [...];
-CU.Text("Some text").WithConditionalStyle(disabled, new (color: Color.gray));
+ext("Some text").WithConditionalStyle(disabled, new (color: Color.gray));
 ```
-
-### Styling functions
-
-Instead of using the style directly, you can convert it to the styling function:
-```csharp
-StyleFunc Red = CU.Styled(new (color: Color.red));
-```
-
-Now you can use it like this:
-```csharp
-Red(CU.Text("Red text"));
-```
-
-This is purely cosmetic and does not affect how styles are applied.
-
-### Styling component functions
-
-Instead of styling the element directly, you can attach styles to the component function.
-In order to do this, you first need to convert your style to styling function, and then you can use:
-
-- `S(StyleFunc s)` - wraps target component with style information from `s`.
-- `Cs(bool condition, StyleFunc s)` - wraps target component with style information from `s` if `condition` is `true`.
-
-This may look confusing, so let's look at some examples:
-
-```csharp
-Func<string, IManipulator[], IComponent> Text = CU.Text;
-var style = CU.Styled(new (color: Color.gray));
-
-var GrayText = style.S(Text);
-
-bool disabled = [...];
-var Text = style.Cs(disabled, Text);
-
-[...]
-
-IComponent SomeComponent() => GrayText("Text", Array.Empty<IManipulator>());
-IComponent SomeComponent2() => Text("Text2", Array.Empty<IManipulator>());
-```
-
-Note:
-- You loose all default values.
-- `params` is flattened to simple array parameter.
-- All parameter names are lost.
-
-Because all of this, that feature may be removed in the future.
 
 ## Scope functions
 
 Scope functions are defined in the `ObjectUtils` static class and are heavily inspired by Kotlin scope functions.
-They are designed to make working with `lithium` in object oriented language easier.
+They are designed to make working with Lithium in the object-oriented language easier.
 
 ### Let
 `Let` can be used to transform value if it is not null:
@@ -244,6 +200,8 @@ return child?.Let(c => c.name) ?? "Empty";
 // but also:
 return child?.Let(() => child.name) ?? "Empty";
 ```
+
+Note, that callback argument is guaranteed not to be null.
 
 ### Run
 
@@ -262,27 +220,27 @@ child?.Run(() => child.parent = transform);
 `When` can be used to transform the value when the condition is met, otherwise return original value:
 
 ```csharp
-var gray = CU.Styled(new (color: Color.gray));
+Style gray = new (color: Color.gray);
 bool disabled = [...];
 
-CU.Text("Test").When(disabled, gray);
+Text("Test").When(disabled, c => c.WithStyle(gray));
 ```
 
-Note that `When` can only change type to the base class.
+Note, that this example is only to demonstrate how it works.
+For conditional styles use `WithConditionalStyle`.
 
 ## Portals
 
-Portals are the proper way to render elements between the context boundary or even outside the lithium system.
+Portals are the proper way to render elements between the context boundary or even outside the Lithium system.
 
 To use them, simply create `Portal.Link` and pass it to `Portal.Achor.V`(container) and `Portal.V`(content).
 They will be linked and content will be the direct child of the container.
-If you wish to render lithium content outside lithium, or attach content from outside lithium to the context,
-omit adding one of the components and instead of them use properties `Content` and `Container` directly.
-For example, to use custom container just set `Container` to this container and use `Portal.V` inside lithium context.
+If you wish to render Lithium content outside of Lithium, or attach the content from outside Lithium to the context,
+omit adding one of the components and instead of them use properties `Content` and `Container` properties of the link directly.
+For example, to use custom container just set `Container` to this container and use `Portal.V` inside Lithium context.
 
-Note, that this is not the recommended way to render some element in the different part of the same lithium context.
-Adequate solution may depend on the situation, but it is usually better to use context to pass data,
-including content rendered.
+Note, that use properties of `Portal.Link` directly is only intended for linking outside Lithium ecosystem.
+Please use `Portal.V` and `Portal.Anchor.V` when possible.
 
 ## Summary
 
