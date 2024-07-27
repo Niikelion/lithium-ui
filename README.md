@@ -104,7 +104,7 @@ To see how is can be done take a look at [text implementation](Runtime/Common/Te
 
 ## Contributing
 
-If you feel like some feature is missing or you find any bug, feel free to open a new issue following the community guidelines.
+If you feel like some feature is missing, or you find any bug, feel free to open a new issue following the community guidelines.
 
 ## License
 
