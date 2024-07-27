@@ -1,4 +1,4 @@
-<p align="center"><img src="Assets~/logo.png" alt="lithium-ui-logo" width="256" height="256" /></p>
+<p style="text-align: center"><img src="Assets~/logo.png" alt="lithium-ui-logo" width="256" height="256"/></p>
 
 # Lithium UI - reactive ui framework for Unity Editor
 
