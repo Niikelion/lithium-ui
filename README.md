@@ -84,14 +84,19 @@ V1 roadmap:
 - [x] port of every style available in UI Elements Builder
 - [x] port of most of the components available in UI Elements Builder
 - [x] list component
-- [ ] fully-featured layout debugger with support for viewing state and contexts
+- [X] basic layout debugger with support for viewing state
+
+V2 roadmap:
+
+- [ ] fully featured layout debugger with support for modifying variables and handling contexts
+- [ ] async handling to make working with network resources and files easier
+- [ ] remove/hide OnRender event from `IComponent`
 
 Future releases:
 
 - [ ] optimization of styling system
 - [ ] support for named variables
 - [ ] pooling of `VisualElement` for performance boost
-- [ ] remove/hide OnRender event from `IComponent`
 
 ## UI Elements interoperability
 
