@@ -21,6 +21,7 @@ For simplicity, we will create a custom window.
 This is the minimal example showing how to create the custom window:
 
 ```csharp
+using UI.Li.Editor;
 using static UI.Li.Common.Common;
 
 public class TestWindow: ComposableWindow

@@ -31,7 +31,7 @@ A `component` is any function with return type of `IComponent` or any type imple
 ## Helper functions
 
 Since c# does not allow global functions, Lithium cannot provide functions like `Text` or `WithState` directly.
-Fortunately, it can be achieved by static using statements, so for your convenience, all important helper functions are provided in corresponding static classes.
+Fortunately, it can be achieved by static using statements. For your convenience, all important helper functions are provided in corresponding static classes.
 To include all functions available, paste this into your code:
 ```csharp
 using static UI.Li.Common.Common;
