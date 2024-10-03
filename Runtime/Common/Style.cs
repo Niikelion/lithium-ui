@@ -313,7 +313,7 @@ namespace UI.Li.Common
             }
             catch (NullReferenceException)
             {
-                // setting styles might fail when VisualElement is partially destroyed and we don't have a way to check that
+                // setting styles might fail when VisualElement is partially destroyed, and we don't have a way to check that
             }
         }
 

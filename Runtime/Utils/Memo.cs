@@ -13,7 +13,7 @@ namespace UI.Li.Utils
     /// Right now it can't be done since there is no way of skipping over state without reading or clearing it.
     /// When done, it could be used for optimization, by cutting cascade of object allocations.
     /// </summary>
-    public class MemoWrapper: IComponent
+    [PublicAPI, Obsolete("Not implemented")] public class MemoWrapper: IComponent
     {
         [NotNull] private readonly object[] vars;
         private readonly IComponent innerComponent;
@@ -23,7 +23,12 @@ namespace UI.Li.Utils
             throw new NotImplementedException();
         }
 
-        public event Action<VisualElement> OnRender;
+        event Action<VisualElement> IComponent.OnRender
+        {
+            add { }
+            remove { }
+        }
+
         public VisualElement Render()
         {
             throw new NotImplementedException();

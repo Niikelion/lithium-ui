@@ -44,7 +44,7 @@ namespace UI.Li.Common
         /// <param name="component"></param>
         /// <param name="isStatic"></param>
         /// <returns></returns>
-        [NotNull]
+        [NotNull, Obsolete]
         public static Component Comp([NotNull] Component.OldStatefulComponent component, bool isStatic = false) => new (component, isStatic);
     }
 }

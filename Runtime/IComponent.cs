@@ -11,7 +11,7 @@ namespace UI.Li
     /// <remarks>Component should only store constant creation parameters and temporary state used between recompositions and renders.</remarks>
     [PublicAPI] public interface IComponent: IDisposable
     {
-        event Action<VisualElement> OnRender;
+        internal event Action<VisualElement> OnRender;
 
         /// <summary>
         /// Renders given component. Consecutive returned values should be treated as new versions of the same component.
@@ -23,7 +23,7 @@ namespace UI.Li
         /// <para>Recomposes given component.</para>
         /// <para>
         /// To correctly store any data, including child compositions data call <see cref="CompositionContext.StartFrame"/> at the start of the method and <see cref="CompositionContext.EndFrame"/> at the end.
-        /// Then you can use <see cref="CompositionContext.Use{T}(T)"/>, <see cref="CompositionContext.Remember{T}"/>, <see cref="CompositionContext.RememberF{T}"/> or recompose children, but remember that you can't declare more state variables after first child starts recomposing.
+        /// Then you can use <see cref="ComponentState.Use{T}(T)"/>, <see cref="ComponentState.Remember{T}"/>, <see cref="ComponentState.RememberF{T}"/> or recompose children, but remember that you can't declare more state variables after first child starts recomposing.
         /// </para>
         /// </summary>
         /// <remarks>It is used for every recomposition, including initial component.</remarks>
@@ -33,7 +33,7 @@ namespace UI.Li
         /// <summary>
         /// Checks if both components have same state layout. It may return true if and only if the layout is guaranteed to be the same.
         /// </summary>
-        /// <remarks>Used for override prevention. Note, that it may return false even if layouts are the same, but may never return true when the differ.</remarks>
+        /// <remarks>Used for override prevention. Note, that it may return false even if layouts are the same, but may never return true when they differ.</remarks>
         /// <param name="other">other component to compare against</param>
         /// <returns>true if components are guaranteed to have the same layout</returns>
         public bool StateLayoutEquals(IComponent other);

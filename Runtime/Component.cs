@@ -12,9 +12,14 @@ namespace UI.Li
     {
         public delegate IComponent OldStatefulComponent(ComponentState state);
         public delegate IComponent StatefulComponent();
-        
-        public event Action<VisualElement> OnRender;
-        
+
+        private event Action<VisualElement> OnRender;
+        event Action<VisualElement> IComponent.OnRender
+        {
+            add => OnRender += value;
+            remove => OnRender -= value;
+        }
+
         [NotNull] private readonly StatefulComponent composer;
         private readonly bool isStatic;
         private IComponent innerComponent;
@@ -23,7 +28,7 @@ namespace UI.Li
         /// Creates Component using given function.
         /// </summary>
         /// <param name="composer">composer function used to create component.</param>
-        /// <param name="isStatic">indicates whether or not structure of given component will change over time(some data or parameters can change, just not component structure).</param>
+        /// <param name="isStatic">indicates if structure of given component is supposed to change over time (some data or parameters can change, just not component structure).</param>
         /// <remarks><see cref="isStatic"/>only constraints returned element and not its children. For example, if you declare your component static and on first render you returned <see cref="Common.Text"/>, you must return <see cref="Common.Text"/> every time.</remarks>
         [Obsolete("Use variant with argument-less composer")] public Component([NotNull] OldStatefulComponent composer, bool isStatic = false)
         {
@@ -35,7 +40,7 @@ namespace UI.Li
         /// Creates Component using given function.
         /// </summary>
         /// <param name="composer">composer function used to create component.</param>
-        /// <param name="isStatic">indicates whether or not structure of given component will change over time(some data or parameters can change, just not component structure).</param>
+        /// <param name="isStatic">indicates if structure of given component is supposed to change over time (some data or parameters can change, just not component structure).</param>
         /// <remarks><see cref="isStatic"/>only constraints returned element and not its children. For example, if you declare your component static and on first render you returned <see cref="Common.Text"/>, you must return <see cref="Common.Text"/> every time.</remarks>
         public Component([NotNull] StatefulComponent composer, bool isStatic = false)
         {

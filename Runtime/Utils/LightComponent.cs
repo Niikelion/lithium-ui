@@ -10,8 +10,14 @@ namespace UI.Li.Utils
     /// <remarks>Can be used to easily wrap VisualElements</remarks>
     [PublicAPI] public sealed class LightComponent: IComponent
     {
-        public event Action<VisualElement> OnRender;
-        
+        private event Action<VisualElement> OnRender;
+
+        event Action<VisualElement> IComponent.OnRender
+        {
+            add => OnRender += value;
+            remove => OnRender -= value;
+        }
+
         [NotNull] private readonly Func<VisualElement, VisualElement> renderer;
         private VisualElement previouslyRendered;
 

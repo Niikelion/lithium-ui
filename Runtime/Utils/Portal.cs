@@ -44,7 +44,13 @@ namespace UI.Li.Utils
         [PublicAPI]
         public class Anchor : IComponent
         {
-            public event Action<VisualElement> OnRender;
+            private event Action<VisualElement> OnRender;
+
+            event Action<VisualElement> IComponent.OnRender
+            {
+                add => OnRender += value;
+                remove => OnRender -= value;
+            }
 
             [NotNull] private readonly Link link;
             private readonly VisualElement content = new();
@@ -71,8 +77,14 @@ namespace UI.Li.Utils
 
             public bool StateLayoutEquals(IComponent other) => other is Anchor;
         }
-        
-        public event Action<VisualElement> OnRender;
+
+        private event Action<VisualElement> OnRender;
+
+        event Action<VisualElement> IComponent.OnRender
+        {
+            add => OnRender += value;
+            remove => OnRender -= value;
+        }
 
         [NotNull] private readonly Link link;
         [NotNull] private readonly IComponent content;

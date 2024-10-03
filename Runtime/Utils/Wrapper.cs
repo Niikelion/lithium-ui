@@ -15,7 +15,7 @@ namespace UI.Li.Utils
 
         public virtual void Dispose() => InnerComponent.Dispose();
 
-        public event Action<VisualElement> OnRender
+        event Action<VisualElement> IComponent.OnRender
         {
             add => InnerComponent.OnRender += value;
             remove => InnerComponent.OnRender -= value;

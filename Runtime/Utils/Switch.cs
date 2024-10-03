@@ -14,7 +14,13 @@ namespace UI.Li.Utils
 
         public void Dispose() => content?.Dispose();
 
-        public event Action<VisualElement> OnRender;
+        private event Action<VisualElement> OnRender;
+
+        event Action<VisualElement> IComponent.OnRender
+        {
+            add => OnRender += value;
+            remove => OnRender -= value;
+        }
 
         public VisualElement Render()
         {

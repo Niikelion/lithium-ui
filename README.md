@@ -76,27 +76,36 @@ Ready to learn more? Quick start guide is available [here](Documentation~/bootst
 
 V1 roadmap:
 
-- [X] support for manipulators.
-- [X] remove `Element.Data` object, replace it with style system and `IManipulator` list
-- [X] ui portals
-- [X] remove OnUpdate event from `IComponent`
+- [x] support for manipulators.
+- [x] remove `Element.Data` object, replace it with style system and `IManipulator` list
+- [x] ui portals
+- [x] remove OnUpdate event from `IComponent`
 - [x] styling system
 - [x] port of every style available in UI Elements Builder
 - [x] port of most of the components available in UI Elements Builder
 - [x] list component
-- [X] basic layout debugger with support for viewing state
+- [x] basic layout debugger with support for viewing state
 
 V2 roadmap:
 
+- [ ] implement `useMemo` / `useEffect` equivalent from ReactJS
+- [ ] rework methods for inspecting composition context
 - [ ] fully featured layout debugger with support for modifying variables and handling contexts
 - [ ] async handling to make working with network resources and files easier
-- [ ] remove/hide OnRender event from `IComponent`
+- [x] remove/hide OnRender event from `IComponent`
+- [ ] ensure support for unity tailwind
 
 Future releases:
 
 - [ ] optimization of styling system
 - [ ] support for named variables
 - [ ] pooling of `VisualElement` for performance boost
+- [ ] pooling of components
+- [ ] further caching optimizations
+- [ ] visual ui builder
+- [ ] component for stylesheet loading
+- [ ] style class provider
+- [ ] static style extraction
 
 ## UI Elements interoperability
 

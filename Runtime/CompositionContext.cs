@@ -902,7 +902,6 @@ namespace UI.Li
 
             // we found some more deeply nested data than expected
             if (entry.NestingLevel > currentNestingLevel)
-                // TODO: check if reachable
                 throw new InvalidOperationException(
                     "Id of component and/or layout unexpected change");
             

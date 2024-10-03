@@ -6,7 +6,6 @@ using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEngine.UIElements;
 
-using CU = UI.Li.Utils.CompositionUtils;
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
 using static UI.Li.ComponentState;
@@ -16,12 +15,13 @@ namespace UI.Li.Common.Layout
     /// <summary>
     /// Component simulating <see cref="UnityEngine.UIElements.Foldout"/>.
     /// </summary>
-    [PublicAPI] public static class Foldout
+    [PublicAPI]
+    public static class Foldout
     {
         public delegate IComponent HeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick);
 
         public delegate IComponent ContentContainer([NotNull] IComponent content, bool visible);
-        
+
         /// <summary>
         /// Creates <see cref="Foldout"/> instance.
         /// </summary>
@@ -86,25 +86,26 @@ namespace UI.Li.Common.Layout
             ContentContainer contentContainer = null,
             Func<bool, Action, IComponent> nob = null,
             params IManipulator[] manipulators
-        ) => V(Text(headerText), content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, nob, manipulators);
-        
+        ) => V(Text(headerText), content, initiallyOpen, nobToggleOnly, headerContainer, contentContainer, nob,
+            manipulators);
+
         private static readonly ushort[] nobIndices = { 0, 1, 2 };
 
-        private static readonly StyleFunc defaultNobStyle = CU.Styled(new()
+        private static readonly Style defaultNobStyle = new()
         {
             FlexGrow = 1,
             Margin = 2
-        });
+        };
 
-        private static readonly StyleFunc defaultNobBoxStyle = CU.Styled(new()
+        private static readonly Style defaultNobBoxStyle = new()
         {
             Width = 13
-        });
+        };
 
         [NotNull]
         public static IComponent FoldoutNob(bool open, Action onClick) =>
-            defaultNobBoxStyle(Box(
-                content: defaultNobStyle(Box(manipulators: new Repaintable(
+            Box(
+                content: Box(manipulators: new Repaintable(
                     onRepaint: mgc =>
                     {
                         var color = mgc.visualElement.resolvedStyle.color;
@@ -139,9 +140,9 @@ namespace UI.Li.Common.Layout
                             });
                         }
                     }
-                ), content: null)),
+                ), content: null).WithStyle(defaultNobStyle),
                 onClick?.Let(c => new Clickable(c))
-            ));
+            ).WithStyle(defaultNobBoxStyle);
 
         private static IComponent DefaultHeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick) =>
             Row(
@@ -150,8 +151,8 @@ namespace UI.Li.Common.Layout
             );
 
         private static IComponent DefaultContentContainer([NotNull] IComponent content, bool visible) =>
-            Box(content).WithStyle(new (
-                padding: new (left: 13),
+            Box(content).WithStyle(new(
+                padding: new(left: 13),
                 display: visible ? DisplayStyle.Flex : DisplayStyle.None
             ));
     }

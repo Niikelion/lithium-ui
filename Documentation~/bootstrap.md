@@ -12,7 +12,7 @@ Using lithium we can create:
 * `Editor` by extending `ComposableEditor` instead of `Editor`
 * `Property Drawer` by extending `ComposablePropertyDrawer` instead of `PropertyDrawer`
 
-Regardless of your choice, you need to define `IComponent Layout()` method that will by your layout function.
+Regardless of your choice, you need to define `IComponent Layout()` method that will be your layout function.
 
 For simplicity, we will create a custom window.
 
