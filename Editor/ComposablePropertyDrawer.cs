@@ -4,8 +4,6 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
-using CU = UI.Li.Utils.CompositionUtils;
-
 namespace UI.Li.Editor
 {
     [PublicAPI] public abstract class ComposablePropertyDrawer: PropertyDrawer

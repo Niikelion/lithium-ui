@@ -287,8 +287,8 @@ namespace UI.Li
         public static event Action OnInstanceListChanged;
         private static readonly ConcurrentQueue<Action> syncQueue = new();
 #endif
-        
-        static readonly ProfilerMarker updateProfileMarker = new ("Lithium.CompositionContext.Update");
+
+        private static readonly ProfilerMarker updateProfileMarker = new ("Lithium.CompositionContext.Update");
         
         [NotNull] [PublicAPI] public readonly string Name;
 

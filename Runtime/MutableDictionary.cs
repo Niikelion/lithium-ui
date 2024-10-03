@@ -45,7 +45,7 @@ namespace UI.Li
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             foreach (var item in values)
-                yield return new KeyValuePair<TKey, TValue>(item.Key, item.Value.value);
+                yield return new(item.Key, item.Value.value);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -61,14 +61,8 @@ namespace UI.Li
             values.Clear();
         }
 
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
-            if (!values.ContainsKey(item.Key))
-                return false;
-
-            var pair = values[item.Key];
-            return EqualityComparer<TValue>.Default.Equals(pair.value, item.Value);
-        }
+        public bool Contains(KeyValuePair<TKey, TValue> item) =>
+            values.TryGetValue(item.Key, out var pair) && EqualityComparer<TValue>.Default.Equals(pair.value, item.Value);
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) =>
             values.Select(p => new KeyValuePair<TKey,TValue>(p.Key, p.Value.value)).ToArray().CopyTo(array, arrayIndex);
