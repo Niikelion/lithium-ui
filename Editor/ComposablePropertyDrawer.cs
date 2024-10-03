@@ -12,7 +12,7 @@ namespace UI.Li.Editor
         
         public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var renderer = new ComponentRenderer(Layout(property), DrawerName);
+            var renderer = new ComponentRenderer(Layout(property), DrawerName, HideContext);
 
             renderers.Add(renderer);
             
@@ -26,6 +26,8 @@ namespace UI.Li.Editor
         protected abstract IComponent Layout(SerializedProperty property);
 
         protected virtual string DrawerName => GetType().Name;
+
+        protected virtual bool HideContext => false;
         
         ~ComposablePropertyDrawer()
         {

@@ -18,10 +18,11 @@ namespace UI.Li.Utils
         /// </summary>
         /// <param name="component">component to render</param>
         /// <param name="name">name of context to be displayed in debugger</param>
-        public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed")
+        /// <param name="hidden">if true, context will not be visible on the instance list</param>
+        public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed", bool hidden = false)
         {
             this.component = component;
-            context = new (name);
+            context = new (name, hidden);
         }
 
         /// <summary>

@@ -41,11 +41,11 @@ namespace UI.Li.Editor.Debugging
         
         private class SelectionContext
         {
-            private CompositionContext.CompositionNode currentNode;
-            private Action<CompositionContext.CompositionNode> setNode;
+            private CompositionContext.InspectedNode currentNode;
+            private Action<CompositionContext.InspectedNode> setNode;
             private Action clearOldSelection;
 
-            public void SetNode(CompositionContext.CompositionNode node)
+            public void SetNode(CompositionContext.InspectedNode node)
             {
                 if (node == currentNode)
                     return;
@@ -55,7 +55,7 @@ namespace UI.Li.Editor.Debugging
                 clearOldSelection?.Invoke();
             }
 
-            public void SetOnNodeChanged(Action<CompositionContext.CompositionNode> onNodeChanged) =>
+            public void SetOnNodeChanged(Action<CompositionContext.InspectedNode> onNodeChanged) =>
                 setNode = onNodeChanged;
 
             public void SetOnOldSelectionCleared(Action onOldSelectionCleared) =>
@@ -65,6 +65,7 @@ namespace UI.Li.Editor.Debugging
         [MenuItem("Lithium/Debugger")]
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
         protected override string WindowName => "Component Debugger";
+        protected override bool HideContext => true;
 
         private CompositionContext self;
 
@@ -139,7 +140,7 @@ namespace UI.Li.Editor.Debugging
 
             return Scroll(Let(roots, WithContent, WithoutContent).WithStyle(componentPanelStyle));
 
-            IComponent WithContent(CompositionContext.CompositionNode[] r) =>
+            IComponent WithContent(CompositionContext.InspectedNode[] r) =>
                 Col(r.Select((root, i) => RenderNode(root).Id(i+1)));
             
             IComponent WithoutContent() => Text("No panel selected");
@@ -147,17 +148,39 @@ namespace UI.Li.Editor.Debugging
 
         private static IComponent DetailPanel() => WithState(() =>
         {
-            var node = Remember<CompositionContext.CompositionNode>(null);
+            var node = Remember<CompositionContext.InspectedNode>(null);
 
             var selectionContext = UseContext<SelectionContext>();
             selectionContext.SetOnNodeChanged(newNode => node.Value = newNode);
             
             return Scroll(Let(node.Value, n => Col(n.Values.Select(Value)), () =>  Text("No component selected").WithStyle(new (padding: 4))));
             
-            IComponent Value(IMutableValue value, int i) => Text($"{i}: {value}");
+            IComponent Value(IMutableValue value, int i) => Row(Text($"{i}:"), StateVariable(value));
         });
 
-        private static IComponent RenderNode(CompositionContext.CompositionNode node, int level = 0) => WithState(() =>
+        private static IComponent StateVariable(IMutableValue value) => WithState(() =>
+        {
+            var property = RememberF(() =>
+            {
+                var instance = CreateInstance<GenericProperty>();
+
+                instance.property = value;
+                
+                var serializedObject = new SerializedObject(instance);
+
+                return serializedObject.FindProperty("property");
+            });
+            
+            ComponentState.OnDestroy(() =>
+            {
+                //TODO: check if on main thread
+                //DestroyImmediate(property.Value.serializedObject.targetObject);
+            });
+            
+            return PropertyField.V(property.Value);
+        });
+
+        private static IComponent RenderNode(CompositionContext.InspectedNode node, int level = 0) => WithState(() =>
         {
             var selected = Remember(false);
             var selectionContext = UseContext<SelectionContext>();
@@ -223,5 +246,10 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
         private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
         private static readonly Style textStyle = new(color: Color.white);
+    }
+
+    [PublicAPI] public class GenericProperty : ScriptableObject
+    {
+        [SerializeReference] public object property;
     }
 }

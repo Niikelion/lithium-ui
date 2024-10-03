@@ -11,7 +11,7 @@ namespace UI.Li.Editor
         public sealed override VisualElement CreateInspectorGUI()
         {
             renderer?.Dispose();
-            renderer = new (Layout(), EditorName);
+            renderer = new (Layout(), EditorName, HideContext);
 
             return renderer.UpdateAndRender();
         }
@@ -19,6 +19,7 @@ namespace UI.Li.Editor
         protected virtual void OnDestroy() => renderer?.Dispose();
 
         protected virtual string EditorName => GetType().Name;
+        protected virtual bool HideContext => false;
         
         protected abstract IComponent Layout();
     }

@@ -6,15 +6,12 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using Unity.Profiling;
-
-#if UNITY_EDITOR // for reference listing
 using System.Collections.ObjectModel;
-#endif
+using Unity.Profiling;
 
 namespace UI.Li
 {
-    public class CompositionContext: IDisposable
+    [PublicAPI] public class CompositionContext: IDisposable
     {
         /// <summary>
         /// Convenient update batch scope guard. <seealso cref="CompositionContext.BatchOperations"/>
@@ -37,7 +34,7 @@ namespace UI.Li
         [PublicAPI] public enum RecompositionStrategy
         {
             /// <summary>
-            /// Override every non matching or unnamed entry.
+            /// Override every non-matching or unnamed entry.
             /// </summary>
             Override,
             /// <summary>
@@ -242,51 +239,30 @@ namespace UI.Li
                 disposeCallback?.Invoke();
             }
         }
-
-#if UNITY_EDITOR // for reference listing
-        public class CompositionNode
+        
+        [PublicAPI] public class InspectedNode
         {
-            [PublicAPI] public readonly string Name;
-            [PublicAPI] public readonly IComponent Component;
-            [PublicAPI] public readonly int Id;
-            [PublicAPI] public readonly ReadOnlyCollection<IMutableValue> Values;
-            [PublicAPI] public readonly ReadOnlyCollection<CompositionNode> Children;
+            public readonly string Name;
+            public readonly IComponent Component;
+            public readonly VisualElement RenderedElement;
+            public readonly int Id;
+            public readonly ReadOnlyCollection<IMutableValue> Values;
+            public readonly ReadOnlyCollection<InspectedNode> Children;
 
-            public CompositionNode(string name, IComponent component, int id, List<IMutableValue> values, List<CompositionNode> children)
+            public InspectedNode(string name, IComponent component, VisualElement renderedElement, int id, List<IMutableValue> values, List<InspectedNode> children)
             {
                 Name = name;
                 Component = component;
+                RenderedElement = renderedElement;
                 Id = id;
                 Values = values.AsReadOnly();
                 Children = children.AsReadOnly();
             }
         }
         
-        private class TmpNode
-        {
-            private readonly string name;
-            private readonly IComponent component;
-            private readonly int id;
-            private readonly List<IMutableValue> values = new();
-            private readonly List<TmpNode> children = new ();
-
-            public TmpNode(string name, IComponent component, int id)
-            {
-                this.name = name;
-                this.component = component;
-                this.id = id;
-            }
-
-            public void AddValue(IMutableValue value) => values.Add(value);
-            public void AddChild(TmpNode child) => children.Add(child);
-
-            public CompositionNode GetNode() => new CompositionNode(name, component, id, values, children.Select(n => n.GetNode()).ToList());
-        }
-        
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
         public static event Action OnInstanceListChanged;
         private static readonly ConcurrentQueue<Action> syncQueue = new();
-#endif
 
         private static readonly ProfilerMarker updateProfileMarker = new ("Lithium.CompositionContext.Update");
         
@@ -310,7 +286,6 @@ namespace UI.Li
         private bool nextEntryPreventOverride;
         private IComponent nextEntryOrigin;
 
-#if UNITY_EDITOR // for reference listing
         static CompositionContext()
         {
             UnityEditor.EditorApplication.update += () =>
@@ -319,28 +294,26 @@ namespace UI.Li
                     action();
             };
         }
-#endif
         
         ~CompositionContext() => Dispose();
 
-        public CompositionContext(string name = "Unnamed")
+        public CompositionContext(string name = "Unnamed", bool hidden = false)
         {
             Name = name;
-#if UNITY_EDITOR // for reference listing
-            RegisterInstance(this);
-#endif
+            if (!hidden)
+                RegisterInstance(this);
         }
 
         /// <summary>
         /// Enters update batching scope. <seealso cref="BatchOperations"/>
         /// </summary>
-        [PublicAPI] public void EnterBatchScope() => ++batchScopeLevel;
+        public void EnterBatchScope() => ++batchScopeLevel;
 
         /// <summary>
         /// Leaves update batching scope. <seealso cref="BatchOperations"/>
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when there is no scope to leave.</exception>
-        [PublicAPI] public void LeaveBatchScope()
+        public void LeaveBatchScope()
         {
             if (batchScopeLevel == 0)
                 throw new InvalidOperationException("No batch scope to leave");
@@ -361,30 +334,28 @@ namespace UI.Li
         /// </code>
         /// </example>
         /// <returns>Batch scope guard</returns>
-        [PublicAPI] public BatchScope BatchOperations() => new (this);
+        public BatchScope BatchOperations() => new (this);
         
         /// <summary>
         /// Sets component entry id for next recomposition. 
         /// </summary>
         /// <remarks>Difficult to use outside custom component implementation. To give id to component use <see cref="Li.Utils.Utils.Id"/></remarks>
-        /// <param name="entryId">Id for next component</param>
-        [PublicAPI] public void SetNextEntryId(int entryId = 0) => nextEntryId = entryId;
+        /// <param name="entryId">ID for next component</param>
+        public void SetNextEntryId(int entryId = 0) => nextEntryId = entryId;
 
-        [PublicAPI]
         public void SetNextEntryOrigin(IComponent origin) => nextEntryOrigin ??= origin;
         
         /// <summary>
-        /// Forces preferring updates over overrides in the next recomposition. 
+        /// Forces preferring updates to overrides in the next recomposition. 
         /// </summary>
         /// <remarks>Difficult to use outside custom component implementation.</remarks>
-        [PublicAPI] public void PreventNextEntryOverride() => nextEntryPreventOverride = true;
+        public void PreventNextEntryOverride() => nextEntryPreventOverride = true;
         
         /// <summary>
         /// Starts composing given component.
         /// </summary>
         /// <remarks>Should be called at the beginning of <see cref="IComponent.Recompose"/> in custom component implementation.</remarks>
         /// <returns>Previously rendered element for given component.</returns>
-        [PublicAPI]
         public VisualElement StartFrame([NotNull] IComponent component, RecompositionStrategy strategy = RecompositionStrategy.Override)
         {
             SetNextEntryOrigin(component);
@@ -488,7 +459,6 @@ namespace UI.Li
         /// Ends composing current component.
         /// </summary>
         /// <remarks>Should be called at the end of <see cref="IComponent.Recompose"/> in custom component implementation.</remarks>
-        [PublicAPI]
         public void EndFrame()
         {
             if (entryStack.Count == 0)
@@ -509,7 +479,6 @@ namespace UI.Li
         /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        [PublicAPI]
         public T Use<T>(T value) where T: class, IMutableValue => Use(() => value);
 
         /// <summary>
@@ -520,7 +489,6 @@ namespace UI.Li
         /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        [PublicAPI]
         [NotNull]
         public T Use<T>([NotNull] FactoryDelegate<T> factory) where T : class, IMutableValue
         {
@@ -554,7 +522,6 @@ namespace UI.Li
             return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
         }
 
-        [PublicAPI]
         public void ProvideContext<T>(T context)
         {
             if (!entryStack.TryPeek(out var currentEntry))
@@ -563,7 +530,6 @@ namespace UI.Li
             currentEntry.PushContext(contexts, context);
         }
 
-        [PublicAPI]
         public T UseContext<T>()
         {
             var type = typeof(T);
@@ -580,7 +546,6 @@ namespace UI.Li
             return ctx;
         }
 
-        [PublicAPI]
         public void OnInit(Func<Action> onInit)
         {
             if (!isFirstRender)
@@ -592,20 +557,17 @@ namespace UI.Li
             InsertAtPointer(new Frame(onInit));
         }
 
-        [PublicAPI]
         public void OnInit(Action onInit) => OnInit(() =>
         {
             onInit();
             return null;
         });
 
-        [PublicAPI]
         public void OnDestroy(Action onDestroy) => OnInit(() => onDestroy);
 
         /// <summary>
         /// Updates all outdated compositions and re-renders them.
         /// </summary>
-        [PublicAPI]
         public void Update()
         {
             updateProfileMarker.Begin();
@@ -663,17 +625,14 @@ namespace UI.Li
 
             OnUpdate = null;
             
-#if UNITY_EDITOR // for reference listing
             UnregisterInstance(this);
-#endif
         }
         
-#if UNITY_EDITOR // for reference listing
-        public IEnumerable<CompositionNode> InspectHierarchy()
+        public IEnumerable<InspectedNode> InspectHierarchy()
         {
-            var ret = new List<CompositionNode>();
+            var ret = new List<InspectedNode>();
 
-            var nodeStack = new Stack<TmpNode>();
+            var nodeStack = new Stack<TemporaryInspectionNode>();
             var localEntryStack = new Stack<Frame.FrameEntry>();
             
             for (int i = 0; i < frames.Count; ++i)
@@ -699,7 +658,7 @@ namespace UI.Li
                             }
 
                             localEntryStack.Push(entry);
-                            nodeStack.Push(new TmpNode(entry.Component.ToString(), entry.Component, entry.Id));
+                            nodeStack.Push(new (entry.Component.ToString(), entry.Component, entry.PreviouslyRendered, entry.Id));
                             
                             break;
                         }
@@ -729,48 +688,6 @@ namespace UI.Li
             }
             
             return ret;
-        }
-        
-        private static void RegisterInstance(CompositionContext ctx)
-        {
-            instances.Add(new(ctx));
-            OnInstanceListChanged?.Invoke();
-        }
-        
-        private static void UnregisterInstance(CompositionContext ctx)
-        {
-            bool modified = false;
-            
-            instances.RemoveWhere(r =>
-            {
-                bool ret = !r.TryGetTarget(out var instance) || instance == ctx;
-
-                if (ret)
-                    modified = true;
-                
-                return ret;
-            });
-            if (modified)
-                syncQueue.Enqueue(() => OnInstanceListChanged?.Invoke());
-        }
-#endif
-
-        private static void SwapVisualElements(VisualElement oldElement, [NotNull] VisualElement newElement)
-        {
-            if (oldElement == null)
-                return;
-            
-            if (oldElement == newElement)
-                return;
-
-            var parent = oldElement.parent;
-            
-            if (parent == null)
-                return;
-
-            int index = parent.IndexOf(oldElement);
-            parent.RemoveAt(index);
-            parent.Insert(index, newElement);
         }
 
         private void PushFrameEntry(Frame.FrameEntry entry)
@@ -941,5 +858,69 @@ namespace UI.Li
             nextEntryOrigin = null;
             return ret;
         }
+        
+        private static void RegisterInstance(CompositionContext ctx)
+        {
+            instances.Add(new(ctx));
+            OnInstanceListChanged?.Invoke();
+        }
+        
+        private static void UnregisterInstance(CompositionContext ctx)
+        {
+            bool modified = false;
+            
+            instances.RemoveWhere(r =>
+            {
+                bool ret = !r.TryGetTarget(out var instance) || instance == ctx;
+
+                if (ret)
+                    modified = true;
+                
+                return ret;
+            });
+            if (modified)
+                syncQueue.Enqueue(() => OnInstanceListChanged?.Invoke());
+        }
+
+        private static void SwapVisualElements(VisualElement oldElement, [NotNull] VisualElement newElement)
+        {
+            if (oldElement == null)
+                return;
+            
+            if (oldElement == newElement)
+                return;
+
+            var parent = oldElement.parent;
+            
+            if (parent == null)
+                return;
+
+            int index = parent.IndexOf(oldElement);
+            parent.RemoveAt(index);
+            parent.Insert(index, newElement);
+        }
     }
+}
+
+internal class TemporaryInspectionNode
+{
+    private readonly string name;
+    private readonly UI.Li.IComponent component;
+    private readonly VisualElement renderedElement;
+    private readonly int id;
+    private readonly List<UI.Li.IMutableValue> values = new();
+    private readonly List<TemporaryInspectionNode> children = new ();
+
+    public TemporaryInspectionNode(string name, UI.Li.IComponent component, VisualElement renderedElement, int id)
+    {
+        this.name = name;
+        this.component = component;
+        this.renderedElement = renderedElement;
+        this.id = id;
+    }
+
+    public void AddValue(UI.Li.IMutableValue value) => values.Add(value);
+    public void AddChild(TemporaryInspectionNode child) => children.Add(child);
+
+    public UI.Li.CompositionContext.InspectedNode GetNode() => new (name, component, renderedElement, id, values, children.Select(n => n.GetNode()).ToList());
 }

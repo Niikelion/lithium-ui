@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace UI.Li
 {
@@ -18,7 +20,7 @@ namespace UI.Li
     /// Simple implementation that notifies observers every time <see cref="Value"/> is reassigned.
     /// </summary>
     /// <typeparam name="T">type of stored value</typeparam>
-    [PublicAPI] public class MutableValue<T>: IMutableValue
+    [PublicAPI, Serializable] public class MutableValue<T>: IMutableValue
     {
         public event Action OnValueChanged;
 
@@ -36,7 +38,7 @@ namespace UI.Li
             }
         }
         
-        private T value;
+        [SerializeField] private T value;
 
         /// <summary>
         /// Constructs <see cref="MutableValue{T}"/> using given <see cref="value"/>.
@@ -49,7 +51,12 @@ namespace UI.Li
         
         public static implicit operator T(MutableValue<T> v) => v.Value;
         
-        public void Dispose() => OnValueChanged = null;
+        public void Dispose()
+        {
+            OnValueChanged = null;
+            if (value is IDisposable disposable)
+                disposable.Dispose();
+        }
 
         public override string ToString() => value?.ToString();
     }

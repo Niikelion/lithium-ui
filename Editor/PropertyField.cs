@@ -25,6 +25,7 @@ namespace UI.Li.Editor
             var elem = base.PrepareElement(target) as UnityEditor.UIElements.PropertyField;
 
             elem.BindProperty(property);
+            elem.label = "";
             
             Debug.Assert(elem != null);
             

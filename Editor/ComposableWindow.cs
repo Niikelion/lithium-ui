@@ -14,7 +14,7 @@ namespace UI.Li.Editor
         
         public void CreateGUI()
         {
-            titleContent = new GUIContent(WindowName);
+            titleContent = new(WindowName);
             
             var content = GetRenderer().UpdateAndRender();
             
@@ -30,7 +30,9 @@ namespace UI.Li.Editor
         protected virtual void OnDestroy() => renderer?.Dispose();
 
         protected virtual string WindowName => GetType().Name;
+
+        protected virtual bool HideContext => false;
         
-        private ComponentRenderer GetRenderer() => renderer ??= new ComponentRenderer(Layout(), WindowName);
+        private ComponentRenderer GetRenderer() => renderer ??= new (Layout(), WindowName, HideContext);
     }
 }
