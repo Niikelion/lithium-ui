@@ -3,31 +3,26 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UI.Li.Common;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Editor
 {
-    [PublicAPI] public class PropertyField: Element
+    [PublicAPI] public class PropertyField: Element<UnityEditor.UIElements.PropertyField>
     {
         private readonly SerializedProperty property;
         private readonly Action<object> onValueChanged;
+        private readonly string label;
 
         [NotNull]
-        public static PropertyField V([NotNull] SerializedProperty property, Action<object> onValueChanged = null, params IManipulator[] manipulators) =>
-            new(property, onValueChanged, manipulators);
+        public static PropertyField V([NotNull] SerializedProperty property, Action<object> onValueChanged = null, string label = null, params IManipulator[] manipulators) =>
+            new(property, onValueChanged, label, manipulators);
 
-        protected override VisualElement GetElement(VisualElement source) =>
-            new UnityEditor.UIElements.PropertyField();
-
-        protected override VisualElement PrepareElement(VisualElement target)
+        protected override UnityEditor.UIElements.PropertyField PrepareElement(UnityEditor.UIElements.PropertyField target)
         {
-            var elem = base.PrepareElement(target) as UnityEditor.UIElements.PropertyField;
-
-            elem.BindProperty(property);
-            elem.label = "";
+            var elem = base.PrepareElement(target);
             
-            Debug.Assert(elem != null);
+            elem.label = label;
+            elem.BindProperty(property);
             
             if (onValueChanged != null)
                 elem.RegisterValueChangeCallback(OnValueChanged);
@@ -35,10 +30,11 @@ namespace UI.Li.Editor
             return elem;
         }
 
-        protected PropertyField(SerializedProperty property, Action<object> onValueChanged, IManipulator[] manipulators): base(manipulators)
+        protected PropertyField(SerializedProperty property, Action<object> onValueChanged, string label, IManipulator[] manipulators): base(manipulators)
         {
             this.property = property;
             this.onValueChanged = onValueChanged;
+            this.label = label;
         }
 
         private void OnValueChanged(SerializedPropertyChangeEvent evt)

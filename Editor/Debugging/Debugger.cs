@@ -15,6 +15,7 @@ using static UI.Li.Common.Common;
 using static UI.Li.Fields.Fields;
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.ComponentState;
+using static UI.Li.Editor.Fields;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -118,7 +119,7 @@ namespace UI.Li.Editor.Debugging
             var toolbar = Row(
                 Dropdown(
                     initialValue: instances.Value.IndexOf(selectedContext.Value) + 1,
-                    options: instances.Value.Select(instance => instance.Name).Prepend("None").ToList(),
+                    options: instances.Value.Select((instance, i) => $"{i}: {instance.Name}").Prepend("None").ToList(),
                     onSelectionChanged: i => selectedContext.Value = i == 0 ? null : instances.Value[i - 1]
                 ).WithStyle(toolbarDropdownStyle)
             ).WithStyle(centerItemsStyle);
@@ -153,8 +154,15 @@ namespace UI.Li.Editor.Debugging
             var selectionContext = UseContext<SelectionContext>();
             selectionContext.SetOnNodeChanged(newNode => node.Value = newNode);
             
-            return Scroll(Let(node.Value, n => Col(n.Values.Select(Value)), () =>  Text("No component selected").WithStyle(new (padding: 4))));
-            
+            return Scroll(Let(node.Value, FullPanel, EmptyPanel));
+
+            IComponent EmptyPanel() => Text("No component selected").WithStyle(new(padding: 4));
+
+            IComponent FullPanel([NotNull] CompositionContext.InspectedNode n) => 
+                Col(
+                    Button(content: "Recompose", onClick: n.Recompose),
+                    Col(n.Values.Select(Value))
+                );
             IComponent Value(IMutableValue value, int i) => Row(Text($"{i}:"), StateVariable(value));
         });
 
@@ -177,7 +185,7 @@ namespace UI.Li.Editor.Debugging
                 //DestroyImmediate(property.Value.serializedObject.targetObject);
             });
             
-            return PropertyField.V(property.Value);
+            return Property(property.Value);
         });
 
         private static IComponent RenderNode(CompositionContext.InspectedNode node, int level = 0) => WithState(() =>

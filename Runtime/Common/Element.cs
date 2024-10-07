@@ -107,7 +107,7 @@ namespace UI.Li.Common
         }
 
         /// <summary>
-        /// Returns given element if it instance of given type, or new instance otherwise.
+        /// Returns given element if it is an instance of the given type, or new instance otherwise.
         /// </summary>
         /// <param name="source">some element, can be null</param>
         /// <param name="clear">if true, clears all children if element is reused</param>

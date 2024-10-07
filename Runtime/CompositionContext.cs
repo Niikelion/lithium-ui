@@ -116,7 +116,7 @@ namespace UI.Li
 
         [NotNull] public delegate T FactoryDelegate<out T>();
 
-        private readonly struct Frame: IDisposable
+        internal readonly struct Frame: IDisposable
         {
             public class FrameEntry: IDisposable
             {
@@ -242,22 +242,46 @@ namespace UI.Li
         
         [PublicAPI] public class InspectedNode
         {
-            public readonly string Name;
-            public readonly IComponent Component;
-            public readonly VisualElement RenderedElement;
-            public readonly int Id;
             public readonly ReadOnlyCollection<IMutableValue> Values;
             public readonly ReadOnlyCollection<InspectedNode> Children;
 
-            public InspectedNode(string name, IComponent component, VisualElement renderedElement, int id, List<IMutableValue> values, List<InspectedNode> children)
+            public string Name => entry.Component.ToString();
+            public IComponent Component => entry.Component;
+            public int Id => entry.Id;
+            public VisualElement RenderedElement => entry.PreviouslyRendered;
+            
+            private readonly Frame.FrameEntry entry;
+            private readonly WeakReference<CompositionContext> ctx;
+
+            public void Recompose()
             {
-                Name = name;
-                Component = component;
-                RenderedElement = renderedElement;
-                Id = id;
+                if (!ctx.TryGetTarget(out var context))
+                    return;
+                entry.Dirty = true;
+                context.MakeDirty();
+            }
+            
+            internal InspectedNode(Frame.FrameEntry entry, CompositionContext ctx, List<IMutableValue> values, List<InspectedNode> children)
+            {
+                this.entry = entry;
+                this.ctx = new (ctx);
                 Values = values.AsReadOnly();
                 Children = children.AsReadOnly();
             }
+        }
+        
+        private class TemporaryInspectionNode
+        {
+            private readonly Frame.FrameEntry entry;
+            private readonly List<IMutableValue> values = new();
+            private readonly List<TemporaryInspectionNode> children = new();
+
+            public TemporaryInspectionNode(Frame.FrameEntry entry) => this.entry = entry;
+
+            public void AddValue(IMutableValue value) => values.Add(value);
+            public void AddChild(TemporaryInspectionNode child) => children.Add(child);
+
+            public InspectedNode GetNode(CompositionContext ctx) => new (entry, ctx, values, children.Select(n => n.GetNode(ctx)).ToList());
         }
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
@@ -479,7 +503,8 @@ namespace UI.Li
         /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
         /// <returns>Returns current state of the value</returns>
         /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        public T Use<T>(T value) where T: class, IMutableValue => Use(() => value);
+        [NotNull]
+        public T Use<T>([NotNull] T value) where T: class, IMutableValue => Use(() => value);
 
         /// <summary>
         /// Adds given state value to current component state.
@@ -501,7 +526,7 @@ namespace UI.Li
             {
                 var value = factory();
                 
-                InsertAtPointer(new Frame(value));
+                InsertAtPointer(new (value));
                 value.OnValueChanged += () =>
                 {
                     currentEntry.Dirty = true;
@@ -654,11 +679,11 @@ namespace UI.Li
                                 if (nodeStack.TryPeek(out var parentNode))
                                     parentNode.AddChild(lastNode);
                                 else
-                                    ret.Add(lastNode.GetNode());
+                                    ret.Add(lastNode.GetNode(this));
                             }
 
                             localEntryStack.Push(entry);
-                            nodeStack.Push(new (entry.Component.ToString(), entry.Component, entry.PreviouslyRendered, entry.Id));
+                            nodeStack.Push(new (entry));
                             
                             break;
                         }
@@ -684,7 +709,7 @@ namespace UI.Li
                 if (nodeStack.TryPeek(out var parentNode))
                     parentNode.AddChild(lastNode);
                 else
-                    ret.Add(lastNode.GetNode());
+                    ret.Add(lastNode.GetNode(this));
             }
             
             return ret;
@@ -900,27 +925,4 @@ namespace UI.Li
             parent.Insert(index, newElement);
         }
     }
-}
-
-internal class TemporaryInspectionNode
-{
-    private readonly string name;
-    private readonly UI.Li.IComponent component;
-    private readonly VisualElement renderedElement;
-    private readonly int id;
-    private readonly List<UI.Li.IMutableValue> values = new();
-    private readonly List<TemporaryInspectionNode> children = new ();
-
-    public TemporaryInspectionNode(string name, UI.Li.IComponent component, VisualElement renderedElement, int id)
-    {
-        this.name = name;
-        this.component = component;
-        this.renderedElement = renderedElement;
-        this.id = id;
-    }
-
-    public void AddValue(UI.Li.IMutableValue value) => values.Add(value);
-    public void AddChild(TemporaryInspectionNode child) => children.Add(child);
-
-    public UI.Li.CompositionContext.InspectedNode GetNode() => new (name, component, renderedElement, id, values, children.Select(n => n.GetNode()).ToList());
 }

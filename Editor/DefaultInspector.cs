@@ -14,10 +14,13 @@ namespace UI.Li.Editor
         public static DefaultInspector V([NotNull] UnityEditor.Editor editor, params IManipulator[] manipulators) =>
             new (editor, manipulators);
 
-        protected override VisualElement GetElement(VisualElement source)
+        protected override VisualElement GetElement(VisualElement source) =>
+            Use<VisualElement>(source);
+
+        protected override VisualElement PrepareElement(VisualElement target)
         {
-            var element = new VisualElement();
-            
+            var element = base.PrepareElement(target);
+
             InspectorElement.FillDefaultInspector(element, editor.serializedObject, editor);
             
             return element;
