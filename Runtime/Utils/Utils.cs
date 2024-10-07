@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -57,7 +59,7 @@ namespace UI.Li.Utils
         /// <summary>
         /// Returns given composition with set id.
         /// </summary>
-        /// <remarks>Id cannot be overriden later.</remarks>
+        /// <remarks>id cannot be overriden later.</remarks>
         /// <param name="id">id</param>
         /// <param name="component">component to add id to</param>
         /// <returns></returns>
@@ -67,11 +69,20 @@ namespace UI.Li.Utils
         /// <summary>
         /// Sets id for element.
         /// </summary>
-        /// <remarks>Id cannot be overriden later.</remarks>
+        /// <remarks>id cannot be overriden later.</remarks>
         /// <param name="obj">target component</param>
         /// <param name="id">id</param>
         /// <returns></returns>
         [NotNull]
         public static IdWrapper Id([NotNull] this IComponent obj, int id) => WithId(id, obj);
+        
+        public static IEnumerable<IComponent> Seq(int startId = 1, params IComponent[] content) =>
+            content.Select((c, i) => c.Id(i + startId));
+
+        public static IEnumerable<IComponent> Seq(params IComponent[] content) =>
+            Seq(1, content);
+        
+        public static IEnumerable<IComponent> Seq(IEnumerable<IComponent> content, int startId = 1) =>
+            Seq(startId, content.ToArray());
     }
 }

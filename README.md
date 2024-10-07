@@ -89,11 +89,12 @@ V1 roadmap:
 V2 roadmap:
 
 - [ ] implement `useMemo` / `useEffect` equivalent from ReactJS
-- [ ] rework methods for inspecting composition context
+- [x] rework methods for inspecting composition context
 - [ ] fully featured layout debugger with support for modifying variables and handling contexts
 - [ ] async handling to make working with network resources and files easier
 - [x] remove/hide OnRender event from `IComponent`
-- [ ] ensure support for unity tailwind
+- [x] ensure support for unity tailwind
+- [x] component for stylesheet loading
 
 Future releases:
 
@@ -103,8 +104,6 @@ Future releases:
 - [ ] pooling of components
 - [ ] further caching optimizations
 - [ ] visual ui builder
-- [ ] component for stylesheet loading
-- [ ] style class provider
 - [ ] static style extraction
 
 ## UI Elements interoperability

@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-using JetBrains.Annotations;
-using UnityEditor;
+﻿using UnityEditor;
 
-using static UI.Li.ComponentState;
+using static UI.Li.Editor.Fields;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -11,6 +9,6 @@ namespace UI.Li.Editor.Debugging
     {
         protected override bool HideContext => true;
         protected override IComponent Layout(SerializedProperty property) =>
-            PropertyField.V(property.FindPropertyRelative("value"));
+            Property(property.FindPropertyRelative("value"), label: "");
     }
 }
