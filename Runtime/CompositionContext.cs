@@ -120,6 +120,8 @@ namespace UI.Li
         {
             public class FrameEntry: IDisposable
             {
+                public ReadOnlyDictionary<Type, object> LocalContexts => new(addedContexts);
+                
                 public readonly int Id;
                 public readonly int NestingLevel;
                 [NotNull] public IComponent Component;
@@ -128,7 +130,7 @@ namespace UI.Li
                 public VisualElement PreviouslyRendered;
                 private Dictionary<Type, object> overriddenContexts;
                 private Dictionary<Type, object> addedContexts;
-
+                
                 public FrameEntry(int id, int nestingLevel, [NotNull] IComponent component)
                 {
                     Id = id;
@@ -249,6 +251,7 @@ namespace UI.Li
             public IComponent Component => entry.Component;
             public int Id => entry.Id;
             public VisualElement RenderedElement => entry.PreviouslyRendered;
+            public ReadOnlyDictionary<Type, object> Contexts => entry.LocalContexts;
             
             private readonly Frame.FrameEntry entry;
             private readonly WeakReference<CompositionContext> ctx;
@@ -296,7 +299,7 @@ namespace UI.Li
         
         private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
 
-        private readonly GapBuffer<Frame> frames = new ();
+        private readonly GapBuffer<Frame> frames = new();
         private int framePointer;
         private bool isFirstRender;
 
@@ -559,14 +562,14 @@ namespace UI.Li
         {
             var type = typeof(T);
 
-            if (!contexts.TryGetValue(type, out object context))
+            if (!contexts.TryGetValue(type, out var context))
             {
                 Debug.LogError($"Missing context {type.FullName}");
                 return default;
             }
 
             if (context is not T ctx)
-                throw new Exception("Internal error: context type mismatch");
+                throw new("Internal error: context type mismatch");
 
             return ctx;
         }

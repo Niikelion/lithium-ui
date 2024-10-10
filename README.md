@@ -14,7 +14,7 @@ There are a couple of reasons why you should give Lithium a try in your next pro
 
 * is more readable than ImGui,
 * provides easy way to define your editor ui from code alongside its functionality,
-* eliminates the need of querying elements in hierarchy which helps to detect structure errors on compile-time,
+* eliminates the need for querying elements in hierarchy which helps to detect structure errors on compile-time,
 * allows you to reduce data explicitly passed to elements and remove singletons thanks to context system,
 * considerably reduces amount of code needed to implement given ui compared to UI Elements
 * simplifies ui logic by defining ui structure based on current state rather than defining initial state and update logic.
@@ -23,7 +23,7 @@ There are a couple of reasons why you should give Lithium a try in your next pro
 
 That being said, Lithium does not work in every scenario.
 Because layouts are defined from code it is not very ui-designer-friendly.
-This makes it not the best choice for in-game interfaces.
+This makes it not the best choice for in-game interfaces for now.
 
 ## Examples
 
@@ -34,6 +34,7 @@ using UI.Li;
 using UI.Li.Editor;
 using UnityEditor;
 using UnityEngine;
+
 using static UI.Li.Common.Common;
 
 public class HelloWindow: ComposableWindow
@@ -54,15 +55,17 @@ using UI.Li;
 using UI.Li.Editor;
 using UnityEditor;
 using UnityEngine;
+
 using static UI.Li.Common.Common;
 using static UI.Li.Common.Layout.Layout;
+using static UI.Li.Editor.Fields;
 
 // Assuming we have MonoBehaviour "TestBehaviour"
 [CustomEditor(typeof(TestBehaviour))]
 public class TestBehaviourEditor: ComposableEditor
 {
     protected override IComponent Layout() => Col(
-        DefaultInspector.V(this),
+        Inspector(this),
         Button(content: "Tick", onClick: () => Debug.Log("Tack"))
     );
 }
@@ -100,7 +103,7 @@ Future releases:
 
 - [ ] optimization of styling system
 - [ ] support for named variables
-- [ ] pooling of `VisualElement` for performance boost
+- [ ] pooling of `VisualElement`
 - [ ] pooling of components
 - [ ] further caching optimizations
 - [ ] visual ui builder
@@ -114,6 +117,12 @@ Lithium is built on top of UI Elements, which allows for almost seamless interop
 
 Using `VisualElements`s inside Lithium on the other hand requires a bit more work. You need to implement custom `IComponent` or extend `Element`.
 To see how is can be done take a look at [text implementation](Runtime/Common/Text.cs).
+
+## Motivation
+
+Lithium is heavily inspired by the web framework named ReactJS.
+It borrows the idea of ui component as a function of state and parameters that returns the ui.
+Since we have html-like ui system in the Unity, we can imitate web frameworks to get similar benefits.
 
 ## Contributing
 

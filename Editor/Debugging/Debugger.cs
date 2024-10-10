@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using UI.Li.Common;
 using UI.Li.Utils;
@@ -21,25 +22,6 @@ namespace UI.Li.Editor.Debugging
 {
     public class DebuggerWindow: ComposableWindow
     {
-        private class ContextExtractor : Wrapper
-        {
-            [NotNull] private readonly Action<CompositionContext> onContextChanged;
-            private CompositionContext currentContext;
-
-            public ContextExtractor(IComponent innerComponent, [NotNull] Action<CompositionContext> onContextChanged) :
-                base(innerComponent) => this.onContextChanged = onContextChanged;
-
-            protected override void BeforeInnerRecompose(CompositionContext context)
-            {
-                base.BeforeInnerRecompose(context);
-                if (context == currentContext)
-                    return;
-
-                currentContext = context;
-                onContextChanged(context);
-            }
-        }
-        
         private class SelectionContext
         {
             private CompositionContext.InspectedNode currentNode;
@@ -67,12 +49,15 @@ namespace UI.Li.Editor.Debugging
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
         protected override string WindowName => "Component Debugger";
         protected override bool HideContext => true;
+        private static Thread mainThread;
 
-        private CompositionContext self;
+        protected override IComponent Layout()
+        {
+            mainThread = Thread.CurrentThread;
+            return Root();
+        }
 
-        protected override IComponent Layout() => new ContextExtractor(Root(), context => self = context);
-
-        private IComponent Root() => WithState(() =>
+        private static IComponent Root() => WithState(() =>
         {
             var selectedContext = Remember<CompositionContext>(null);
             var updater = RememberRef(true);
@@ -154,19 +139,38 @@ namespace UI.Li.Editor.Debugging
             var selectionContext = UseContext<SelectionContext>();
             selectionContext.SetOnNodeChanged(newNode => node.Value = newNode);
             
-            return Scroll(Let(node.Value, FullPanel, EmptyPanel));
+            return Let(node.Value, FullPanel, EmptyPanel);
 
             IComponent EmptyPanel() => Text("No component selected").WithStyle(new(padding: 4));
 
-            IComponent FullPanel([NotNull] CompositionContext.InspectedNode n) => 
-                Col(
+            IComponent FullPanel([NotNull] CompositionContext.InspectedNode n)
+            {
+                var values = n.Values;
+                var contexts = n.Contexts;
+                
+                return Col(
                     Button(content: "Recompose", onClick: n.Recompose),
-                    Col(n.Values.Select(Value))
+                    Scroll(Col(
+                            If(values.Count > 0, () => Col(
+                                Text("State:"),
+                                Col(values.Select(Value)).WithStyle(leftPad)
+                            )),
+                            If(contexts.Count > 0, () => Col(
+                                Text("Contexts:"),
+                                Col(contexts.Select(Context)).WithStyle(leftPad)
+                            ))
+                        )
+                    )
                 );
-            IComponent Value(IMutableValue value, int i) => Row(Text($"{i}:"), StateVariable(value));
+            }
+
+            IComponent Value(IMutableValue value, int i) =>
+                Row(Text($"{i}:"), ValueInspector(value)).Id(i+1);
+            IComponent Context(KeyValuePair<Type, object> context, int i) =>
+                Row(Text($"{context.Key.FullName}:"), ValueInspector(context.Value)).Id(i+1);
         });
 
-        private static IComponent StateVariable(IMutableValue value) => WithState(() =>
+        private static IComponent ValueInspector(object value) => WithState(() =>
         {
             var property = RememberF(() =>
             {
@@ -181,8 +185,10 @@ namespace UI.Li.Editor.Debugging
             
             ComponentState.OnDestroy(() =>
             {
-                //TODO: check if on main thread
-                //DestroyImmediate(property.Value.serializedObject.targetObject);
+                if (Thread.CurrentThread != mainThread)
+                    return;
+                
+                DestroyImmediate(property.Value.serializedObject.targetObject);
             });
             
             return Property(property.Value);
@@ -244,8 +250,8 @@ namespace UI.Li.Editor.Debugging
                 content.WithStyle(new(display: visible ? DisplayStyle.Flex : DisplayStyle.None));
         });
         
-        private List<CompositionContext> GetInstances() =>
-            CompositionContext.Instances.Where(c => c != self).ToList();
+        private static List<CompositionContext> GetInstances() => 
+            CompositionContext.Instances.ToList();
         
         private static readonly Style fillStyle = new(flexGrow: 1);
         private static readonly Style toolbarDropdownStyle = new(width: 240);
@@ -254,6 +260,7 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
         private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
         private static readonly Style textStyle = new(color: Color.white);
+        private static readonly Style leftPad = new(padding: new(left: 8));
     }
 
     [PublicAPI] public class GenericProperty : ScriptableObject
