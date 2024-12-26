@@ -87,6 +87,7 @@ To make it easier to use, `ComponentStateExtensions` provides a couple of method
 * `MutableList<T> RememberList<T>(Func<IEnumerable<T>> factory)` - same as `RememberList(IEnumerable<T>)`, but uses `factory` to create initial value on first render.
 * `MutableDictionary<TKey, TValue> RememberDictionary(IDictionary<TKey, TValue> dictionary = null)` - same as `Remember`, but stores dictionary instead of single value.
 * `MutableDictionary<TKey, TValue> RememberDictionary(Func<IDictionary<TKey, TValue>> factory)` - same as `RememberDictionary(IDictionary<TKey, TValue>)`, but uses `factory` to create initial value of first render.
+* `T Cache<T>(Func<T> factory, params object[] vars)` - uses `factory` to create value, only recalculates when content of vars changes between renders.
 
 ### Callbacks
 
@@ -95,6 +96,7 @@ Available callback:
 * `void OnInit(Action onInit)` - calls `onInit` on first render.
 * `void OnDestroy(Action onDestroy)` - calls `onDestroy` before component is destroyed.
 * `void OnInit(Func<Action> onInit)` - calls `onInit` on first render and then calls value returned by it before component is destroyed.
+* `void OnChange(Action onChanged, params object[] vars)` - calls `onChanged` during render when any item of the `vars` array is not equal to corresponding item of `vars` from previous render. Can be used to call action when any of the dependencies changes.
 
 ### Contexts
 

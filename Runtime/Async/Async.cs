@@ -16,7 +16,7 @@ namespace UI.Li.Async
             public bool HasError => task.IsFaulted;
             public bool HasResult => task.IsCompletedSuccessfully;
 
-            public T Result => HasResult ? task.Result : throw new Exception("Value not ready!");
+            public T Result => HasResult ? task.Result : throw new("Value not ready!");
             public Exception Error => HasError ? task.Exception : null;
             
             [NotNull] private readonly Task<T> task;

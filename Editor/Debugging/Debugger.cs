@@ -178,7 +178,7 @@ namespace UI.Li.Editor.Debugging
         {
             //TODO: https://docs.unity3d.com/6000.0/Documentation/Manual/UIE-runtime-binding-define-data-source.html
             //TODO: use above guide to show editor for custom types without creating ScriptableObject instance
-            var property = UseMemo(() =>
+            var property = Cache(() =>
             {
                 var instance = CreateInstance<GenericProperty>();
 
@@ -216,7 +216,7 @@ namespace UI.Li.Editor.Debugging
 
             var children = node.Children;
 
-            // NOTE: for some reason ui toolkit has a bug where height calculations are incorrect without wrapping element
+            //NOTE: for some reason ui toolkit has a bug where height calculations are incorrect without wrapping element
             return Box(Switch(children.Count == 0, () =>
                 Text(name, manipulators: new Clickable(OnSelected))
                     .WithStyle(new(flexGrow: 1, padding: new(left: offset)))

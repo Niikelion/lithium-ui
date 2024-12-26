@@ -91,10 +91,11 @@ V1 roadmap:
 
 V2 roadmap:
 
-- [ ] implement `useMemo` / `useEffect` equivalent from ReactJS
+- [x] implement `useMemo` equivalent from ReactJS(`Cache`)
+- [x] implement `useEffect` equivalent from ReactJS(`OnUpdate`)
 - [x] rework methods for inspecting composition context
-- [ ] fully featured layout debugger with support for modifying variables and handling contexts
-- [ ] async handling to make working with network resources and files easier
+- [x] fully featured layout debugger with support for modifying variables and handling contexts
+- [x] basic async handling to make working with network resources and files easier
 - [x] remove/hide OnRender event from `IComponent`
 - [x] ensure support for unity tailwind
 - [x] component for stylesheet loading
@@ -103,11 +104,12 @@ Future releases:
 
 - [ ] optimization of styling system
 - [ ] support for named variables
-- [ ] pooling of `VisualElement`
+- [ ] global pooling of `VisualElement`s
 - [ ] pooling of components
 - [ ] further caching optimizations
 - [ ] visual ui builder
 - [ ] static style extraction
+- [ ] better async handling with tasks that can report status
 
 ## UI Elements interoperability
 

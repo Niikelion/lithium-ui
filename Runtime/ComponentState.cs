@@ -104,19 +104,33 @@ namespace UI.Li
 
         public static T UseContext<T>() => Ctx.UseContext<T>();
 
-        public static T UseMemo<T>(CompositionContext.FactoryDelegate<T> factory, params object[] vars)
+        public static T Cache<T>([NotNull] CompositionContext.FactoryDelegate<T> factory, params object[] vars)
         {
             var c = Ctx;
             var oldVars = c.RememberRef(vars);
             var oldResult = RememberRefF(factory);
 
-            if (oldVars.Value.Length != vars.Length || !oldVars.Value.Zip(vars, Equals).All(v => v))
-            {
-                oldResult.Value = factory();
-                oldVars.Value = vars;
-            }
+            if (oldVars.Value.Length == vars.Length && oldVars.Value.Zip(vars, Equals).All(v => v))
+                return oldResult.Value;
             
+            oldResult.Value = factory();
+            oldVars.Value = vars;
+
             return oldResult.Value;
+        }
+
+        public static void OnChange([NotNull] Action onChanged, params object[] vars)
+        {
+            var c = Ctx;
+            var oldVars = c.RememberRef(vars);
+            // during first render, oldVars == vars is always true, so we compensate for that with OnInit
+            c.OnInit(onChanged);
+            
+            if (oldVars.Value.Length == vars.Length && oldVars.Value.Zip(vars, Equals).All(v => v))
+                return;
+            
+            oldVars.Value = vars;
+            onChanged.Invoke();
         }
     }
 
