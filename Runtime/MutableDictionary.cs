@@ -101,6 +101,9 @@ namespace UI.Li
             return false;
         }
 
+        //TODO: do
+        public override string ToString() => $"{{ {string.Join(", ", values.Select(e => $"{e.Key} = {e.Value}"))} }}";
+
         private (TValue value, IMutableValue mutable) CreateEntry(TValue item)
         {
             if (item is IMutableValue mutable)

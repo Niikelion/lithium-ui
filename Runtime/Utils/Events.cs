@@ -32,6 +32,14 @@ namespace UI.Li.Utils
             new Focusable(onFocus);
 
         [NotNull]
+        public static IManipulator OnFocusOut([NotNull] Action onFocusOut) =>
+            new FocusOutHandler(onFocusOut);
+        
+        [NotNull]
+        public static IManipulator OnFocusIn([NotNull] Action onFocusIn) =>
+            new FocusOutHandler(onFocusIn);
+        
+        [NotNull]
         public static IManipulator OnMouseEnter([NotNull] Action<SyntheticMouseEvent> onMouseEnter) =>
             new MouseEnterHandler(onMouseEnter);
 
@@ -137,7 +145,7 @@ namespace UI.Li.Utils
     {
         [NotNull] private readonly Action handler;
 
-        protected ActionHandlerBase(Action handler) => this.handler = handler;
+        protected ActionHandlerBase([NotNull] Action handler) => this.handler = handler;
 
         protected override void RegisterCallbacksOnTarget() => target.RegisterCallback<T>(OnEvent);
         protected override void UnregisterCallbacksFromTarget() => target.UnregisterCallback<T>(OnEvent);
@@ -154,6 +162,18 @@ namespace UI.Li.Utils
     public sealed class Focusable : ActionHandlerBase<FocusEvent>
     {
         public Focusable([NotNull] Action onFocus) : base(onFocus) { }
+    }
+
+    [PublicAPI]
+    public sealed class FocusOutHandler : ActionHandlerBase<FocusOutEvent>
+    {
+        public FocusOutHandler([NotNull] Action onFocusOut) : base(onFocusOut) { }
+    }
+
+    [PublicAPI]
+    public sealed class FocusInHandler : ActionHandlerBase<FocusInEvent>
+    {
+        public FocusInHandler([NotNull] Action onFocusIn) : base(onFocusIn) { }
     }
 
     [PublicAPI]

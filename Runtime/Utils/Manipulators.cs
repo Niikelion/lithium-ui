@@ -44,4 +44,21 @@ namespace UI.Li.Utils
             target.tooltip = previousTooltip;
         }
     }
+
+    [PublicAPI]
+    public class Disabled : Manipulator
+    {
+        private bool previousEnabled;
+
+        protected override void RegisterCallbacksOnTarget()
+        {
+            previousEnabled = target.enabledSelf;
+            target.SetEnabled(false);
+        }
+
+        protected override void UnregisterCallbacksFromTarget()
+        {
+            target.SetEnabled(previousEnabled);
+        }
+    }
 }

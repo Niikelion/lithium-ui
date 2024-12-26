@@ -22,7 +22,7 @@ namespace UI.Li.Internal
 
         public ContextMutableValue(T value, CompositionContext ctx) : base(value)
         {
-            context = new WeakReference<CompositionContext>(ctx);
+            context = new(ctx);
         }
     }
 }

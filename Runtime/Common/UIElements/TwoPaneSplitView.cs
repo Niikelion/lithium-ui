@@ -59,8 +59,24 @@ namespace UI.Li.Common.UIElements
             }
         }
 
-        private VisualElement leftPane;
-        private VisualElement rightPane;
+        public VisualElement fixedElement
+        {
+            get => fixedPane.childCount > 0 ? fixedPane[0] : null;
+            set {
+                fixedPane.Clear();
+                fixedPane.Add(value);
+            }
+        }
+
+        public VisualElement flexedElement
+        {
+            get => flexedPane.childCount > 0 ? flexedPane[0] : null;
+            set
+            {
+                flexedPane.Clear();
+                flexedPane.Add(value);
+            }
+        }
 
         private VisualElement fixedPane;
         private VisualElement flexedPane;
@@ -95,6 +111,16 @@ namespace UI.Li.Common.UIElements
             dragLine = new () { name = "unity-dragline" };
             dragLine.AddToClassList(handleDragLineClassName);
             dragLineAnchor.Add(dragLine);
+
+            fixedPane = new();
+            flexedPane = new();
+            
+            fixedPane.style.flexShrink = 0;
+            flexedPane.style.flexGrow = 1;
+            flexedPane.style.flexShrink = 0;
+            flexedPane.style.flexBasis = 0;
+            
+            UpdateChildOrder();
         }
 
         public TwoPaneSplitView(
@@ -107,41 +133,10 @@ namespace UI.Li.Common.UIElements
 
         public void UpdateChildren()
         {
-            if (content.childCount != 2)
-                return;
-
-            leftPane = content[0];
-            if (iFixedPaneIndex == 0)
-            {
-                fixedPane = leftPane;
-                if (iOrientation == Orientation.Horizontal)
-                    leftPane.style.width = fixedPaneDimension;
-                else
-                    leftPane.style.height = fixedPaneDimension;
-            }
+            if (iOrientation == Orientation.Horizontal)
+                fixedPane.style.width = fixedPaneDimension;
             else
-            {
-                flexedPane = leftPane;
-            }
-            
-            rightPane = content[1];
-            if (iFixedPaneIndex == 1)
-            {
-                fixedPane = rightPane;
-                if (iOrientation == Orientation.Horizontal)
-                    rightPane.style.width = fixedPaneDimension;
-                else
-                    rightPane.style.height = fixedPaneDimension;
-            }
-            else
-            {
-                flexedPane = rightPane;
-            }
-
-            fixedPane.style.flexShrink = 0;
-            flexedPane.style.flexGrow = 1;
-            flexedPane.style.flexShrink = 0;
-            flexedPane.style.flexBasis = 0;
+                fixedPane.style.height = fixedPaneDimension;
 
             if (iOrientation == Orientation.Horizontal)
             {
@@ -158,6 +153,21 @@ namespace UI.Li.Common.UIElements
                     dragLineAnchor.style.top = resolvedStyle.height - fixedPaneDimension;
             }
         }
+
+        private void UpdateChildOrder()
+        {
+            Clear();
+            if (iFixedPaneIndex == 0)
+            {
+                Add(fixedPane);
+                Add(flexedPane);
+            }
+            else
+            {
+                Add(flexedPane);
+                Add(fixedPane);
+            }
+        }
         
         private void Init(int newFixedPaneIndex, float newFixedPaneInitialDimension, Orientation newOrientation)
         {
@@ -166,7 +176,9 @@ namespace UI.Li.Common.UIElements
             iFixedPaneIndex = newFixedPaneIndex;
             iFixedPaneInitialDimension = newFixedPaneInitialDimension;
             fixedPaneDimension = iFixedPaneInitialDimension;
-
+            
+            UpdateChildOrder();
+            
             if (iOrientation == Orientation.Horizontal)
                 style.minWidth = iFixedPaneInitialDimension;
             else

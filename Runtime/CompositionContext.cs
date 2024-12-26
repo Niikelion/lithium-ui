@@ -120,7 +120,7 @@ namespace UI.Li
         {
             public class FrameEntry: IDisposable
             {
-                public ReadOnlyDictionary<Type, object> LocalContexts => new(addedContexts);
+                public ReadOnlyDictionary<Type, object> LocalContexts => new(addedContexts ?? new Dictionary<Type, object>());
                 
                 public readonly int Id;
                 public readonly int NestingLevel;

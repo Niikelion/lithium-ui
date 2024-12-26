@@ -40,14 +40,8 @@ namespace UI.Li.Common.Layout
             initialMainPanelSize = initialSize;
         }
         
-        protected override VisualElement GetElement(VisualElement source)
-        {
-            var element = Use(source, () => new UIElements.TwoPaneSplitView(reverse ? 1 : 0, initialMainPanelSize, orientation), _ => true);
-            
-            element.contentContainer.Clear();
-
-            return element;
-        }
+        protected override VisualElement GetElement(VisualElement source) =>
+            Use(source, () => new UIElements.TwoPaneSplitView(reverse ? 1 : 0, initialMainPanelSize, orientation), _ => true);
 
         protected override void OnState(CompositionContext context)
         {
@@ -69,19 +63,9 @@ namespace UI.Li.Common.Layout
             element.fixedPaneInitialDimension = initialMainPanelSize;
             element.fixedPaneIndex = reverse ? 1 : 0;
             element.orientation = orientation;
-
-            if (!reverse)
-            {
-                element.Add(mainContent.Render());
-                element.Add(secondaryContent.Render());
-            }
-            else
-            {
-                element.Add(secondaryContent.Render());
-                element.Add(mainContent.Render());
-            }
             
-            element.UpdateChildren();
+            element.flexedElement = mainContent.Render();
+            element.fixedElement = secondaryContent.Render();
             
             return element;
         }

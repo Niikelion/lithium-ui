@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -34,7 +33,7 @@ namespace UI.Li
             set
             {
                 this.value = value;
-                OnValueChanged?.Invoke();
+                NotifyChanged();
             }
         }
         
@@ -59,14 +58,16 @@ namespace UI.Li
         }
 
         public override string ToString() => value?.ToString();
+        
+        protected void NotifyChanged() => OnValueChanged?.Invoke();
     }
 
-    [PublicAPI] public class ValueReference<T> : IMutableValue
+    [PublicAPI, Serializable] public class ValueReference<T> : IMutableValue
     {
         public event Action OnValueChanged;
 
         public T Value;
-
+        
         public ValueReference(T value) => Value = value;
 
         public static implicit operator T(ValueReference<T> v) => v.Value;

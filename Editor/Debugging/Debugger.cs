@@ -10,7 +10,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
 using static UI.Li.Utils.Utils;
 using static UI.Li.Common.Common;
 using static UI.Li.Fields.Fields;
@@ -44,6 +43,8 @@ namespace UI.Li.Editor.Debugging
             public void SetOnOldSelectionCleared(Action onOldSelectionCleared) =>
                 clearOldSelection = onOldSelectionCleared;
         }
+
+        private static readonly int initialStatePanelSize = 500;
         
         [MenuItem("Lithium/Debugger")]
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
@@ -110,10 +111,10 @@ namespace UI.Li.Editor.Debugging
             ).WithStyle(centerItemsStyle);
             
             var content = SplitArea(
-                Switch(selectedContext.Value == null, null, DetailPanel),
                 Hierarchy(selectedContext.Value),
+                Switch(selectedContext.Value == null, null, StatePanel),
                 orientation: TwoPaneSplitViewOrientation.Horizontal,
-                initialSize: 200,
+                initialSize: initialStatePanelSize,
                 reverse: true
             ).WithStyle(fillStyle);
             
@@ -132,7 +133,7 @@ namespace UI.Li.Editor.Debugging
             IComponent WithoutContent() => Text("No panel selected");
         }
 
-        private static IComponent DetailPanel() => WithState(() =>
+        private static IComponent StatePanel() => WithState(() =>
         {
             var node = Remember<CompositionContext.InspectedNode>(null);
 
