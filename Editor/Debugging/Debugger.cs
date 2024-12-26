@@ -132,7 +132,7 @@ namespace UI.Li.Editor.Debugging
             
             IComponent WithoutContent() => Text("No panel selected");
         }
-
+        
         private static IComponent StatePanel() => WithState(() =>
         {
             var node = Remember<CompositionContext.InspectedNode>(null);
@@ -165,15 +165,20 @@ namespace UI.Li.Editor.Debugging
                 );
             }
 
-            IComponent Value(IMutableValue value, int i) =>
-                Row(Text($"{i}:"), ValueInspector(value)).Id(i+1);
+            IComponent Value(IMutableValue value, int i)
+            {
+                return Row(Text($"{i}:"), ValueInspector(value)).Id(i + 1);
+            }
+
             IComponent Context(KeyValuePair<Type, object> context, int i) =>
                 Row(Text($"{context.Key.FullName}:"), ValueInspector(context.Value)).Id(i+1);
         });
 
         private static IComponent ValueInspector(object value) => WithState(() =>
         {
-            var property = RememberF(() =>
+            //TODO: https://docs.unity3d.com/6000.0/Documentation/Manual/UIE-runtime-binding-define-data-source.html
+            //TODO: use above guide to show editor for custom types without creating ScriptableObject instance
+            var property = UseMemo(() =>
             {
                 var instance = CreateInstance<GenericProperty>();
 
@@ -182,17 +187,17 @@ namespace UI.Li.Editor.Debugging
                 var serializedObject = new SerializedObject(instance);
 
                 return serializedObject.FindProperty("property");
-            });
+            }, value);
             
             ComponentState.OnDestroy(() =>
             {
                 if (Thread.CurrentThread != mainThread)
                     return;
                 
-                DestroyImmediate(property.Value.serializedObject.targetObject);
+                DestroyImmediate(property.serializedObject.targetObject);
             });
             
-            return Property(property.Value);
+            return Property(property);
         });
 
         private static IComponent RenderNode(CompositionContext.InspectedNode node, int level = 0) => WithState(() =>

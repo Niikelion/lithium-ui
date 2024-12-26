@@ -111,7 +111,10 @@ namespace UI.Li
             var oldResult = RememberRefF(factory);
 
             if (oldVars.Value.Length != vars.Length || !oldVars.Value.Zip(vars, Equals).All(v => v))
+            {
                 oldResult.Value = factory();
+                oldVars.Value = vars;
+            }
             
             return oldResult.Value;
         }
