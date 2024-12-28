@@ -100,6 +100,13 @@ V2 roadmap:
 - [x] ensure support for unity tailwind
 - [x] component for stylesheet loading
 
+V3 roadmap:
+
+- [ ] optimize debugger to prevent creating large amounts of scriptable objects
+- [ ] visual ui builder
+- [ ] code generator for easier wrapping around ui toolkit hierarchy
+- [ ] better error handling
+
 Future releases:
 
 - [ ] optimization of styling system
@@ -107,7 +114,6 @@ Future releases:
 - [ ] global pooling of `VisualElement`s
 - [ ] pooling of components
 - [ ] further caching optimizations
-- [ ] visual ui builder
 - [ ] static style extraction
 - [ ] better async handling with tasks that can report status
 
