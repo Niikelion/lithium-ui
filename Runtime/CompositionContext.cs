@@ -297,7 +297,7 @@ namespace UI.Li
 
         public event Action OnUpdate;
         
-        private static readonly HashSet<WeakReference<CompositionContext>> instances = new();
+        private static readonly HashSet<WeakReference<CompositionContext>> instances = new(new WeakReferenceTargetComparer<CompositionContext>());
 
         private readonly GapBuffer<Frame> frames = new();
         private int framePointer;
@@ -331,6 +331,17 @@ namespace UI.Li
                 RegisterInstance(this);
         }
 
+        /// <summary>
+        /// Hides or shows context in the global context registry.
+        /// </summary>
+        public void MakeHidden(bool hidden = true)
+        {
+            if (hidden)
+                UnregisterInstance(this);
+            else
+                RegisterInstance(this);
+        }
+        
         /// <summary>
         /// Enters update batching scope. <seealso cref="BatchOperations"/>
         /// </summary>
@@ -889,24 +900,13 @@ namespace UI.Li
         
         private static void RegisterInstance(CompositionContext ctx)
         {
-            instances.Add(new(ctx));
-            OnInstanceListChanged?.Invoke();
+            if (instances.Add(new(ctx)))
+                OnInstanceListChanged?.Invoke();
         }
         
         private static void UnregisterInstance(CompositionContext ctx)
         {
-            bool modified = false;
-            
-            instances.RemoveWhere(r =>
-            {
-                bool ret = !r.TryGetTarget(out var instance) || instance == ctx;
-
-                if (ret)
-                    modified = true;
-                
-                return ret;
-            });
-            if (modified)
+            if (instances.RemoveWhere(r => !r.TryGetTarget(out var instance) || instance == ctx) > 0)
                 syncQueue.Enqueue(() => OnInstanceListChanged?.Invoke());
         }
 

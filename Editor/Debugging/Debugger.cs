@@ -44,8 +44,8 @@ namespace UI.Li.Editor.Debugging
                 clearOldSelection = onOldSelectionCleared;
         }
 
-        private static readonly int initialStatePanelSize = 500;
-        
+        private const int InitialStatePanelSize = 500;
+
         [MenuItem("Lithium/Debugger")]
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
         protected override string WindowName => "Component Debugger";
@@ -114,7 +114,7 @@ namespace UI.Li.Editor.Debugging
                 Hierarchy(selectedContext.Value),
                 Switch(selectedContext.Value == null, null, StatePanel),
                 orientation: TwoPaneSplitViewOrientation.Horizontal,
-                initialSize: initialStatePanelSize,
+                initialSize: InitialStatePanelSize,
                 reverse: true
             ).WithStyle(fillStyle);
             
@@ -176,8 +176,7 @@ namespace UI.Li.Editor.Debugging
 
         private static IComponent ValueInspector(object value) => WithState(() =>
         {
-            //TODO: https://docs.unity3d.com/6000.0/Documentation/Manual/UIE-runtime-binding-define-data-source.html
-            //TODO: use above guide to show editor for custom types without creating ScriptableObject instance
+            //TODO: pool objects
             var property = Cache(() =>
             {
                 var instance = CreateInstance<GenericProperty>();

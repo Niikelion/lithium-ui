@@ -8,7 +8,7 @@ namespace UI.Li.Editor
 {
     [PublicAPI] public abstract class ComposablePropertyDrawer: PropertyDrawer
     {
-        private List<ComponentRenderer> renderers = new ();
+        private List<ComponentRenderer> renderers = new();
         
         public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
@@ -20,6 +20,9 @@ namespace UI.Li.Editor
             
             container.Add(renderer.UpdateAndRender());
 
+            container.RegisterCallback<DetachFromPanelEvent>(_ => renderer.MakeHidden(true));
+            container.RegisterCallback<AttachToPanelEvent>(_ => renderer.MakeHidden(false));
+            
             return container;
         }
 

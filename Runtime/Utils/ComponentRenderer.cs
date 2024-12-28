@@ -55,5 +55,10 @@ namespace UI.Li.Utils
             context.Dispose();
             component.Dispose();
         }
+
+        /// <summary>
+        /// See <see cref="CompositionContext.MakeHidden(bool)"/>
+        /// </summary>
+        public void MakeHidden(bool hidden = true) => context.MakeHidden(hidden);
     }
 }
