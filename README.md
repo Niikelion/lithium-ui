@@ -102,10 +102,12 @@ V2 roadmap:
 
 V3 roadmap:
 
-- [ ] optimize debugger to prevent creating large amounts of scriptable objects
+- [x] optimize debugger to prevent creating large amounts of scriptable objects
 - [ ] visual ui builder
-- [ ] code generator for easier wrapping around ui toolkit hierarchy
-- [ ] better error handling
+- [ ] code generator for easier wrapping around ui toolkit templates
+- [x] better error handling
+- [ ] auto-batching re-renders caused by updates from built-in events
+- [ ] unit tests to improve stability
 
 Future releases:
 

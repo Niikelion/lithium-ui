@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using UI.Li.Common;
+using UI.Li.Editor.Internal;
 using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEditor;
@@ -176,25 +177,18 @@ namespace UI.Li.Editor.Debugging
 
         private static IComponent ValueInspector(object value) => WithState(() =>
         {
-            //TODO: pool objects
-            var property = Cache(() =>
+            var property = Cache<SerializedProperty>(oldProperty =>
             {
-                var instance = CreateInstance<GenericProperty>();
+                if (oldProperty != null)
+                {
+                    GenericProperty.Return(oldProperty.serializedObject.targetObject as GenericProperty);
+                }
 
+                var instance = GenericProperty.Get();
                 instance.property = value;
                 
-                var serializedObject = new SerializedObject(instance);
-
-                return serializedObject.FindProperty("property");
+                return instance.SerializedObject.FindProperty("property");
             }, value);
-            
-            ComponentState.OnDestroy(() =>
-            {
-                if (Thread.CurrentThread != mainThread)
-                    return;
-                
-                DestroyImmediate(property.serializedObject.targetObject);
-            });
             
             return Property(property);
         });
@@ -266,10 +260,5 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
         private static readonly Style textStyle = new(color: Color.white);
         private static readonly Style leftPad = new(padding: new(left: 8));
-    }
-
-    [PublicAPI] public class GenericProperty : ScriptableObject
-    {
-        [SerializeReference] public object property;
     }
 }

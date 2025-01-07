@@ -50,9 +50,9 @@ namespace UI.Li
                 if (element.userData is not ElementUserData data)
                 {
                     if (element.userData != null)
-                        throw new Exception("Corrupted user data");
+                        Debug.LogError($"Overriding custom user data on {element.GetType().Name} element. You may experience unexpected behaviour due to the data loss.");
 
-                    data = new ElementUserData();
+                    data = new ();
                     element.userData = data;
                 }
 
@@ -66,7 +66,7 @@ namespace UI.Li
                 if (element.userData is not ElementUserData data)
                 {
                     if (element.userData != null)
-                        throw new ("Corrupted user data");
+                        Debug.LogError($"Overriding custom user data on {element.GetType().Name} element. You may experience unexpected behaviour due to the data loss.");
 
                     data = new();
                     element.userData = data;
@@ -126,6 +126,7 @@ namespace UI.Li
                 public readonly int NestingLevel;
                 [NotNull] public IComponent Component;
                 public bool Dirty;
+                public bool Crashed;
                 public RemapHelper<int> Reordering;
                 public VisualElement PreviouslyRendered;
                 private Dictionary<Type, object> overriddenContexts;
@@ -138,6 +139,7 @@ namespace UI.Li
                     Component = component;
                     Dirty = true;
                     PreviouslyRendered = null;
+                    Crashed = false;
                 }
 
                 public void PushContext(Dictionary<Type, object> contexts, object context)
@@ -195,6 +197,8 @@ namespace UI.Li
                     Component.Dispose();
                     CleanupReordering();
                 }
+
+                public void Crash() => Crashed = true;
             }
 
             public enum FrameType
@@ -214,7 +218,7 @@ namespace UI.Li
             {
                 Type = FrameType.Entry;
                 Field = null;
-                Entry = new FrameEntry(entryId, nestingLevel, component);
+                Entry = new (entryId, nestingLevel, component);
                 disposeCallback = null;
             }
 
@@ -386,7 +390,7 @@ namespace UI.Li
         /// <summary>
         /// Forces preferring updates to overrides in the next recomposition. 
         /// </summary>
-        /// <remarks>Difficult to use outside custom component implementation.</remarks>
+        /// <remarks>Should not be used outside custom component implementation.</remarks>
         public void PreventNextEntryOverride() => nextEntryPreventOverride = true;
         
         /// <summary>
@@ -439,6 +443,7 @@ namespace UI.Li
             
             PushFrameEntry(currentEntry);
             currentEntry.Dirty = false;
+            currentEntry.Crashed = false;
 
             if (strategy == RecompositionStrategy.Reorder)
             {
@@ -510,17 +515,6 @@ namespace UI.Li
         }
 
         /// <summary>
-        /// Adds given state value to component state.
-        /// </summary>
-        /// <seealso cref="UI.Li.ComponentStateExtensions.Remember{T}"/>
-        /// <param name="value">state value to add</param>
-        /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
-        /// <returns>Returns current state of the value</returns>
-        /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
-        [NotNull]
-        public T Use<T>([NotNull] T value) where T: class, IMutableValue => Use(() => value);
-
-        /// <summary>
         /// Adds given state value to current component state.
         /// </summary>
         /// <seealso cref="UI.Li.ComponentStateExtensions.RememberF{T}"/>
@@ -531,8 +525,7 @@ namespace UI.Li
         [NotNull]
         public T Use<T>([NotNull] FactoryDelegate<T> factory) where T : class, IMutableValue
         {
-            Debug.Assert(factory != null);
-
+            // there is no parent to host this variable/hook
             if (!entryStack.TryPeek(out var currentEntry))
                 throw new InvalidOperationException("Using state outside composable function");
 
@@ -551,14 +544,14 @@ namespace UI.Li
             }
 
             if (framePointer >= frames.Count)
-                throw new InvalidOperationException("Missing state variable");
+                throw new InvalidOperationException("Reached end of state. Make sure hook calls are consistent across renders.");
 
             var frame = GetAtPointer();
                 
             if (frame.Type != Frame.FrameType.Field)
-                throw new InvalidOperationException("Invalid layout");
+                throw new InvalidOperationException("Reached end of state. Make sure hook calls are consistent across renders.");
 
-            return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}");
+            return frame.Field as T ?? throw new InvalidOperationException($"State variable changed its type from {frame.Field?.GetType().FullName} to {typeof(T).FullName}. Make sure hook calls are consistent across renders.");
         }
 
         public void ProvideContext<T>(T context)
@@ -580,7 +573,7 @@ namespace UI.Li
             }
 
             if (context is not T ctx)
-                throw new("Internal error: context type mismatch");
+                throw new("Internal error: context type mismatch. This should never happen.");
 
             return ctx;
         }
@@ -593,16 +586,8 @@ namespace UI.Li
                 return;
             }
             
-            InsertAtPointer(new Frame(onInit));
+            InsertAtPointer(new (onInit));
         }
-
-        public void OnInit(Action onInit) => OnInit(() =>
-        {
-            onInit();
-            return null;
-        });
-
-        public void OnDestroy(Action onDestroy) => OnInit(() => onDestroy);
 
         /// <summary>
         /// Updates all outdated compositions and re-renders them.
@@ -651,6 +636,29 @@ namespace UI.Li
             
             updateProfileMarker.End();
             OnUpdate?.Invoke();
+        }
+        
+        /// <summary>
+        /// Performs component panic.
+        /// </summary>
+        /// <remarks>
+        /// Component panic clears all the date of the current component.
+        /// You should use it when recovering from exception during recomposition to salvage rest of the hierarchy.
+        /// </remarks>
+        public void Panic(IComponent originComponent)
+        {
+            // find frame containing component entry
+            var componentFrame = UnwindToComponent(originComponent);
+            
+            if (!componentFrame.HasValue)
+                throw new("Found corrupted hierarchy during panic!");
+            
+            var entry = componentFrame.Value.Entry;
+            
+            // clear data
+            ClearAllNested(entry.NestingLevel, false);
+            // mark as crashed
+            entry.Crash();
         }
         
         public void Dispose()
@@ -751,7 +759,7 @@ namespace UI.Li
         private void MakeDirty()
         {
             if (entryStack.Count > 0)
-                throw new InvalidOperationException("Updating data before full layout render not supported");
+                throw new InvalidOperationException("Updating data before full layout render is not supported.");
 
             if (batchScopeLevel > 0)
             {
@@ -765,11 +773,23 @@ namespace UI.Li
             }
         }
 
-        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride, RemapHelper<int> reorderData, IComponent component)
+        /// <summary>
+        /// Setups current stack pointer so it points to the start of the entry for provided component.
+        /// It returns whether inserting new entry at pointer is needed.
+        /// </summary>
+        /// <param name="entryId">identifier for the entry, 0 for empty</param>
+        /// <param name="currentNestingLevel">current depth of the component</param>
+        /// <param name="preventOverride">flag that enabled strict checking mode and increases state prevention measures</param>
+        /// <param name="reorderData">cached data needed for identifier based reordering</param>
+        /// <param name="component">component that is being composed</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        private bool SetupFrame(int entryId, int currentNestingLevel, bool preventOverride,
+            RemapHelper<int> reorderData, IComponent component)
         {
             if (framePointer >= frames.Count)
                 return true;
-            
+
             var frame = frames[framePointer];
 
             // non entry frame found at the start of current frame
@@ -778,15 +798,12 @@ namespace UI.Li
 
             var entry = frame.Entry;
             preventOverride = preventOverride || entry.Component.StateLayoutEquals(component);
-            
-            // we found more nested entry frame, so we need to insert new entry here
-            if (entry.NestingLevel > currentNestingLevel)
-            {
-                ClearAllNested(currentNestingLevel);
-                return true;
-            }
 
-            if (reorderData != null)
+            // start of less nested element means there is no more data of parent element, we should insert new entry
+            if (entry.NestingLevel < currentNestingLevel) return true;
+
+            // handle reordering
+            if (entry.NestingLevel == currentNestingLevel && reorderData != null)
             {
                 // previous element was inserted, adjust offset
                 if (reorderData.LeapStart >= 0)
@@ -795,20 +812,13 @@ namespace UI.Li
                     reorderData.LeapStart = -1;
                 }
                 
-                // we found some more deeply nested data than expected
-                if (entry.NestingLevel > currentNestingLevel)
-                    throw new InvalidOperationException(
-                        "Id of component and/or layout unexpected change");
-
-                if (entry.NestingLevel < currentNestingLevel)
-                    return true;
-                
                 // we found matching element
                 if (entry.Id == entryId)
                 {
                     reorderData.RemoveFirst();
                     return false;
                 }
+
                 // first, try to find given entry and bring it closer
                 var (foundStart, foundSize) = reorderData.FindAndRemove(entryId);
 
@@ -818,7 +828,7 @@ namespace UI.Li
                     reorderData.LeapStart = framePointer;
                     return true;
                 }
-                
+
                 var buffer = new Frame[foundSize];
 
                 // we found a match, move found fragment into buffer
@@ -830,40 +840,41 @@ namespace UI.Li
                 }
 
                 int currentFramePointer = framePointer;
-                
+
                 // insert it back at the cursor
                 for (int i = 0; i < foundSize; ++i)
                     InsertAtPointer(buffer[i]);
 
                 framePointer = currentFramePointer;
-                
+
                 return false;
             }
-
-            if (!preventOverride)
+            
+            // we found more nested entry
+            if (entry.NestingLevel > currentNestingLevel)
             {
-                if (entryId == 0 || entry.Id != entryId || entry.NestingLevel != currentNestingLevel)
-                {
-                    ClearAllNested(currentNestingLevel);
-                    return true;
-                }
+                // throw error if we can't override it
+                if (preventOverride)
+                    throw new InvalidOperationException("Id of component and/or layout unexpected change");
+
+                // otherwise we can clear it and insert new entry
+                ClearAllNested(currentNestingLevel);
+                return true;
             }
 
-            // found entry with different id, erase it
+            // found entry with different id, erase it and insert new entry
             if (entry.Id != entryId)
             {
                 ClearAllNested(currentNestingLevel);
                 return true;
             }
 
-            // we found some more deeply nested data than expected
-            if (entry.NestingLevel > currentNestingLevel)
-                throw new InvalidOperationException(
-                    "Id of component and/or layout unexpected change");
-            
-            return entry.NestingLevel < currentNestingLevel;
+            // if we are not prevent override and entry does not have identifier, clear it
+            if (!preventOverride && entryId == 0) ClearAllNested(currentNestingLevel);
+
+            return false;
         }
-        
+
         private void ClearAllNested(int currentNestingLevel, bool includingCurrent = true)
         {
             if (framePointer >= frames.Count)
@@ -883,6 +894,29 @@ namespace UI.Li
                 frame = frames[framePointer];
                 entry = frame.Entry;
             }
+        }
+
+        private Frame? UnwindToComponent(IComponent component)
+        {
+            for (int i = framePointer-1; i >= 0; i--)
+            {
+                var frame = frames[i];
+                if (frame.Type != Frame.FrameType.Entry)
+                    continue;
+
+                if (frame.Entry.Component == component)
+                {
+                    framePointer = i;
+                    return frame;
+                }
+                
+                if (!entryStack.TryPeek(out var stackEntry) || stackEntry != frame.Entry)
+                    continue;
+
+                PopFrameEntry().CleanupReordering();
+            }
+
+            return null;
         }
 
         private void InsertAtPointer(Frame frame) => frames.Insert(framePointer++, frame);

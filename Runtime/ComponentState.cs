@@ -118,6 +118,23 @@ namespace UI.Li
 
             return oldResult.Value;
         }
+        
+        public static T Cache<T>([NotNull] Func<T, T> factory, params object[] vars)
+        {
+            var c = Ctx;
+            var oldVars = c.RememberRef(vars);
+            var oldResult = RememberRefF(Factory);
+
+            if (oldVars.Value.Length == vars.Length && oldVars.Value.Zip(vars, Equals).All(v => v))
+                return oldResult.Value;
+            
+            oldResult.Value = factory(oldResult.Value);
+            oldVars.Value = vars;
+
+            return oldResult.Value;
+
+            T Factory() => factory(default);
+        }
 
         public static void OnChange([NotNull] Action onChanged, params object[] vars)
         {
@@ -137,6 +154,18 @@ namespace UI.Li
     [PublicAPI]
     public static class ComponentStateExtensions
     {
+        /// <summary>
+        /// Adds given state value to component state.
+        /// </summary>
+        /// <seealso cref="UI.Li.ComponentStateExtensions.Remember{T}"/>
+        /// <param name="ctx">context</param>
+        /// <param name="value">state value to add</param>
+        /// <typeparam name="T">type of state value, must implement <see cref="IMutableValue"/></typeparam>
+        /// <returns>Returns current state of the value</returns>
+        /// <exception cref="InvalidOperationException">Thrown when different invocation order detected</exception>
+        [NotNull]
+        public static T Use<T>(this CompositionContext ctx, [NotNull] T value) where T: class, IMutableValue => ctx.Use(() => value);
+        
         /// <summary>
         /// Remembers given value in current component state.
         /// </summary>
@@ -174,6 +203,14 @@ namespace UI.Li
             this CompositionContext ctx,
             [NotNull] CompositionContext.FactoryDelegate<T> factory
         ) => ctx.Use(() => new ValueReference<T>(factory()));
+        
+        public static void OnInit(this CompositionContext ctx, [NotNull] Action onInit) => ctx.OnInit(() =>
+        {
+            onInit();
+            return null;
+        });
+        
+        public static void OnDestroy(this CompositionContext ctx, [NotNull] Action onDestroy) => ctx.OnInit(() => onDestroy);
         
         [NotNull] public static MutableList<T> RememberList<T>(
             this CompositionContext ctx,

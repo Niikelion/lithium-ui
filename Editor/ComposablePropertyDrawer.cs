@@ -20,9 +20,11 @@ namespace UI.Li.Editor
             
             container.Add(renderer.UpdateAndRender());
 
-            container.RegisterCallback<DetachFromPanelEvent>(_ => renderer.MakeHidden(true));
-            container.RegisterCallback<AttachToPanelEvent>(_ => renderer.MakeHidden(false));
+            if (HideContext) return container;
             
+            container.RegisterCallback<DetachFromPanelEvent>(_ => renderer.MakeHidden());
+            container.RegisterCallback<AttachToPanelEvent>(_ => renderer.MakeHidden(false));
+
             return container;
         }
 

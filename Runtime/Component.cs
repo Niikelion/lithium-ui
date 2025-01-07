@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Li
@@ -61,12 +62,23 @@ namespace UI.Li
         {
             ComponentState.ProvideInternalContext(context);
             context.StartFrame(this);
-            innerComponent = composer();
-            if (isStatic)
-                context.PreventNextEntryOverride();
-            innerComponent.Recompose(context);
-            context.EndFrame();
-            ComponentState.ProvideInternalContext(null);
+            try
+            {
+                innerComponent = composer();
+                if (isStatic)
+                    context.PreventNextEntryOverride();
+                innerComponent.Recompose(context);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                context.Panic(this);
+            }
+            finally
+            {
+                context.EndFrame();
+                ComponentState.ProvideInternalContext(null);
+            }
         }
 
         public void Dispose()
