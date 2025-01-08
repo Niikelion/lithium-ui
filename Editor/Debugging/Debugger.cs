@@ -214,6 +214,7 @@ namespace UI.Li.Editor.Debugging
                 Text(name, manipulators: new Clickable(OnSelected))
                     .WithStyle(new(flexGrow: 1, padding: new(left: offset)))
                     .WithStyle(textStyle)
+                    .WithConditionalStyle(node.Crashed, crashedTextStyle)
                     .WithConditionalStyle(selected, selectedStyle), () =>
             {
                 var content = children.Select((child, i) => RenderNode(child, level + 1).Id(i+1));
@@ -222,7 +223,7 @@ namespace UI.Li.Editor.Debugging
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    header: Text(name, manipulators: new Clickable(OnSelected)).WithStyle(textStyle),
+                    header: Text(name, manipulators: new Clickable(OnSelected)).WithStyle(textStyle).WithConditionalStyle(node.Crashed, crashedTextStyle),
                     content: Col(content).WithStyle(fillStyle)
                 ).WithStyle(fillStyle);
             }));
@@ -259,6 +260,7 @@ namespace UI.Li.Editor.Debugging
         private static readonly Style centerItemsStyle = new(alignItems: Align.Center);
         private static readonly Style selectedStyle = new(backgroundColor: new Color(0.17f, 0.36f, 0.53f));
         private static readonly Style textStyle = new(color: Color.white);
+        private static readonly Style crashedTextStyle = new(color: Color.red);
         private static readonly Style leftPad = new(padding: new(left: 8));
     }
 }

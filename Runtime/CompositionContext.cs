@@ -254,6 +254,7 @@ namespace UI.Li
             public string Name => entry.Component.ToString();
             public IComponent Component => entry.Component;
             public int Id => entry.Id;
+            public bool Crashed => entry.Crashed;
             public VisualElement RenderedElement => entry.PreviouslyRendered;
             public ReadOnlyDictionary<Type, object> Contexts => entry.LocalContexts;
             
