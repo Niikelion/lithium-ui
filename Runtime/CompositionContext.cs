@@ -822,7 +822,7 @@ namespace UI.Li
                 // first, try to find given entry and bring it closer
                 var (foundStart, foundSize) = reorderData.FindAndRemove(entryId);
 
-                // we still don't have a match, insert new
+                // we still don't have a match, insert new;
                 if (foundSize == 0)
                 {
                     reorderData.LeapStart = framePointer;
@@ -869,10 +869,12 @@ namespace UI.Li
                 return true;
             }
 
-            // if we are not prevent override and entry does not have identifier, clear it
-            if (!preventOverride && entryId == 0) ClearAllNested(currentNestingLevel);
+            // matching custom id or matching lack of id but override prevention is on
+            if (entryId != 0 || preventOverride) return false;
+            
+            ClearAllNested(currentNestingLevel);
 
-            return false;
+            return true;
         }
 
         private void ClearAllNested(int currentNestingLevel, bool includingCurrent = true)

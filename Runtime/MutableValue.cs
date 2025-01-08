@@ -22,6 +22,8 @@ namespace UI.Li
     [PublicAPI, Serializable] public class MutableValue<T>: IMutableValue
     {
         public event Action OnValueChanged;
+        
+        private readonly bool propagateDispose;
 
         /// <summary>
         /// Stored value.
@@ -43,9 +45,11 @@ namespace UI.Li
         /// Constructs <see cref="MutableValue{T}"/> using given <see cref="value"/>.
         /// </summary>
         /// <param name="value">initial value</param>
-        public MutableValue(T value)
+        /// <param name="propagateDispose">enables propagating dispose call to the stored value</param>
+        public MutableValue(T value, bool propagateDispose = false)
         {
             this.value = value;
+            this.propagateDispose = propagateDispose;
         }
         
         public static implicit operator T(MutableValue<T> v) => v.Value;
@@ -53,7 +57,7 @@ namespace UI.Li
         public void Dispose()
         {
             OnValueChanged = null;
-            if (value is IDisposable disposable)
+            if (propagateDispose && value is IDisposable disposable)
                 disposable.Dispose();
         }
 
@@ -67,14 +71,25 @@ namespace UI.Li
         public event Action OnValueChanged;
 
         public T Value;
+     
+        private readonly bool propagateDispose;
         
-        public ValueReference(T value) => Value = value;
+        public ValueReference(T value, bool propagateDispose = false)
+        {
+            Value = value;
+            this.propagateDispose = propagateDispose;
+        }
 
         public static implicit operator T(ValueReference<T> v) => v.Value;
         
         public void NotifyChanged() => OnValueChanged?.Invoke();
         
-        public void Dispose() => OnValueChanged = null;
+        public void Dispose()
+        {
+            OnValueChanged = null;
+            if (propagateDispose && Value is IDisposable disposable)
+                disposable.Dispose();
+        }
 
         public override string ToString() => Value.ToString();
     }
