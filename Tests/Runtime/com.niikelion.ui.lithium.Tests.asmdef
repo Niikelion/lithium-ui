@@ -1,0 +1,9 @@
+{
+  "name": "com.niikelion.ui.lithium.Tests",
+  "references": [
+    "com.niikelion.ui.lithium"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

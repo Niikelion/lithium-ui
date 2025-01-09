@@ -1,12 +1,13 @@
 {
   "name": "com.niikelion.ui.lithium",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "displayName": "Lithium UI",
   "description": "Reactive UI library designed for editor tools creation.",
   "unity": "6000.0",
   "keywords": [
     "ui", "lithium", "reactive", "ui-toolkit"
   ],
+  "testables": [ "com.niikelion.ui.lithium.Tests" ],
   "author": {
     "name": "Michał Osiński",
     "email": "michal.osinski101@gmail.com"
