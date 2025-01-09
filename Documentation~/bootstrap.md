@@ -96,4 +96,4 @@ Note, that we used `WithStyle` method to attach some styles to the element.
 
 ## Further reading
 
-Now that you have your first Lithium-powered window, you can read [documentation](ui.lithium.md) for more information about different components and features of Lithium.
+Now that you have your first Lithium-powered window, you can read [documentation](index.md) for more information about different components and features of Lithium.
