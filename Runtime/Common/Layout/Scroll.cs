@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using UI.Li.Utils;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Common.Layout
@@ -36,7 +37,7 @@ namespace UI.Li.Common.Layout
             base.Dispose();
         }
 
-        public override bool StateLayoutEquals(IComponent other) => other is Scroll;
+        public override bool StateLayoutEquals(IComponent other) => other is Scroll scroll && this.content.StateLayoutEquals(scroll.content);
 
         protected override VisualElement GetElement(VisualElement source)
         {
@@ -73,7 +74,8 @@ namespace UI.Li.Common.Layout
         {
             this.content = content;
             this.mode = mode;
-            this.onScroll = onScroll;
+            var defer = ComponentState.GetDeferrer();
+            this.onScroll = (value, orientation) => defer(() => onScroll(value, orientation));
         }
     }
 }

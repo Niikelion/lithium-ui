@@ -50,6 +50,20 @@ namespace UI.Li.Utils
         [NotNull]
         public static IManipulator OnSize([NotNull] Action<Rect> onSizeChanged) =>
             new SizeWatcher(onSizeChanged);
+        
+        [NotNull]
+        public static Action WrapEventHandler([NotNull] Action handler)
+        {
+            var defer = ComponentState.GetDeferrer();
+            return () => defer(handler);
+        }
+
+        [NotNull]
+        public static Action<T> WrapEventHandler<T>([NotNull] Action<T> handler)
+        {
+            var defer = ComponentState.GetDeferrer();
+            return e => defer(() => handler(e));
+        }
     }
 
     [PublicAPI]
@@ -57,7 +71,7 @@ namespace UI.Li.Utils
     {
         [NotNull] private readonly Action<MeshGenerationContext> onRepaint;
         
-        public Repaintable([NotNull] Action<MeshGenerationContext> onRepaint) => this.onRepaint = onRepaint;
+        public Repaintable([NotNull] Action<MeshGenerationContext> onRepaint) => this.onRepaint = EventUtils.WrapEventHandler(onRepaint);
 
         protected override void RegisterCallbacksOnTarget() => target.generateVisualContent += onRepaint;
 
@@ -116,8 +130,8 @@ namespace UI.Li.Utils
     {
         public KeyHandler(Action<SyntheticKeyEvent> onKeyDown = null, Action<SyntheticKeyEvent> onKeyUp = null)
         {
-            this.onKeyDown = onKeyDown;
-            this.onKeyUp = onKeyUp;
+            this.onKeyDown = EventUtils.WrapEventHandler(onKeyDown);
+            this.onKeyUp = EventUtils.WrapEventHandler(onKeyUp);
         }
         
         private readonly Action<SyntheticKeyEvent> onKeyDown, onKeyUp;
@@ -135,17 +149,17 @@ namespace UI.Li.Utils
         }
 
         private void OnKeyDown(KeyDownEvent e) =>
-            onKeyDown?.Invoke(new SyntheticKeyEvent(type: SyntheticKeyEvent.EventType.Down, e));
+            onKeyDown?.Invoke(new (type: SyntheticKeyEvent.EventType.Down, e));
         
         private void OnKeyUp(KeyUpEvent e) =>
-            onKeyDown?.Invoke(new SyntheticKeyEvent(type: SyntheticKeyEvent.EventType.Up, e));
+            onKeyDown?.Invoke(new (type: SyntheticKeyEvent.EventType.Up, e));
     }
 
     public abstract class ActionHandlerBase<T> : Manipulator where T : EventBase<T>, new()
     {
         [NotNull] private readonly Action handler;
 
-        protected ActionHandlerBase([NotNull] Action handler) => this.handler = handler;
+        protected ActionHandlerBase([NotNull] Action handler) => this.handler = EventUtils.WrapEventHandler(handler);
 
         protected override void RegisterCallbacksOnTarget() => target.RegisterCallback<T>(OnEvent);
         protected override void UnregisterCallbacksFromTarget() => target.UnregisterCallback<T>(OnEvent);
@@ -184,7 +198,7 @@ namespace UI.Li.Utils
         
         protected MouseHandlerBase([NotNull] Action<SyntheticMouseEvent> onMouseEvent, SyntheticMouseEvent.EventType eventType)
         {
-            this.onMouseEvent = onMouseEvent;
+            this.onMouseEvent = EventUtils.WrapEventHandler(onMouseEvent);
             this.eventType = eventType;
         }
 
@@ -192,7 +206,7 @@ namespace UI.Li.Utils
 
         protected override void UnregisterCallbacksFromTarget() => target.UnregisterCallback<T>(OnMouseEvent);
         
-        private void OnMouseEvent(T e) => onMouseEvent(new SyntheticMouseEvent(eventType, e));
+        private void OnMouseEvent(T e) => onMouseEvent(new (eventType, e));
     }
 
     [PublicAPI]
@@ -212,7 +226,7 @@ namespace UI.Li.Utils
     {
         [NotNull] private readonly Action<Rect> onSizeChanged;
 
-        public SizeWatcher([NotNull] Action<Rect> onSizeChanged) => this.onSizeChanged = onSizeChanged;
+        public SizeWatcher([NotNull] Action<Rect> onSizeChanged) => this.onSizeChanged = EventUtils.WrapEventHandler(onSizeChanged);
         
         protected override void RegisterCallbacksOnTarget() =>
             target.RegisterCallback<GeometryChangedEvent>(OnSizeChanged);

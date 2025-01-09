@@ -30,5 +30,14 @@ public class MutableListTests
         var observer = new MutationObserver(mutableList);
         
         Assert.IsTrue(!observer.Updated);
+
+        mutableList.Dispose();
+
+        Assert.IsTrue(mutableList.Count == 0);
+        Assert.IsTrue(!observer.Updated);
+        
+        mutableList.Add(5);
+
+        Assert.IsTrue(!observer.Updated);
     }
 }

@@ -106,7 +106,7 @@ V3 roadmap:
 - [ ] visual ui builder
 - [ ] code generator for easier wrapping around ui toolkit templates
 - [x] better error handling
-- [ ] auto-batching re-renders caused by updates from built-in events
+- [x] auto-batching re-renders caused by updates from built-in events
 - [ ] unit tests to improve stability
 
 Future releases:

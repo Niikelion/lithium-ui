@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using JetBrains.Annotations;
 using UI.Li.Common;
 using UI.Li.Editor.Internal;
@@ -17,6 +16,7 @@ using static UI.Li.Fields.Fields;
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.ComponentState;
 using static UI.Li.Editor.Fields;
+using static UI.Li.Utils.EventUtils;
 
 namespace UI.Li.Editor.Debugging
 {
@@ -51,13 +51,8 @@ namespace UI.Li.Editor.Debugging
         public static void ShowDebuggerWindow() => GetWindow<DebuggerWindow>();
         protected override string WindowName => "Component Debugger";
         protected override bool HideContext => true;
-        private static Thread mainThread;
 
-        protected override IComponent Layout()
-        {
-            mainThread = Thread.CurrentThread;
-            return Root();
-        }
+        protected override IComponent Layout() => Root();
 
         private static IComponent Root() => WithState(() =>
         {
@@ -197,8 +192,6 @@ namespace UI.Li.Editor.Debugging
         {
             var selected = Remember(false);
             var selectionContext = UseContext<SelectionContext>();
-
-            var defer = GetDeferrer();
             
             if (selected.Value)
                 selectionContext.SetOnOldSelectionCleared(() => selected.Value = false);
@@ -211,7 +204,7 @@ namespace UI.Li.Editor.Debugging
 
             //NOTE: for some reason ui toolkit has a bug where height calculations are incorrect without wrapping element
             return Box(Switch(children.Count == 0, () =>
-                Text(name, manipulators: new Clickable(OnSelected))
+                Text(name, manipulators: OnClick(OnSelected))
                     .WithStyle(new(flexGrow: 1, padding: new(left: offset)))
                     .WithStyle(textStyle)
                     .WithConditionalStyle(node.Crashed, crashedTextStyle)
@@ -223,7 +216,7 @@ namespace UI.Li.Editor.Debugging
                     nobToggleOnly: true,
                     headerContainer: HeaderContainer,
                     contentContainer: ContentContainer,
-                    header: Text(name, manipulators: new Clickable(OnSelected)).WithStyle(textStyle).WithConditionalStyle(node.Crashed, crashedTextStyle),
+                    header: Text(name, manipulators: OnClick(OnSelected)).WithStyle(textStyle).WithConditionalStyle(node.Crashed, crashedTextStyle),
                     content: Col(content).WithStyle(fillStyle)
                 ).WithStyle(fillStyle);
             }));
@@ -233,16 +226,13 @@ namespace UI.Li.Editor.Debugging
                 if (selected.Value)
                     return;
 
-                defer(() =>
-                {
-                    selected.Value = true;
-                    selectionContext.SetNode(node); 
-                });
+                selected.Value = true;
+                selectionContext.SetNode(node); 
             }
 
             IComponent HeaderContainer(IEnumerable<IComponent> content, Action onClick) => Row(
                     content: content,
-                    manipulators: onClick?.Let(c => new Clickable(c))
+                    manipulators: onClick?.Let(OnClick)
                 ).WithStyle(new(padding: new(left: offset), flexGrow: 1))
                 .WithConditionalStyle(selected, selectedStyle);
 

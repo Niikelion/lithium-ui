@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using JetBrains.Annotations;
-using UI.Li.Utils;
 using UI.Li.Utils.Continuations;
 using UnityEngine.UIElements;
 
 using static UI.Li.Common.Layout.Layout;
 using static UI.Li.Common.Common;
 using static UI.Li.ComponentState;
+using static UI.Li.Utils.EventUtils;
 
 namespace UI.Li.Common.Layout
 {
@@ -105,8 +105,7 @@ namespace UI.Li.Common.Layout
         [NotNull]
         public static IComponent FoldoutNob(bool open, Action onClick) =>
             Box(
-                content: Box(manipulators: new Repaintable(
-                    onRepaint: mgc =>
+                content: Box(manipulators: OnRepaint(mgc =>
                     {
                         var color = mgc.visualElement.resolvedStyle.color;
 
@@ -141,13 +140,13 @@ namespace UI.Li.Common.Layout
                         }
                     }
                 ), content: null).WithStyle(defaultNobStyle),
-                onClick?.Let(c => new Clickable(c))
+                onClick?.Let(OnClick)
             ).WithStyle(defaultNobBoxStyle);
 
         private static IComponent DefaultHeaderContainer([NotNull] IEnumerable<IComponent> content, Action onClick) =>
             Row(
                 content: content,
-                manipulators: onClick?.Let(c => new Clickable(c))
+                manipulators: onClick?.Let(OnClick)
             );
 
         private static IComponent DefaultContentContainer([NotNull] IComponent content, bool visible) =>

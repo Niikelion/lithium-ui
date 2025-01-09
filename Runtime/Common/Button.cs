@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UI.Li.Utils;
 using UnityEngine.UIElements;
 
 using UIButton = UnityEngine.UIElements.Button;
@@ -40,7 +41,7 @@ namespace UI.Li.Common
         private Button([NotNull] Action onClick, [NotNull] IComponent content, IEnumerable<IManipulator> manipulators) : base(manipulators)
         {
             this.content = content;
-            this.onClick = onClick;
+            this.onClick = EventUtils.WrapEventHandler(onClick);
         }
 
         protected override UIButton PrepareElement(UIButton button)

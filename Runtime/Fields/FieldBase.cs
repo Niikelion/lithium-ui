@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UI.Li.Common;
+using UI.Li.Utils;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Fields
@@ -34,7 +35,7 @@ namespace UI.Li.Fields
 
         protected FieldBase([NotNull] Action<TValue> onValueChanged, TValue initialValue, IManipulator[] manipulators): base(manipulators)
         {
-            this.onValueChanged = onValueChanged;
+            this.onValueChanged = EventUtils.WrapEventHandler(onValueChanged);
             this.initialValue = initialValue;
         }
 

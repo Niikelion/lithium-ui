@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using UI.Li.Common;
+using UI.Li.Utils;
 
 namespace UI.Li.Fields
 {
@@ -72,7 +73,7 @@ namespace UI.Li.Fields
         private Dropdown(int initialValue, Action<int> onSelectionChanged, List<string> options, IManipulator[] manipulators) : base(manipulators)
         {
             this.initialValue = initialValue;
-            this.onSelectionChanged = onSelectionChanged;
+            this.onSelectionChanged = EventUtils.WrapEventHandler(onSelectionChanged);
             this.options = options;
         }
 
