@@ -31,7 +31,9 @@ namespace UI.Li.Common.Layout
             visibleChildren.Clear();
             base.Dispose();
         }
-        
+
+        public override bool StateLayoutEquals(IComponent other) => other is List;
+
         protected override void OnState(CompositionContext context)
         {
             base.OnState(context);

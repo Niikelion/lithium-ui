@@ -37,7 +37,7 @@ namespace UI.Li.Common.Layout
             base.Dispose();
         }
 
-        public override bool StateLayoutEquals(IComponent other) => other is Scroll scroll && this.content.StateLayoutEquals(scroll.content);
+        public override bool StateLayoutEquals(IComponent other) => other is Scroll;
 
         protected override VisualElement GetElement(VisualElement source)
         {

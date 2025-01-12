@@ -16,6 +16,7 @@
   - [Run](#run)
   - [When](#when)
 - [Portals](#portals)
+- [Advanced](#advanced)
 - [Summary](#summary)
 
 ## Getting started
@@ -243,6 +244,14 @@ For example, to use custom container just set `Container` to this container and 
 
 Note, that use properties of `Portal.Link` directly is only intended for linking outside Lithium ecosystem.
 Please use `Portal.V` and `Portal.Anchor.V` when possible.
+
+## Advanced
+
+If you need to do something more complicated, here is a list of more advanced topics and guides:
+
+* [Manipulators](advanced/manipulators.md) - adding functionality for underlying `VisualElement`
+* [Custom UI Toolkit Elements](advanced/custom-elements.md) - exposing UI Toolkit type to Lithium
+* [Custom Variable Types](advanced/custom-variables.md) - creating custom variable types
 
 ## Summary
 

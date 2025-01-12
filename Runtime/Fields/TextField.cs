@@ -15,7 +15,7 @@ namespace UI.Li.Fields
         /// <param name="onValueChanged">callback invoked every time value is changed</param>
         /// <param name="value">initial value</param>
         /// <param name="placeholder">placeholder</param>
-        /// <param name="focused">indicates whether or not element should be focused after render, currently does nothing</param>
+        /// <param name="focused">indicates whether element should be focused after render, currently does nothing</param>
         /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
         /// <returns></returns>
         [NotNull]

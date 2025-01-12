@@ -58,9 +58,10 @@ namespace UI.Li.Utils
             return () => defer(handler);
         }
 
-        [NotNull]
-        public static Action<T> WrapEventHandler<T>([NotNull] Action<T> handler)
+        public static Action<T> WrapEventHandler<T>(Action<T> handler)
         {
+            if (handler == null) return null;
+            
             var defer = ComponentState.GetDeferrer();
             return e => defer(() => handler(e));
         }

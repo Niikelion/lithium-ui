@@ -36,7 +36,7 @@ namespace UI.Li.Common.Layout
         }
 
         public override bool StateLayoutEquals(IComponent other) =>
-            other is Flex flex && content.Length == flex.content.Length && content.Zip(flex.content, (a ,b) => (a, b)).All(v => v.a.StateLayoutEquals(v.b));
+            other is Flex flex && content.Length == flex.content.Length;
 
         protected override RecompositionStrategy RecompositionStrategy => RecompositionStrategy.Reorder;
 

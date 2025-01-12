@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UI.Li.Utils;
 using UnityEngine.UIElements;
 
-namespace UI.Li.lithium_ui.Runtime.Common
+namespace UI.Li.Common
 {
     public sealed class ClassNameWrapper: Wrapper
     {

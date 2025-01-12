@@ -54,7 +54,7 @@ namespace UI.Li.Common
             if (button.childCount == 1 && button[0] == contentElement) return button;
             
             button.Clear();
-            button.Add(content.Render());
+            button.Add(contentElement);
 
             return button;
         }
