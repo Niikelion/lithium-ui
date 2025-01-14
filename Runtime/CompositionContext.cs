@@ -18,16 +18,41 @@ namespace UI.Li
         /// </summary>
         [PublicAPI] public struct BatchScope: IDisposable
         {
-            [NotNull] private readonly CompositionContext context;
+            private CompositionContext context;
             
             public BatchScope([NotNull] CompositionContext ctx)
             {
                 context = ctx;
                 ctx.EnterBatchScope();
             }
-            public void Dispose() => context.LeaveBatchScope();
+            public void Dispose()
+            {
+                context.LeaveBatchScope();
+                context = null;
+            }
         }
-     
+
+        [PublicAPI]
+        public struct ContextProvider : IDisposable
+        {
+            private CompositionContext context;
+            private CompositionContext previousInstance;
+            
+            public ContextProvider([NotNull] CompositionContext ctx)
+            {
+                previousInstance = CurrentInstance;
+                context = ctx;
+                CurrentInstance = context;
+            }
+
+            public void Dispose()
+            {
+                CurrentInstance = previousInstance;
+                previousInstance = null;
+                context = null;
+            }
+        }
+        
         /// <summary>
         /// Allows to specify how state differences for sub-compositions will be handled. The default is <see cref="CompositionContext.RecompositionStrategy.Override"/>.
         /// </summary>
@@ -293,6 +318,8 @@ namespace UI.Li
         }
         
         [NotNull] public static IEnumerable<CompositionContext> Instances => instances.Select(r => r.TryGetTarget(out var instance) ? instance : null).Where(i => i != null);
+        public static CompositionContext CurrentInstance { get; private set; }
+        
         public static event Action OnInstanceListChanged;
         private static readonly ConcurrentQueue<Action> syncQueue = new();
 
@@ -351,7 +378,7 @@ namespace UI.Li
         /// Enters update batching scope. <seealso cref="BatchOperations"/>
         /// </summary>
         public void EnterBatchScope() => ++batchScopeLevel;
-
+        
         /// <summary>
         /// Leaves update batching scope. <seealso cref="BatchOperations"/>
         /// </summary>
@@ -378,6 +405,8 @@ namespace UI.Li
         /// </example>
         /// <returns>Batch scope guard</returns>
         public BatchScope BatchOperations() => new (this);
+
+        public ContextProvider ProvideCompositionContext() => new(this);
         
         /// <summary>
         /// Sets component entry id for next recomposition. 
@@ -595,6 +624,9 @@ namespace UI.Li
         /// </summary>
         public void Update()
         {
+            var previousInstance = CurrentInstance;
+            CurrentInstance = this;
+            
             updateProfileMarker.Begin();
             
             framePointer = 0;
@@ -636,6 +668,9 @@ namespace UI.Li
             ClearFrameStack();
             
             updateProfileMarker.End();
+            
+            CurrentInstance = previousInstance;
+            
             OnUpdate?.Invoke();
         }
         

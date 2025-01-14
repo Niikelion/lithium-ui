@@ -12,7 +12,7 @@ namespace UI.Li.Editor
         
         public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var renderer = new ComponentRenderer(Layout(property), DrawerName, HideContext);
+            var renderer = new ComponentRenderer(() => Layout(property), DrawerName, HideContext);
 
             renderers.Add(renderer);
             

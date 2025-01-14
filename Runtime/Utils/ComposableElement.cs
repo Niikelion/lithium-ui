@@ -22,14 +22,16 @@ namespace UI.Li.Utils
         /// <param name="component">Component to be used by element</param>
         /// <param name="disposeOnDetach">Indicates whether component should be disposed off during <see cref="DetachFromPanelEvent"/> or not.</param>
         /// <exception cref="InvalidOperationException">Thrown when <c>SetContent</c> is called second time on the same element.</exception>
-        [PublicAPI] public void SetContent([NotNull] IComponent component, bool disposeOnDetach = false)
+        public void SetContent([NotNull] IComponent component, bool disposeOnDetach = false) => SetContent(() => component, disposeOnDetach);
+
+        public void SetContent([NotNull] Func<IComponent> componentFactory, bool disposeOnDetach = false)
         {
             if (renderer != null)
                 throw new InvalidOperationException("Cannot set content multiple times");
 
             NeedsDisposing = !disposeOnDetach;
             
-            renderer = new ComponentRenderer(component);
+            renderer = new(componentFactory);
             
             if (!disposeOnDetach)
             {

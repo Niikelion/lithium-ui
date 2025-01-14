@@ -50,21 +50,18 @@ namespace UI.Li.Utils
         [NotNull]
         public static IManipulator OnSize([NotNull] Action<Rect> onSizeChanged) =>
             new SizeWatcher(onSizeChanged);
-        
-        [NotNull]
-        public static Action WrapEventHandler([NotNull] Action handler)
-        {
-            var defer = ComponentState.GetDeferrer();
-            return () => defer(handler);
-        }
 
-        public static Action<T> WrapEventHandler<T>(Action<T> handler)
-        {
-            if (handler == null) return null;
-            
-            var defer = ComponentState.GetDeferrer();
-            return e => defer(() => handler(e));
-        }
+        public static Action WrapEventHandler([NotNull] ComponentState.Deferrer defer, Action handler) =>
+            handler == null ? null : () => defer(handler);
+        
+        public static Action WrapEventHandler([NotNull] Action handler) =>
+            WrapEventHandler(ComponentState.GetDeferrer(), handler);
+
+        public static Action<T> WrapEventHandler<T>([NotNull] ComponentState.Deferrer defer, Action<T> handler) =>
+            handler == null ? null : e => defer(() => handler(e));
+        
+        public static Action<T> WrapEventHandler<T>(Action<T> handler) =>
+            WrapEventHandler(ComponentState.GetDeferrer(), handler);
     }
 
     [PublicAPI]

@@ -60,7 +60,6 @@ namespace UI.Li
 
         public void Recompose(CompositionContext context)
         {
-            ComponentState.ProvideInternalContext(context);
             context.StartFrame(this);
             try
             {
@@ -77,7 +76,6 @@ namespace UI.Li
             finally
             {
                 context.EndFrame();
-                ComponentState.ProvideInternalContext(null);
             }
         }
 

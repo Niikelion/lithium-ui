@@ -50,7 +50,7 @@ namespace UI.Li.Common
             var addedStyleSheets = new List<StyleSheet>();
             
             foreach (var styleSheet in styleSheets) {
-                if (element.styleSheets.Contains(styleSheet))
+                if (!styleSheet || element.styleSheets.Contains(styleSheet))
                     continue;
                 
                 element.styleSheets.Add(styleSheet);

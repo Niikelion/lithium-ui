@@ -33,6 +33,6 @@ namespace UI.Li.Editor
 
         protected virtual bool HideContext => false;
         
-        private ComponentRenderer GetRenderer() => renderer ??= new (Layout(), WindowName, HideContext);
+        private ComponentRenderer GetRenderer() => renderer ??= new (Layout, WindowName, HideContext);
     }
 }

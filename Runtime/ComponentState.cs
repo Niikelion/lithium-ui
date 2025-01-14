@@ -12,10 +12,7 @@ namespace UI.Li
         
         private static CompositionContext currentContext;
         
-        [NotNull] private static CompositionContext Ctx =>
-            currentContext ?? throw new InvalidOperationException("Accessing state outside context");
-
-        public static void ProvideInternalContext(CompositionContext context) => currentContext = context;
+        [NotNull] private static CompositionContext Ctx => CompositionContext.CurrentInstance ?? throw new InvalidOperationException("Accessing state outside context");
 
         /// <summary>
         /// Provides state context to composer function.
@@ -36,21 +33,8 @@ namespace UI.Li
         [NotNull]
         public static Component WithState([NotNull] Component.StatefulComponent composer, bool isStatic = false) =>
             new (composer, isStatic);
-        
-        public static Deferrer GetDeferrer()
-        {
-            WeakReference<CompositionContext> ctxRef = new(Ctx);
 
-            return action =>
-            {
-                if (!ctxRef.TryGetTarget(out var ctx))
-                    return;
-                
-                ctx.EnterBatchScope();
-                action();
-                ctx.LeaveBatchScope();
-            };
-        }
+        public static Deferrer GetDeferrer() => Ctx.GetDeferrer();
         
         [NotNull]
         public static T Use<T>(T value) where T : class, IMutableValue => Ctx.Use(value);
@@ -154,6 +138,21 @@ namespace UI.Li
     [PublicAPI]
     public static class ComponentStateExtensions
     {
+        public static ComponentState.Deferrer GetDeferrer(this CompositionContext ctx)
+        {
+            WeakReference<CompositionContext> ctxRef = new(ctx);
+
+            return action =>
+            {
+                if (!ctxRef.TryGetTarget(out var context))
+                    return;
+                
+                context.EnterBatchScope();
+                action();
+                context.LeaveBatchScope();
+            };
+        }
+        
         /// <summary>
         /// Adds given state value to component state.
         /// </summary>

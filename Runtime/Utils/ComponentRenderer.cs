@@ -19,12 +19,17 @@ namespace UI.Li.Utils
         /// <param name="component">component to render</param>
         /// <param name="name">name of context to be displayed in debugger</param>
         /// <param name="hidden">if true, context will not be visible on the instance list</param>
-        public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed", bool hidden = false)
-        {
-            this.component = component;
-            context = new (name, hidden);
-        }
+        public ComponentRenderer([NotNull] IComponent component, string name = "Unnamed", bool hidden = false): this(() => component, name, hidden) {}
 
+        public ComponentRenderer([NotNull] Func<IComponent> componentFactory, string name = "Unnamed",
+            bool hidden = false)
+        {
+            context = new (name, hidden);
+            using var _ = context.ProvideCompositionContext();
+            
+            component = componentFactory();
+        }
+        
         /// <summary>
         /// Recomposes component, <see cref="IComponent.Recompose"/>.
         /// </summary>

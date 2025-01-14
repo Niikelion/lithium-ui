@@ -26,7 +26,7 @@ namespace UI.Li.Utils
 
             renderer?.Dispose();
 
-            renderer = new ComponentRenderer(Layout());
+            renderer = new(Layout);
             
             document.rootVisualElement.Clear();
             document.rootVisualElement.Add(renderer.UpdateAndRender());
