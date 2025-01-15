@@ -33,7 +33,11 @@ namespace UI.Li.Utils
         /// <summary>
         /// Recomposes component, <see cref="IComponent.Recompose"/>.
         /// </summary>
-        public void Update() => component.Recompose(context);
+        public void Update()
+        {
+            using var _ = context.ProvideCompositionContext();
+            component.Recompose(context);
+        }
 
         /// <summary>
         /// Renders component, <see cref="IComponent.Render"/>.
