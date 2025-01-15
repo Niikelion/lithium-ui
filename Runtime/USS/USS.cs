@@ -59,85 +59,92 @@ namespace UI.Li.USS
         public USS AlignContent(StyleEnum<Align> alignment) => WithProperty("align-content", alignment, AlignToString);
         public USS AlignItems(StyleEnum<Align> alignment) => WithProperty("align-items", alignment, AlignToString);
         public USS AlignSelf(StyleEnum<Align> alignment) => WithProperty("align-self", alignment, AlignToString);
-        public USS BackgroundColor(StyleColor color) => WithProperty("background-color", color, ColorToString);
+        public USS BackgroundColor(StyleColor color) => WithColorProperty("background-color", color);
         //StyleBackground BackgroundImage
         //StyleBackgroundPosition BackgroundPositionX
         //StyleBackgroundPosition BackgroundPositionY
         //StyleBackgroundRepeat BackgroundRepeat
         //StyleBackgroundSize BackgroundSize
-        public USS BorderBottomColor(StyleColor color) => WithProperty("border-bottom-color", color, ColorToString);
-        public USS BorderBottomLeftRadius(StyleLength length) => WithProperty("border-bottom-left-radius", length, LengthToString);
-        public USS BorderBottomRightRadius(StyleLength length) => WithProperty("border-bottom-right-radius", length, LengthToString);
-        public USS BorderBottomWidth(StyleFloat value) => WithProperty("border-bottom-width", value, FloatToString);
-        public USS BorderLeftColor(StyleColor color) => WithProperty("border-left-color", color, ColorToString);
-        public USS BorderLeftWidth(StyleFloat value) => WithProperty("border-left-width", value, FloatToString);
-        public USS BorderRightColor(StyleColor color) => WithProperty("border-right-color", color, ColorToString);
-        public USS BorderRightWidth(StyleFloat value) => WithProperty("border-right-width", value, FloatToString);
-        public USS BorderTopColor(StyleColor color) => WithProperty("border-top-color", color, ColorToString);
-        public USS BorderTopLeftRadius(StyleLength length) => WithProperty("border-top-left-radius", length, LengthToString);
-        public USS BorderTopRightRadius(StyleLength length) => WithProperty("border-top-right-radius", length, LengthToString);
-        public USS BorderTopWidth(StyleFloat value) => WithProperty("border-top-width", value, FloatToString);
-        public USS Bottom(StyleLength length) => WithProperty("bottom", length, LengthToString);
+        public USS BorderBottomColor(StyleColor color) => WithColorProperty("border-bottom-color", color);
+        public USS BorderBottomLeftRadius(StyleLength length) => WithLengthProperty("border-bottom-left-radius", length);
+        public USS BorderBottomRightRadius(StyleLength length) => WithLengthProperty("border-bottom-right-radius", length);
+        public USS BorderBottomWidth(StyleFloat value) => WithFloatProperty("border-bottom-width", value);
+        public USS BorderLeftColor(StyleColor color) => WithColorProperty("border-left-color", color);
+        public USS BorderLeftWidth(StyleFloat value) => WithFloatProperty("border-left-width", value);
+        public USS BorderRightColor(StyleColor color) => WithColorProperty("border-right-color", color);
+        public USS BorderRightWidth(StyleFloat value) => WithFloatProperty("border-right-width", value);
+        public USS BorderTopColor(StyleColor color) => WithColorProperty("border-top-color", color);
+        public USS BorderTopLeftRadius(StyleLength length) => WithLengthProperty("border-top-left-radius", length);
+        public USS BorderTopRightRadius(StyleLength length) => WithLengthProperty("border-top-right-radius", length);
+        public USS BorderTopWidth(StyleFloat value) => WithFloatProperty("border-top-width", value);
+        public USS Bottom(StyleLength length) => WithLengthProperty("bottom", length);
         public USS Color(StyleColor color) => WithColorProperty("color", color);
-        //StyleCursor Cursor
+        //TODO: handle links
+        public USS Cursor(StyleEnum<CursorType> cursor) => WithProperty("cursor", cursor, CursorTypeToString);
         public USS Display(StyleEnum<DisplayStyle> style) => WithProperty("display", style, DisplayToString);
-        public USS FlexBasis(StyleLength length) => WithProperty("flex-basis", length, LengthToString);
-        //StyleEnum<FlexDirection> FlexDirection
-        public USS FlexGrow(StyleFloat value) => WithProperty("flex-grow", value, FloatToString);
-        public USS FlexShrink(StyleFloat value) => WithProperty("flex-shrink", value, FloatToString);
-        //StyleEnum<Wrap> FlexWrap
-        public USS FontSize(StyleLength length) => WithProperty("font-size", length, LengthToString);
-        public USS Height(StyleLength length) => WithProperty("height", length, LengthToString);
-        //StyleEnum<Justify> JustifyContent
-        public USS Left(StyleLength length) => WithProperty("left", length, LengthToString);
-        public USS LetterSpacing(StyleLength length) => WithProperty("letter-spacing", length, LengthToString);
-        public USS MarginBottom(StyleLength length) => WithProperty("margin-bottom", length, LengthToString);
-        public USS MarginLeft(StyleLength length) => WithProperty("margin-left", length, LengthToString);
-        public USS MarginRight(StyleLength length) => WithProperty("margin-right", length, LengthToString);
-        public USS MarginTop(StyleLength length) => WithProperty("margin-top", length, LengthToString);
-        public USS MaxHeight(StyleLength length) => WithProperty("max-height", length, LengthToString);
-        public USS MaxWidth(StyleLength length) => WithProperty("max-width", length, LengthToString);
-        public USS MinHeight(StyleLength length) => WithProperty("min-height", length, LengthToString);
-        public USS MinWidth(StyleLength length) => WithProperty("min-width", length, LengthToString);
-        public USS Opacity(StyleFloat value) => WithProperty("opacity", value, FloatToString);
-        //StyleEnum<Overflow> Overflow
-        public USS PaddingBottom(StyleLength length) => WithProperty("padding-bottom", length, LengthToString);
-        public USS PaddingLeft(StyleLength length) => WithProperty("padding-left", length, LengthToString);
-        public USS PaddingRight(StyleLength length) => WithProperty("padding-right", length, LengthToString);
-        public USS PaddingTop(StyleLength length) => WithProperty("padding-top", length, LengthToString);
-        //StyleEnum<Position> Position
-        public USS Right(StyleLength length) => WithProperty("right", length, LengthToString);
+        public USS FlexBasis(StyleLength length) => WithLengthProperty("flex-basis", length);
+        public USS FlexDirection(StyleEnum<FlexDirection> direction) => WithProperty("flex-direction", direction, FlexDirectionToString);
+        public USS FlexGrow(StyleFloat value) => WithFloatProperty("flex-grow", value);
+        public USS FlexShrink(StyleFloat value) => WithFloatProperty("flex-shrink", value);
+        public USS Wrap(StyleEnum<Wrap> value) => WithProperty("wrap", value, WrapToString);
+        public USS FontSize(StyleLength length) => WithLengthProperty("font-size", length);
+        public USS Height(StyleLength length) => WithLengthProperty("height", length);
+        public USS Justify(StyleEnum<Justify> justify) => WithProperty("justify", justify, JustifyToString);
+        public USS Left(StyleLength length) => WithLengthProperty("left", length);
+        public USS LetterSpacing(StyleLength length) => WithLengthProperty("letter-spacing", length);
+        public USS MarginBottom(StyleLength length) => WithLengthProperty("margin-bottom", length);
+        public USS MarginLeft(StyleLength length) => WithLengthProperty("margin-left", length);
+        public USS MarginRight(StyleLength length) => WithLengthProperty("margin-right", length);
+        public USS MarginTop(StyleLength length) => WithLengthProperty("margin-top", length);
+        public USS MaxHeight(StyleLength length) => WithLengthProperty("max-height", length);
+        public USS MaxWidth(StyleLength length) => WithLengthProperty("max-width", length);
+        public USS MinHeight(StyleLength length) => WithLengthProperty("min-height", length);
+        public USS MinWidth(StyleLength length) => WithLengthProperty("min-width", length);
+        public USS Opacity(StyleFloat value) => WithFloatProperty("opacity", value);
+        public USS Overflow(StyleEnum<Overflow> overflow) => WithProperty("overflow", overflow, OverflowToString);
+        public USS PaddingBottom(StyleLength length) => WithLengthProperty("padding-bottom", length);
+        public USS PaddingLeft(StyleLength length) => WithLengthProperty("padding-left", length);
+        public USS PaddingRight(StyleLength length) => WithLengthProperty("padding-right", length);
+        public USS PaddingTop(StyleLength length) => WithLengthProperty("padding-top", length);
+        public USS Position(StyleEnum<Position> position) => WithProperty("position", position, PositionToString);
+        public USS Right(StyleLength length) => WithLengthProperty("right", length);
         //StyleRotate Rotate
         //StyleScale Scale
         //StyleEnum<TextOverflow> TextOverflow
         //StyleTextShadow TextShadow
-        public USS Top(StyleLength length) => WithProperty("top", length, LengthToString);
+        public USS Top(StyleLength length) => WithLengthProperty("top", length);
         //StyleTransformOrigin TransformOrigin
         //StyleList<TimeValue> TransitionDelay
         //StyleList<TimeValue> TransitionDuration
         //StyleList<StylePropertyName> TransitionProperty
         //StyleList<EasingFunction> TransitionTimingFunction
         //StyleTranslate Translate
-        public USS BackgroundImageTintColor(StyleColor color) => WithProperty("unity-background-image-tint-color", color, ColorToString);
+        public USS BackgroundImageTintColor(StyleColor color) => WithColorProperty("-unity-background-image-tint-color", color);
         //StyleFont Font
         //StyleFontDefinition UnityFontDefinition
         //StyleEnum<FontStyle> UnityFontStyleAndWeight
         //StyleEnum<OverflowClipBox> UnityOverflowClipBox
-        public USS ParagraphSpacing(StyleLength length) => WithProperty("unity-paragraph-spacing", length, LengthToString);
-        public USS SliceBottom(StyleInt value) => WithProperty("unity-slice-bottom", value, IntToString);
-        public USS SliceLeft(StyleInt value) => WithProperty("unity-slice-left", value, IntToString);
-        public USS SliceRight(StyleInt value) => WithProperty("unity-slice-right", value, IntToString);
-        public USS SliceScale(StyleFloat value) => WithProperty("unity-slice-scale", value, FloatToString);
-        public USS SliceTop(StyleInt value) => WithProperty("unity-slice-top", value, IntToString);
+        public USS ParagraphSpacing(StyleLength length) => WithLengthProperty("-unity-paragraph-spacing", length);
+        public USS SliceBottom(StyleInt value) => WithIntProperty("-unity-slice-bottom", value);
+        public USS SliceLeft(StyleInt value) => WithIntProperty("-unity-slice-left", value);
+        public USS SliceRight(StyleInt value) => WithIntProperty("-unity-slice-right", value);
+        public USS SliceScale(StyleFloat value) => WithFloatProperty("-unity-slice-scale", value);
+        public USS SliceTop(StyleInt value) => WithIntProperty("-unity-slice-top", value);
         //StyleEnum<TextAnchor> UnityTextAlign
-        public USS TextOutlineColor(StyleColor color) => WithProperty("unity-text-outline-color", color, ColorToString);
-        public USS TextOutlineWidth(StyleFloat value) => WithProperty("unity-text-outline-width", value, FloatToString);
+        public USS TextOutlineColor(StyleColor color) => WithColorProperty("-unity-text-outline-color", color);
+        public USS TextOutlineWidth(StyleFloat value) => WithFloatProperty("-unity-text-outline-width", value);
         //StyleEnum<TextOverflowPosition> UnityTextOverflowPosition
         //StyleEnum<Visibility> Visibility
         //StyleEnum<WhiteSpace> WhiteSpace
-        public USS Width(StyleLength length) => WithProperty("width", length, LengthToString);
-        public USS WordSpacing(StyleLength length) => WithProperty("word-spacing", length, LengthToString);
+        public USS Width(StyleLength length) => WithLengthProperty("width", length);
+        public USS WordSpacing(StyleLength length) => WithLengthProperty("word-spacing", length);
 
+        private USS WithLengthProperty(string key, StyleLength value) =>
+            WithProperty(key, value, LengthToString);
+        private USS WithFloatProperty(string key, StyleFloat value) =>
+            WithProperty(key, value, FloatToString);
+        private USS WithIntProperty(string key, StyleInt value) =>
+            WithProperty(key, value, IntToString);
         private USS WithColorProperty(string key, StyleColor value) =>
             WithProperty(key, value, ColorToString);
         
@@ -167,6 +174,72 @@ namespace UI.Li.USS
         private static string FloatToString(float value) => value.ToString(CultureInfo.InvariantCulture);
         private static string LengthToString(Length length) => length.ToString();
 
+        private static string PositionToString(Position position) =>
+            position switch
+            {
+                UnityEngine.UIElements.Position.Absolute => "absolute",
+                UnityEngine.UIElements.Position.Relative => "relative",
+                _ => "relative"
+            };
+        private static string OverflowToString(Overflow overflow) =>
+            overflow switch
+            {
+                UnityEngine.UIElements.Overflow.Hidden => "hidden",
+                UnityEngine.UIElements.Overflow.Visible => "visible",
+                _ => "hidden"
+            };
+        private static string JustifyToString(Justify justify) =>
+            justify switch
+            {
+                UnityEngine.UIElements.Justify.Center => "center",
+                UnityEngine.UIElements.Justify.FlexEnd => "flex-end",
+                UnityEngine.UIElements.Justify.FlexStart => "flex-start",
+                UnityEngine.UIElements.Justify.SpaceAround => "space-around",
+                UnityEngine.UIElements.Justify.SpaceBetween => "space-between",
+                UnityEngine.UIElements.Justify.SpaceEvenly => "space-evenly",
+                _ => "center"
+            };
+        private static string WrapToString(Wrap wrap) =>
+            wrap switch
+            {
+                UnityEngine.UIElements.Wrap.Wrap => "wrap",
+                UnityEngine.UIElements.Wrap.NoWrap => "no-wrap",
+                UnityEngine.UIElements.Wrap.WrapReverse => "wrap-reverse",
+                _ => "wrap"
+            };
+        private static string FlexDirectionToString(FlexDirection value) =>
+            value switch
+            {
+                UnityEngine.UIElements.FlexDirection.Column => "column",
+                UnityEngine.UIElements.FlexDirection.Row => "row",
+                UnityEngine.UIElements.FlexDirection.ColumnReverse => "column-reverse",
+                UnityEngine.UIElements.FlexDirection.RowReverse => "row-reverse",
+                _ => "row"
+            };
+        private static string CursorTypeToString(CursorType type) =>
+            type switch
+            {
+                CursorType.Text => "text",
+                CursorType.ResizeVertical => "resize-vertical",
+                CursorType.ResizeHorizontal => "resize-horizontal",
+                CursorType.Link => "link",
+                CursorType.SlideArrow => "slide-arrow",
+                CursorType.ResizeUpRight => "resize-up-right",
+                CursorType.ResizeUpLeft => "resize-up-left",
+                CursorType.MoveArrow => "move-arrow",
+                CursorType.RotateArrow => "rotate-arrow",
+                CursorType.ScaleArrow => "scale-arrow",
+                CursorType.ArrowPlus => "arrow-plus",
+                CursorType.ArrowMinus => "arrow-minus",
+                CursorType.Pan => "pan",
+                CursorType.Orbit => "orbit",
+                CursorType.Zoom => "zoom",
+                CursorType.Fps => "fps",
+                CursorType.SplitResizeUpDown => "split-resize-up-down",
+                CursorType.SplitResizeLeftRight => "split-resize-left-right",
+                CursorType.Arrow => "arrow",
+                _ => "arrow",
+            };
         private static string DisplayToString(DisplayStyle style) =>
             style switch
             {
@@ -188,5 +261,29 @@ namespace UI.Li.USS
         
         private static string Sanitize(string value) =>
             value.Replace("-", "_");
+    }
+
+    //TODO: change to proper cursor type and handle resource links
+    public enum CursorType
+    {
+        Arrow,
+        Text,
+        ResizeVertical,
+        ResizeHorizontal,
+        Link,
+        SlideArrow,
+        ResizeUpRight,
+        ResizeUpLeft,
+        MoveArrow,
+        RotateArrow,
+        ScaleArrow,
+        ArrowPlus,
+        ArrowMinus,
+        Pan,
+        Orbit,
+        Zoom,
+        Fps,
+        SplitResizeUpDown,
+        SplitResizeLeftRight
     }
 }
