@@ -156,7 +156,7 @@ namespace UI.Li.USS
             var newUSS = new USS(this);
             
             if (value != null)
-                newUSS.properties["color"] = value;
+                newUSS.properties[name] = value;
             
             return newUSS;
         }
