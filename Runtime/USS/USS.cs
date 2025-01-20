@@ -18,9 +18,19 @@ namespace UI.Li.USS
         [PublicAPI]
         public class USSBuilder
         {
+            private string className;
             private SortedDictionary<string, string> properties = new();
+            private SortedDictionary<string, USS> nested = new();
 
-            public static implicit operator USS(USSBuilder builder) => new(builder.properties);
+            public USSBuilder(string className = null) => this.className = className;
+            
+            public static implicit operator USS(USSBuilder builder) => new(builder.className, builder.properties, builder.nested);
+
+            public USSBuilder Select(string selector, USS style)
+            {
+                nested[selector] = style;
+                return this;
+            }
             
             public USSBuilder AlignContent(StyleEnum<Align> alignment) => WithProperty("align-content", alignment.AsUssString());
             public USSBuilder AlignItems(StyleEnum<Align> alignment) => WithProperty("align-items", alignment.AsUssString());
@@ -115,15 +125,23 @@ namespace UI.Li.USS
         }
 
         public static USSBuilder Style => new();
-        
+        public static USSBuilder NamedStyle(string name) => new(name);
+
+        public string Selector => $".{ClassName}";
         public string ClassName => className ?? GetClassName();
         private string className;
         public string UssText => ussText ?? GetUssText();
         private string ussText;
 
         private SortedDictionary<string, string> properties;
+        private SortedDictionary<string, USS> nested;
 
-        public USS(SortedDictionary<string, string> properties) => this.properties = properties;
+        public USS(string className, SortedDictionary<string, string> properties, SortedDictionary<string, USS> nested)
+        {
+            this.className = className;
+            this.properties = new(properties);
+            this.nested = new(nested);
+        }
 
         public override string ToString() => ClassName;
         
@@ -135,9 +153,14 @@ namespace UI.Li.USS
 
             var builder = new StringBuilder();
 
+            foreach (var child in nested)
+                builder.Append(child.Key).Append(":").Append(child.Value.ClassName).Append("\n");
+            
+            builder.AppendLine("@");
+            
             foreach (var property in properties)
                 builder.Append(property.Key).Append(":").Append(property.Value).Append('\n');
-
+            
             byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(builder.ToString()));
 
             uint hash = BitConverter.ToUInt32(hashBytes, 0);
@@ -145,18 +168,30 @@ namespace UI.Li.USS
             return $"s{Sanitize(hash.ToString())}";
         }
 
-        public string GetUssText()
+        public string GetUssText(string overrideSelector = null)
         {
             var builder = new StringBuilder();
 
-            builder.Append('.').Append(ClassName).Append(" {\n")
-                .AppendJoin('\n', properties.Select(entry => $"\t{entry.Key}: {entry.Value};")).Append("\n}");
+            if (properties.Count > 0)
+            {
+                builder.Append(overrideSelector ?? Selector);
+                builder
+                    .Append(" {\n")
+                    .AppendJoin('\n', properties.Select(entry => $"\t{entry.Key}: {entry.Value};"))
+                    .Append("\n}");
+            }
+
+            if (nested.Count <= 0) return builder.ToString();
+
+            string prefix = $"{overrideSelector ?? ""}{Selector}";
+            
+            foreach (var nestedSelector in nested)
+                builder.Append('\n').Append(nestedSelector.Value.GetUssText(nestedSelector.Key.Replace("&", prefix)));
 
             return builder.ToString();
         }
         
-        private static string Sanitize(string value) =>
-            value.Replace("-", "_");
+        private static string Sanitize(string value) => value.Replace("-", "_");
     }
 
     //TODO: change to proper cursor type and handle resource links
