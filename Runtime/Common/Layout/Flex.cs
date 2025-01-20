@@ -25,7 +25,6 @@ namespace UI.Li.Common.Layout
         /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
         /// <returns></returns>
         [NotNull] public static Flex V([NotNull] IEnumerable<IComponent> content, FlexDirection direction = FlexDirection.Column, params IManipulator[] manipulators) => new(direction, content, manipulators);
-
         
         public override void Dispose()
         {
