@@ -172,6 +172,8 @@ namespace UI.Li.USS
         {
             var builder = new StringBuilder();
 
+            overrideSelector = overrideSelector?.Trim();
+
             if (properties.Count > 0)
             {
                 builder.Append(overrideSelector ?? Selector);
@@ -184,9 +186,14 @@ namespace UI.Li.USS
             if (nested.Count <= 0) return builder.ToString();
 
             string prefix = $"{overrideSelector ?? ""}{Selector}";
-            
+
             foreach (var nestedSelector in nested)
-                builder.Append('\n').Append(nestedSelector.Value.GetUssText(nestedSelector.Key.Replace("&", prefix)));
+            {
+                var nestedSelectors = nestedSelector.Key.Replace("&", prefix).Split(",").Select(x => x.Trim());
+                
+                foreach (string nestedSplitSelector in nestedSelectors)
+                    builder.Append('\n').Append(nestedSelector.Value.GetUssText(nestedSplitSelector));
+            }
 
             return builder.ToString();
         }
