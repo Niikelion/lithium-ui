@@ -18,7 +18,8 @@ namespace UI.Li.Common.Layout
         /// <param name="manipulators">manipulators <seealso cref="IManipulator"/></param>
         /// <returns></returns>
         [NotNull]
-        public static Box V(IComponent content = null, params IManipulator[] manipulators) => new(content, manipulators);
+        public static Box V(IComponent content = null, params IManipulator[] manipulators) =>
+            new(content, manipulators);
         
         public override void Dispose()
         {
@@ -47,6 +48,7 @@ namespace UI.Li.Common.Layout
             return ret;
         }
 
-        private Box(IComponent content, params IManipulator[] manipulators) : base(manipulators) => this.content = content;
+        private Box(IComponent content, params IManipulator[] manipulators) : base(manipulators) =>
+            this.content = content;
     }
 }

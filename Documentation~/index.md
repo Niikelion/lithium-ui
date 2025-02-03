@@ -113,7 +113,7 @@ Note, that every function except for `UseContext` needs to be called in the exac
 
 ```csharp
 if (some_condition)
-    ctx.Remember(5);
+    Remember(5);
 ```
 
 is not allowed when `some_condition` might change during component instance lifetime, because the `Remember` call may not happen for every render.

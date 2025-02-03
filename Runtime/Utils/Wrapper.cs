@@ -7,9 +7,11 @@ namespace UI.Li.Utils
     [PublicAPI]
     public abstract class Wrapper: IComponent
     {
-        protected readonly IComponent InnerComponent;
+        [NotNull] protected readonly IComponent InnerComponent;
 
         protected Wrapper(IComponent innerComponent) => InnerComponent = innerComponent;
+
+        public IComponent UnderlyingComponent => InnerComponent.UnderlyingComponent;
 
         protected VisualElement PreviouslyRendered { get; private set; }
 

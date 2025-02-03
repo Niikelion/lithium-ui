@@ -52,6 +52,8 @@ namespace UI.Li.Utils
                 remove => OnRender -= value;
             }
 
+            public IComponent UnderlyingComponent => this;
+
             [NotNull] private readonly Link link;
             private readonly VisualElement content = new();
 
@@ -86,6 +88,8 @@ namespace UI.Li.Utils
             remove => OnRender -= value;
         }
 
+        public IComponent UnderlyingComponent => this;
+        
         [NotNull] private readonly Link link;
         [NotNull] private readonly IComponent content;
         private readonly VisualElement dummyContent = new()

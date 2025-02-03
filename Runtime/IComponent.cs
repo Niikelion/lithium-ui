@@ -14,6 +14,14 @@ namespace UI.Li
         internal event Action<VisualElement> OnRender;
 
         /// <summary>
+        /// Returns component that registers in the hierarchy using `StartFrame`.
+        /// </summary>
+        /// <remarks>
+        /// It should look recursively to find viable component when current instance does not meet the criteria.
+        /// </remarks>
+        public IComponent UnderlyingComponent { get; }
+        
+        /// <summary>
         /// Renders given component. Consecutive returned values should be treated as new versions of the same component.
         /// </summary>
         /// <returns>VisualElement representing given component</returns>

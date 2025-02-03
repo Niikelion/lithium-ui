@@ -11,12 +11,14 @@ namespace UI.Li.Utils
     [PublicAPI] public sealed class LightComponent: IComponent
     {
         private event Action<VisualElement> OnRender;
-
+        
         event Action<VisualElement> IComponent.OnRender
         {
             add => OnRender += value;
             remove => OnRender -= value;
         }
+
+        public IComponent UnderlyingComponent => this;
 
         [NotNull] private readonly Func<VisualElement, VisualElement> renderer;
         private VisualElement previouslyRendered;
