@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using UI.Li.Utils;
 using UnityEngine.UIElements;
 
 namespace UI.Li.Common.Layout
@@ -8,7 +7,7 @@ namespace UI.Li.Common.Layout
     /// <summary>
     /// Composition representing <see cref="UnityEngine.UIElements.ScrollView"/>
     /// </summary>
-    [PublicAPI] public sealed class Scroll: Element
+    [PublicAPI] public sealed class Scroll: Element<ScrollView>
     {
         public enum Orientation
         {
@@ -39,27 +38,22 @@ namespace UI.Li.Common.Layout
 
         public override bool StateLayoutEquals(IComponent other) => other is Scroll;
 
-        protected override VisualElement GetElement(VisualElement source)
-        {
-            var element = Use<ScrollView>(source, true);
-
-            element.mode = mode;
-            element.verticalScroller.valueChanged += OnVerticalScrollChanged;
-            element.horizontalScroller.valueChanged += OnHorizontalScrollChanged;
-            
-            AddCleanup(element, () =>
-            {
-                element.verticalScroller.valueChanged -= OnVerticalScrollChanged;
-                element.horizontalScroller.valueChanged -= OnHorizontalScrollChanged;
-            });
-
-            return element;
-        }
-        
-        protected override VisualElement PrepareElement(VisualElement target)
+        protected override ScrollView PrepareElement(ScrollView target)
         {
             var ret = base.PrepareElement(target);
 
+            ret.mode = mode;
+            ret.verticalScroller.valueChanged += OnVerticalScrollChanged;
+            ret.horizontalScroller.valueChanged += OnHorizontalScrollChanged;
+            
+            AddCleanup(ret, () =>
+            {
+                ret.verticalScroller.valueChanged -= OnVerticalScrollChanged;
+                ret.horizontalScroller.valueChanged -= OnHorizontalScrollChanged;
+            });
+            
+            ret.Clear();
+            
             ret.Add(content.Render());
             
             return ret;

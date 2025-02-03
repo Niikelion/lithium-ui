@@ -59,3 +59,7 @@ public class Repaintable : Manipulator
 ## More Examples
 
 More manipulator implementations can be found [here](../../Runtime/Utils/Events.cs).
+
+## What's next?
+
+Equipped with the knowledge of manipulators, [you can learn about implementing custom elements](../advanced/custom-elements.md).

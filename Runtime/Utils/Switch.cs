@@ -12,6 +12,8 @@ namespace UI.Li.Utils
         [NotNull]
         public static SwitchWrapper V(IComponent content, int choice) => new(content, choice);
 
+        public IComponent UnderlyingComponent => this;
+
         public void Dispose() => content?.Dispose();
 
         private event Action<VisualElement> OnRender;

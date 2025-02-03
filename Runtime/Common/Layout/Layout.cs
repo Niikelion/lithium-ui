@@ -156,5 +156,26 @@ namespace UI.Li.Common.Layout
             bool reverse = false,
             params IManipulator[] manipulators
         ) => Li.Common.Layout.SplitArea.V(mainContent, secondaryContent, orientation, initialSize, reverse, manipulators);
+
+        /// <summary>
+        /// Creates dropdown popup component, see <see cref="Li.Common.Layout.DropdownPopup.V"/>
+        /// </summary>
+        /// <param name="popupProvider">popup provider</param>
+        /// <param name="popupContent">content of the popup</param>
+        /// <param name="content">content to show popup around</param>
+        /// <returns></returns>
+        [NotNull]
+        public static DropdownPopup DropdownPopup(
+            [NotNull] DropdownPopup.Handler popupProvider,
+            [NotNull] IComponent popupContent,
+            [NotNull] IComponent content
+        ) => Li.Common.Layout.DropdownPopup.V(content, popupProvider, popupContent);
+
+        /// <summary>
+        /// Creates dropdown popup provider for dropdown popup
+        /// </summary>
+        /// <returns></returns>
+        [NotNull]
+        public static DropdownPopup.Handler ProvideDropdown() => Li.Common.Layout.DropdownPopup.Provide();
     }
 }

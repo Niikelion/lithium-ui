@@ -1,11 +1,11 @@
 <p align="center"><img src="Assets~/logo.png" alt="lithium-ui-logo"/></p>
 
-# Lithium UI - reactive ui framework for Unity Editor
+# Lithium UI - reactive ui framework for Unity
 
 ## Description
 
-Lithium is an ui framework built on top of UI Elements designed to simplify editor tools creation by minimising time and effort required to develop ui for such tool.
-By combining advantages of both ImGui and UI Elements, lithium provides alternative way to define your ui.
+Lithium is an ui framework built on top of UI Toolkit designed to simplify editor tools creation by minimising time and effort required to develop ui for such tool.
+By combining advantages of both ImGui and UI Toolkit, lithium provides alternative way to define your ui.
 For more information see [documentation](Documentation~/index.md).
 
 ## Why to use Lithium
@@ -13,17 +13,17 @@ For more information see [documentation](Documentation~/index.md).
 There are a couple of reasons why you should give Lithium a try in your next project, it:
 
 * is more readable than ImGui,
-* provides easy way to define your editor ui from code alongside its functionality,
-* eliminates the need for querying elements in hierarchy which helps to detect structure errors on compile-time,
+* provides easy way to define your ui from code alongside its functionality,
+* eliminates the need for querying elements in hierarchy which helps to eliminate structure mismatch errors,
 * allows you to reduce data explicitly passed to elements and remove singletons thanks to context system,
-* considerably reduces amount of code needed to implement given ui compared to UI Elements
+* considerably reduces amount of code needed to implement given ui compared to UI Toolkit
 * simplifies ui logic by defining ui structure based on current state rather than defining initial state and update logic.
 
 ## Why not to use Lithium
 
 That being said, Lithium does not work in every scenario.
 Because layouts are defined from code it is not very ui-designer-friendly.
-This makes it not the best choice for in-game interfaces for now.
+Also, since it is built on top of UI Toolkit, it also has most of the problem of UI Toolkit, such as no word-space ui.
 
 ## Examples
 
@@ -108,6 +108,7 @@ V3 roadmap:
 - [x] better error handling
 - [x] auto-batching re-renders caused by updates from built-in events
 - [ ] unit tests to improve stability
+- [x] static style extraction
 
 Future releases:
 
@@ -116,14 +117,14 @@ Future releases:
 - [ ] global pooling of `VisualElement`s
 - [ ] pooling of components
 - [ ] further caching optimizations
-- [ ] static style extraction
 - [ ] better async handling with tasks that can report status
 
-## UI Elements interoperability
+## UI Toolkit interoperability
 
-Lithium is built on top of UI Elements, which allows for almost seamless interoperability between them.
+Lithium is built on top of UI Toolkit, which allows for almost seamless interoperability between them.
 
 `CompositionRenderer` can be used to generate `VisualElement`s structure from Lithium layout, which you can later insert into your ui document.
+You can also extend `ComposableDocument` to create `MonoBehaviour` that renders your lithium ui inside the game or `ComposableElement` if you want to embed Lithium inside your UI Toolkit ui.
 
 Using `VisualElements`s inside Lithium on the other hand requires a bit more work. You need to implement custom `IComponent` or extend `Element`.
 To see how is can be done take a look at [text implementation](Runtime/Common/Text.cs).

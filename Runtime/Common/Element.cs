@@ -13,6 +13,8 @@ namespace UI.Li.Common
     /// <remarks>Good base class for compositions that supports styling and callbacks of <see cref="VisualElement"/></remarks>
     [PublicAPI] public class Element: IComponent
     {
+        public IComponent UnderlyingComponent => this;
+
         private event Action<VisualElement> OnRender;
 
         event Action<VisualElement> IComponent.OnRender

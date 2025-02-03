@@ -127,3 +127,7 @@ public class Foo
 ## More Examples
 
 More element implementations can be found [here](../../Runtime/Common).
+
+## What's next?
+
+Next up on the list is, [learning about custom variable types](../advanced/custom-elements.md).

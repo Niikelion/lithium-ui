@@ -17,7 +17,9 @@ namespace UI.Li.Utils
     {
         [NotNull] private readonly object[] vars;
         private readonly IComponent innerComponent;
-        
+
+        public IComponent UnderlyingComponent => this;
+
         public void Dispose()
         {
             throw new NotImplementedException();

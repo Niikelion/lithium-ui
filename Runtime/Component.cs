@@ -14,6 +14,8 @@ namespace UI.Li
         public delegate IComponent OldStatefulComponent(ComponentState state);
         public delegate IComponent StatefulComponent();
 
+        public IComponent UnderlyingComponent => this;
+
         private event Action<VisualElement> OnRender;
         event Action<VisualElement> IComponent.OnRender
         {

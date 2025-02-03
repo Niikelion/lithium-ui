@@ -8,7 +8,7 @@ namespace UI.Li.Utils
     /// <see cref="VisualElement"/> designed for easier use of components inside UI Elements.
     /// </summary>
     /// <seealso cref="ComponentRenderer"/>
-    /// <remarks>Element may need manual disposing. See <see cref="SetContent"/> for more details.</remarks>
+    /// <remarks>Element may need manual disposing. See <see cref="SetContent(Func{IComponent}, bool)"/> for more details.</remarks>
     [PublicAPI] public class ComposableElement: VisualElement, IDisposable
     {
         public bool NeedsDisposing { get; private set; }
