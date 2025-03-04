@@ -1,7 +1,7 @@
 ﻿# Quick start guide
 ## Requirements
 
-Before we start you need to install unity editor 2022.2 or newer as older versions do not support UI Elements based editors and property drawers.
+Before we start you need to install unity editor 6000.0 or newer as older versions do not support UI Elements based editors and property drawers.
 
 ## EditorWindow, custom Editor or Property Drawer?
 
